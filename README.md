@@ -4,4 +4,4 @@ Simulating Portfolio with Arbiter.
 
 ## Usage
 
-TODO
+For the moment, use `build.sh` to generate bindings.
