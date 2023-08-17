@@ -1,41 +1,40 @@
+use anyhow::Result;
+use arbiter_core::bindings::*;
 use arbiter_core::manager::Manager;
 use arbiter_core::middleware::RevmMiddleware;
 use ethers::providers::Middleware;
-use std::{error::Error, sync::Arc};
-
-use crate::bindings::counter::Counter;
+use std::sync::Arc;
 
 mod bindings;
+mod startup;
 
-const TEST_ENV_LABEL: &str = "test";
+// Environment
+const ENV_LABEL: &str = "portfolio";
+
+// Tokens
+const ARBITER_TOKEN_X_NAME: &str = "Arbiter Token X";
+const ARBITER_TOKEN_X_SYMBOL: &str = "Arbiter Token X";
+const ARBITER_TOKEN_X_DECIMALS: u8 = 18;
+
+const ARBITER_TOKEN_Y_NAME: &str = "Arbiter Token Y";
+const ARBITER_TOKEN_Y_SYMBOL: &str = "Arbiter Token Y";
+const ARBITER_TOKEN_Y_DECIMALS: u8 = 18;
 
 #[tokio::main]
-pub async fn main() -> Result<(), Box<dyn Error>> {
+pub async fn main() -> Result<()> {
     let mut manager = Manager::new();
-    let _ = manager.add_environment(TEST_ENV_LABEL, 1.0, 1);
+    manager.add_environment(ENV_LABEL, 1.0, 1)?;
 
-    let client_with_signer = Arc::new(RevmMiddleware::new(
-        manager.environments.get(TEST_ENV_LABEL).unwrap(),
-        None,
+    let client = Arc::new(RevmMiddleware::new(
+        manager.environments.get(ENV_LABEL).unwrap(),
+        Some("client".to_string()),
     ));
     println!(
         "created client with address {:?}",
-        client_with_signer.default_sender().unwrap()
+        client.default_sender().unwrap()
     );
-    manager.start_environment(TEST_ENV_LABEL)?;
-
-    let counter = Counter::deploy(client_with_signer.clone(), ())?
-        .send()
-        .await?;
-    println!("Counter contract deployed at {:?}", counter.address());
-
-    for index in 0..10 {
-        let _ = counter.increment().send().await?.await?;
-        println!("Counter incremented to {}", index + 1);
-    }
-    // post state mutation call to show that the state has changed with send
-    let count = counter.number().call().await?;
-    println!("Counter count is {}", count);
+    manager.start_environment(ENV_LABEL)?;
+    startup::deploy_initial_contracts(client.clone()).await?;
 
     Ok(())
 }
