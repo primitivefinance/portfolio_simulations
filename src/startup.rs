@@ -139,9 +139,13 @@ pub async fn initialize_portfolio(portfolio: portfolio::Portfolio<RevmMiddleware
 
     // Get the strategy_args
     let strike_price_wad = arbiter_core::math::float_to_wad(STRIKE_PRICE);
-    let volatility_basis_points = arbiter_core::math::float_to_wad(VOLATILITY_BASIS_POINTS);
-    let duration_seconds = arbiter_core::math::float_to_wad(TIME_REMAINING_YEARS * 365.25 * 24.0 * 60.0 * 60.0);
+    println!("strike_price_wad: {:?}", strike_price_wad);
+    let volatility_basis_points = ethers::types::U256::from((VOLATILITY_BASIS_POINTS * BASIS_POINT_DIVISOR) as u32);
+    println!("volatility_basis_points: {:?}", volatility_basis_points);
+    let duration_seconds = arbiter_core::math::float_to_wad(TIME_REMAINING_YEARS * SECONDS_PER_YEAR);
+    println!("duration_seconds: {:?}", duration_seconds);
     let price_wad = arbiter_core::math::float_to_wad(INITIAL_PRICE);
+    println!("price_wad: {:?}", price_wad);
     let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = normal_strategy.get_strategy_data(strike_price_wad, volatility_basis_points, duration_seconds, IS_PERPETUAL, price_wad).call().await?;
     info!("got strategy args: {:?}", strategy_args);
 

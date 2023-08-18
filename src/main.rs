@@ -34,7 +34,7 @@ const BLOCK_RATE: f64 = 10.0;
 const BLOCK_SEED: u64 = 0;
 
 // Price and time
-const INITIAL_PRICE: f64 = 1000.0;
+const INITIAL_PRICE: f64 = 1.0;
 const PRICE_MEAN: f64 = 1.0;
 const PRICE_STD_DEV: f64 = 0.1;
 const PRICE_THETA: f64 = 0.01;
@@ -43,12 +43,14 @@ const T_N: f64 = 1.0;
 const NUM_STEPS: usize = 10;
 
 // Portfolio pool settings
-const VOLATILITY_BASIS_POINTS: f64 = 0.01;
+const VOLATILITY_BASIS_POINTS: f64 = 10_f64;
 const STRIKE_PRICE: f64 = 1.0;
 const TIME_REMAINING_YEARS: f64 = 1.0;
 const IS_PERPETUAL: bool = true;
 const FEE_BASIS_POINTS: u16 = 10;
 const PRIORITY_FEE_BASIS_POINTS: u16= 0;
+const BASIS_POINT_DIVISOR: f64 = 10_000.0;
+const SECONDS_PER_YEAR: f64 = 31556953_f64;
 
 
 
