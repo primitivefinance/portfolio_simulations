@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 mod bindings;
 mod startup;
+mod strategies;
 
 pub type Client = Arc<RevmMiddleware>;
 
@@ -32,7 +33,16 @@ const ARBITER_TOKEN_Y_DECIMALS: u8 = 18;
 const BLOCK_RATE: f64 = 10.0;
 const BLOCK_SEED: u64 = 0;
 
-const INITIAL_PRICE: u64 = 1000;
+// Price and time
+const INITIAL_PRICE: f64 = 1000.0;
+const PRICE_MEAN: f64 = 1.0;
+const PRICE_STD_DEV: f64 = 0.1;
+const PRICE_THETA: f64 = 0.01;
+const T_0: f64 = 0.0;
+const T_N: f64 = 1.0;
+const NUM_STEPS: usize = 10;
+
+
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
@@ -53,8 +63,18 @@ pub async fn main() -> Result<()> {
         liquid_exchange.address(),
         portfolio.address(),
     ];
-
     startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
+
+    // This copy of the liquid exchange used here is the one with the admin client.
+    let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
+
+    // Run a loop to change the prices
+    for index in 0..NUM_STEPS {
+        info!("\n
+        Step {}", index);
+        price_changer.update_price().await?;
+        info!("Price is now {}", liquid_exchange.price().call().await?);
+    }
 
     Ok(())
 }

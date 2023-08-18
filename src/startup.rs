@@ -79,7 +79,7 @@ pub async fn deploy_contracts(
     // Deploy the liquid exchange contract
     let liquid_exchange = liquid_exchange::LiquidExchange::deploy(
         client.clone(),
-        (arbx.address(), arby.address(), INITIAL_PRICE),
+        (arbx.address(), arby.address(), arbiter_core::math::float_to_wad(INITIAL_PRICE)),
     )?
     .send()
     .await?;
