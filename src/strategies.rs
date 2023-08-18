@@ -1,6 +1,9 @@
 use super::*;
 
-use arbiter_core::{math::{ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories}, bindings::liquid_exchange::LiquidExchange};
+use arbiter_core::{
+    bindings::liquid_exchange::LiquidExchange,
+    math::{ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
+};
 pub struct PriceChanger {
     pub trajectory: Trajectories,
     pub liquid_exchange: liquid_exchange::LiquidExchange<RevmMiddleware>,

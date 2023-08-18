@@ -1,10 +1,16 @@
-use crate::bindings::{portfolio::portfolio, normal_strategy::{self, NormalStrategy}};
+use crate::bindings::{
+    normal_strategy::{self, NormalStrategy},
+    portfolio::portfolio,
+};
 
 use super::*;
 
 use arbiter_core::bindings::arbiter_token;
-use ethers::{types::{Address, U256}, prelude::EthLogDecode};
-use portfolio::{CreatePoolCall, CreatePairCall, GetStrategyCall};
+use ethers::{
+    prelude::EthLogDecode,
+    types::{Address, U256},
+};
+use portfolio::CreatePoolCall;
 
 /// Initialize the environment and an admin client
 pub fn initialize() -> Result<(Manager, Client, Client)> {
@@ -81,7 +87,11 @@ pub async fn deploy_contracts(
     // Deploy the liquid exchange contract
     let liquid_exchange = liquid_exchange::LiquidExchange::deploy(
         client.clone(),
-        (arbx.address(), arby.address(), arbiter_core::math::float_to_wad(INITIAL_PRICE)),
+        (
+            arbx.address(),
+            arby.address(),
+            arbiter_core::math::float_to_wad(INITIAL_PRICE),
+        ),
     )?
     .send()
     .await?;
@@ -100,13 +110,22 @@ pub async fn deploy_contracts(
     info!("portfolio contract deployed at {:?}", portfolio.address());
 
     // Deploy the normal strategy contract
-    let normal_strategy = normal_strategy::NormalStrategy::deploy(
-        client,
-        portfolio.address(),
-    )?.send().await?;
-    info!("normal strategy contract deployed at {:?}", normal_strategy.address());
+    let normal_strategy = normal_strategy::NormalStrategy::deploy(client, portfolio.address())?
+        .send()
+        .await?;
+    info!(
+        "normal strategy contract deployed at {:?}",
+        normal_strategy.address()
+    );
 
-    Ok((weth, arbx, arby, liquid_exchange, portfolio, normal_strategy))
+    Ok((
+        weth,
+        arbx,
+        arby,
+        liquid_exchange,
+        portfolio,
+        normal_strategy,
+    ))
 }
 
 /// Allocate out funds to all the relevant contracts and approve them all to spend.
@@ -116,7 +135,11 @@ pub async fn allocate_and_approve(
 ) -> Result<()> {
     for address in addresses {
         for token in tokens.clone() {
-            token.mint(address, U256::from(u128::MAX)).send().await?.await?;
+            token
+                .mint(address, U256::from(u128::MAX))
+                .send()
+                .await?
+                .await?;
             token.approve(address, U256::MAX).send().await?.await?;
         }
         info!(
@@ -127,27 +150,32 @@ pub async fn allocate_and_approve(
     Ok(())
 }
 
-pub async fn initialize_portfolio(portfolio: portfolio::Portfolio<RevmMiddleware>, normal_strategy: NormalStrategy<RevmMiddleware>, asset: Address, quote: Address) -> Result<()> {
+pub async fn initialize_portfolio(
+    portfolio: portfolio::Portfolio<RevmMiddleware>,
+    normal_strategy: NormalStrategy<RevmMiddleware>,
+    asset: Address,
+    quote: Address,
+) -> Result<()> {
     // Create a pair
-    portfolio
-        .create_pair(asset, quote)
-        .send()
-        .await?
-        .await?;
+    portfolio.create_pair(asset, quote).send().await?.await?;
     let pair_id = portfolio.get_pair_id(asset, quote).call().await?;
     info!("created a pair with pair_id: {:?}", pair_id);
 
     // Get the strategy_args
     let strike_price_wad = arbiter_core::math::float_to_wad(STRIKE_PRICE);
-    println!("strike_price_wad: {:?}", strike_price_wad);
-    let volatility_basis_points = ethers::types::U256::from((VOLATILITY_BASIS_POINTS * BASIS_POINT_DIVISOR) as u32);
-    println!("volatility_basis_points: {:?}", volatility_basis_points);
-    let duration_seconds = arbiter_core::math::float_to_wad(TIME_REMAINING_YEARS * SECONDS_PER_YEAR);
-    println!("duration_seconds: {:?}", duration_seconds);
+    let volatility_basis_points = ethers::types::U256::from(VOLATILITY_BASIS_POINTS);
+    let duration_seconds = ethers::types::U256::from(TIME_REMAINING_YEARS * SECONDS_PER_YEAR);
     let price_wad = arbiter_core::math::float_to_wad(INITIAL_PRICE);
-    println!("price_wad: {:?}", price_wad);
-    let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = normal_strategy.get_strategy_data(strike_price_wad, volatility_basis_points, duration_seconds, IS_PERPETUAL, price_wad).call().await?;
-    info!("got strategy args: {:?}", strategy_args);
+    let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = normal_strategy
+        .get_strategy_data(
+            strike_price_wad,
+            volatility_basis_points,
+            duration_seconds,
+            IS_PERPETUAL,
+            price_wad,
+        )
+        .call()
+        .await?;
 
     // Create a pool
     let CreatePoolCall {
@@ -169,17 +197,28 @@ pub async fn initialize_portfolio(portfolio: portfolio::Portfolio<RevmMiddleware
         strategy: Address::default(), // address(0) == default strategy
         strategy_args,
     };
-    
+
     let create_pool_output = portfolio
-        .create_pool(pair_id, reserve_x_per_wad, reserve_y_per_wad, fee_basis_points, priority_fee_basis_points, controller, strategy, strategy_args)
+        .create_pool(
+            pair_id,
+            reserve_x_per_wad,
+            reserve_y_per_wad,
+            fee_basis_points,
+            priority_fee_basis_points,
+            controller,
+            strategy,
+            strategy_args,
+        )
         .send()
         .await?
         .await?
         .unwrap();
-    let create_pool_log = create_pool_output.logs[0].clone();
-    let portfolio_event = portfolio::PortfolioEvents::decode_log(&create_pool_log.into())?;
-    
-    info!("created a pool with address: {:?}", portfolio_event);
+
+    // The 2nd log is the one we want
+    let create_pool_log = create_pool_output.logs[1].clone();
+    let portfolio_event = portfolio::PortfolioEvents::decode_log(&create_pool_log.into()).unwrap();
+
+    info!("created a pool with data: {:?}", portfolio_event);
 
     Ok(())
 }

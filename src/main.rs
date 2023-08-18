@@ -40,19 +40,16 @@ const PRICE_STD_DEV: f64 = 0.1;
 const PRICE_THETA: f64 = 0.01;
 const T_0: f64 = 0.0;
 const T_N: f64 = 1.0;
-const NUM_STEPS: usize = 10;
+const NUM_STEPS: usize = 3;
 
 // Portfolio pool settings
-const VOLATILITY_BASIS_POINTS: f64 = 10_f64;
+const VOLATILITY_BASIS_POINTS: u16 = 10;
 const STRIKE_PRICE: f64 = 1.0;
-const TIME_REMAINING_YEARS: f64 = 1.0;
+const TIME_REMAINING_YEARS: u64 = 1;
 const IS_PERPETUAL: bool = true;
 const FEE_BASIS_POINTS: u16 = 10;
-const PRIORITY_FEE_BASIS_POINTS: u16= 0;
-const BASIS_POINT_DIVISOR: f64 = 10_000.0;
-const SECONDS_PER_YEAR: f64 = 31556953_f64;
-
-
+const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
+const SECONDS_PER_YEAR: u64 = 31556953;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
@@ -74,15 +71,19 @@ pub async fn main() -> Result<()> {
         portfolio.address(),
     ];
     startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
-    startup::initialize_portfolio(portfolio, normal_strategy, arbx.address(), arby.address()).await?;
+    startup::initialize_portfolio(portfolio, normal_strategy, arbx.address(), arby.address())
+        .await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
     let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
 
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
-        info!("\n
-        Step {}", index);
+        info!(
+            "\n
+        Step {}",
+            index
+        );
         price_changer.update_price().await?;
         info!("Price is now {}", liquid_exchange.price().call().await?);
     }
