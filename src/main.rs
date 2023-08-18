@@ -42,6 +42,14 @@ const T_0: f64 = 0.0;
 const T_N: f64 = 1.0;
 const NUM_STEPS: usize = 10;
 
+// Portfolio pool settings
+const VOLATILITY_BASIS_POINTS: f64 = 0.01;
+const STRIKE_PRICE: f64 = 1.0;
+const TIME_REMAINING_YEARS: f64 = 1.0;
+const IS_PERPETUAL: bool = true;
+const FEE_BASIS_POINTS: u16 = 10;
+const PRIORITY_FEE_BASIS_POINTS: u16= 0;
+
 
 
 #[tokio::main]
@@ -53,10 +61,10 @@ pub async fn main() -> Result<()> {
     env_logger::init();
 
     let (_manager, admin, client) = startup::initialize()?;
-    let (_weth, arbx, arby, liquid_exchange, portfolio) =
+    let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy) =
         startup::deploy_contracts(admin.clone()).await?;
 
-    let tokens = vec![arbx.clone(), arby];
+    let tokens = vec![arbx.clone(), arby.clone()];
     let addresses_to_allocate_and_approve = vec![
         admin.default_sender().unwrap(),
         client.default_sender().unwrap(),
@@ -64,6 +72,7 @@ pub async fn main() -> Result<()> {
         portfolio.address(),
     ];
     startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
+    startup::initialize_portfolio(portfolio, normal_strategy, arbx.address(), arby.address()).await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
     let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
