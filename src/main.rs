@@ -2,6 +2,7 @@ use anyhow::Result;
 use arbiter_core::bindings::*;
 use arbiter_core::manager::Manager;
 use arbiter_core::middleware::RevmMiddleware;
+use bindings::portfolio::AllocateCall;
 use ethers::providers::Middleware;
 use log::info;
 use std::sync::Arc;
@@ -34,15 +35,22 @@ const BLOCK_RATE: f64 = 10.0;
 const BLOCK_SEED: u64 = 0;
 
 // Price and time
-const INITIAL_PRICE: f64 = 1000.0;
+const INITIAL_PRICE: f64 = 1.0;
 const PRICE_MEAN: f64 = 1.0;
 const PRICE_STD_DEV: f64 = 0.1;
 const PRICE_THETA: f64 = 0.01;
 const T_0: f64 = 0.0;
 const T_N: f64 = 1.0;
-const NUM_STEPS: usize = 10;
+const NUM_STEPS: usize = 3;
 
-
+// Portfolio pool settings
+const VOLATILITY_BASIS_POINTS: u16 = 10;
+const STRIKE_PRICE: f64 = 1.0;
+const TIME_REMAINING_YEARS: u64 = 1;
+const IS_PERPETUAL: bool = true;
+const FEE_BASIS_POINTS: u16 = 10;
+const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
+const SECONDS_PER_YEAR: u64 = 31556953;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
@@ -53,10 +61,10 @@ pub async fn main() -> Result<()> {
     env_logger::init();
 
     let (_manager, admin, client) = startup::initialize()?;
-    let (_weth, arbx, arby, liquid_exchange, portfolio) =
+    let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy) =
         startup::deploy_contracts(admin.clone()).await?;
 
-    let tokens = vec![arbx.clone(), arby];
+    let tokens = vec![&arbx, &arby];
     let addresses_to_allocate_and_approve = vec![
         admin.default_sender().unwrap(),
         client.default_sender().unwrap(),
@@ -64,14 +72,51 @@ pub async fn main() -> Result<()> {
         portfolio.address(),
     ];
     startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
+    let pool_id =
+        startup::initialize_portfolio(&portfolio, &normal_strategy, arbx.address(), arby.address())
+            .await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
     let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
 
+    // Provide funds to the portfolio pool
+    let AllocateCall {
+        use_max,
+        recipient,
+        pool_id,
+        delta_liquidity,
+        max_delta_asset,
+        max_delta_quote,
+    } = AllocateCall {
+        use_max: false,
+        recipient: admin.default_sender().unwrap(),
+        pool_id,
+        delta_liquidity: 10_u128.pow(18),
+        max_delta_asset: u128::MAX / 2_u128,
+        max_delta_quote: u128::MAX / 2_u128,
+    };
+    portfolio
+        .allocate(
+            use_max,
+            recipient,
+            pool_id,
+            delta_liquidity,
+            max_delta_asset,
+            max_delta_quote,
+        )
+        .send()
+        .await?
+        .await?;
+    let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
+    info!("allocated reserves: {:?}", reserves);
+
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
-        info!("\n
-        Step {}", index);
+        info!(
+            "\n
+        Step {}",
+            index
+        );
         price_changer.update_price().await?;
         info!("Price is now {}", liquid_exchange.price().call().await?);
     }
