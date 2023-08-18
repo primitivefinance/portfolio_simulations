@@ -130,7 +130,7 @@ pub async fn deploy_contracts(
 
 /// Allocate out funds to all the relevant contracts and approve them all to spend.
 pub async fn allocate_and_approve(
-    tokens: Vec<arbiter_token::ArbiterToken<RevmMiddleware>>,
+    tokens: Vec<&arbiter_token::ArbiterToken<RevmMiddleware>>,
     addresses: Vec<Address>,
 ) -> Result<()> {
     for address in addresses {
@@ -151,11 +151,11 @@ pub async fn allocate_and_approve(
 }
 
 pub async fn initialize_portfolio(
-    portfolio: portfolio::Portfolio<RevmMiddleware>,
-    normal_strategy: NormalStrategy<RevmMiddleware>,
+    portfolio: &portfolio::Portfolio<RevmMiddleware>,
+    normal_strategy: &NormalStrategy<RevmMiddleware>,
     asset: Address,
     quote: Address,
-) -> Result<()> {
+) -> Result<u64> {
     // Create a pair
     portfolio.create_pair(asset, quote).send().await?.await?;
     let pair_id = portfolio.get_pair_id(asset, quote).call().await?;
@@ -217,8 +217,11 @@ pub async fn initialize_portfolio(
     // The 2nd log is the one we want
     let create_pool_log = create_pool_output.logs[1].clone();
     let portfolio_event = portfolio::PortfolioEvents::decode_log(&create_pool_log.into()).unwrap();
-
-    info!("created a pool with data: {:?}", portfolio_event);
-
-    Ok(())
+    if let portfolio::PortfolioEvents::CreatePoolFilter(create_pool_filter) = portfolio_event {
+        let pool_id = create_pool_filter.pool_id;
+        info!("created a pool with pool_id: {:?}", pool_id);
+        Ok(pool_id)
+    } else {
+        panic!("expected a `CreatePool` event");
+    }
 }

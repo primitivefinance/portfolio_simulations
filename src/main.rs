@@ -2,6 +2,7 @@ use anyhow::Result;
 use arbiter_core::bindings::*;
 use arbiter_core::manager::Manager;
 use arbiter_core::middleware::RevmMiddleware;
+use bindings::portfolio::AllocateCall;
 use ethers::providers::Middleware;
 use log::info;
 use std::sync::Arc;
@@ -63,7 +64,7 @@ pub async fn main() -> Result<()> {
     let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy) =
         startup::deploy_contracts(admin.clone()).await?;
 
-    let tokens = vec![arbx.clone(), arby.clone()];
+    let tokens = vec![&arbx, &arby];
     let addresses_to_allocate_and_approve = vec![
         admin.default_sender().unwrap(),
         client.default_sender().unwrap(),
@@ -71,11 +72,43 @@ pub async fn main() -> Result<()> {
         portfolio.address(),
     ];
     startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
-    startup::initialize_portfolio(portfolio, normal_strategy, arbx.address(), arby.address())
-        .await?;
+    let pool_id =
+        startup::initialize_portfolio(&portfolio, &normal_strategy, arbx.address(), arby.address())
+            .await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
     let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
+
+    // Provide funds to the portfolio pool
+    let AllocateCall {
+        use_max,
+        recipient,
+        pool_id,
+        delta_liquidity,
+        max_delta_asset,
+        max_delta_quote,
+    } = AllocateCall {
+        use_max: false,
+        recipient: admin.default_sender().unwrap(),
+        pool_id,
+        delta_liquidity: 10_u128.pow(18),
+        max_delta_asset: u128::MAX / 2_u128,
+        max_delta_quote: u128::MAX / 2_u128,
+    };
+    portfolio
+        .allocate(
+            use_max,
+            recipient,
+            pool_id,
+            delta_liquidity,
+            max_delta_asset,
+            max_delta_quote,
+        )
+        .send()
+        .await?
+        .await?;
+    let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
+    info!("allocated reserves: {:?}", reserves);
 
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
