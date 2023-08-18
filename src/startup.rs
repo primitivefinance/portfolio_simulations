@@ -3,24 +3,35 @@ use crate::bindings::portfolio::portfolio;
 use super::*;
 
 use arbiter_core::bindings::arbiter_token;
-use ethers::types::Address;
+use ethers::types::{Address, U256};
 
 /// Initialize the environment and an admin client
-pub fn initialize() -> Result<(Manager, Client)> {
+pub fn initialize() -> Result<(Manager, Client, Client)> {
     // Create a manager and single environment using our predefined constants
     let mut manager = Manager::new();
     manager.add_environment(ENV_LABEL, BLOCK_RATE, BLOCK_SEED)?;
 
-    let client = Arc::new(RevmMiddleware::new(
+    let admin = Arc::new(RevmMiddleware::new(
         manager.environments.get(ENV_LABEL).unwrap(),
         Some(ADMIN_LABEL.to_string()),
     ));
     info!(
         "admin client with address {:?}",
-        client.default_sender().unwrap()
+        admin.default_sender().unwrap()
     );
     manager.start_environment(ENV_LABEL)?;
-    Ok((manager, client))
+
+    // Create another client for the simulation
+    let client = Arc::new(RevmMiddleware::new(
+        manager.environments.get(ENV_LABEL).unwrap(),
+        Some(CLIENT_LABEL.to_string()),
+    ));
+    info!(
+        "client client with address {:?}",
+        client.default_sender().unwrap()
+    );
+
+    Ok((manager, admin, client))
 }
 
 /// Deploy the contracts that we need for the simulations.
@@ -90,6 +101,19 @@ pub async fn deploy_contracts(
 }
 
 /// Allocate out funds to all the relevant contracts and approve them all to spend.
-pub async fn _allocate_and_approve() -> Result<()> {
-    todo!("Allocate out funds to all the relevant contracts and clients then approve them all to spend.")
+pub async fn allocate_and_approve(
+    tokens: Vec<arbiter_token::ArbiterToken<RevmMiddleware>>,
+    addresses: Vec<Address>,
+) -> Result<()> {
+    for address in addresses {
+        for token in tokens.clone() {
+            token.mint(address, U256::from(u128::MAX)).send().await?.await?;
+            token.approve(address, U256::MAX).send().await?.await?;
+        }
+        info!(
+            "allocated and approved address {:?} for both tokens.",
+            address
+        )
+    }
+    Ok(())
 }
