@@ -3,8 +3,8 @@ use arbiter_core::bindings::*;
 use arbiter_core::manager::Manager;
 use arbiter_core::middleware::RevmMiddleware;
 use ethers::providers::Middleware;
-use std::sync::Arc;
 use log::info;
+use std::sync::Arc;
 
 mod bindings;
 mod startup;
@@ -33,12 +33,11 @@ const INITIAL_PRICE: u64 = 1000;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
-        // Initialize the logger
-        if std::env::var("RUST_LOG").is_err() {
-            std::env::set_var("RUST_LOG", "debug");
-        }
-        env_logger::init();
-
+    // Initialize the logger
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "debug");
+    }
+    env_logger::init();
 
     let (_manager, admin) = startup::initialize()?;
     let (_weth, _arbx, _arby, _liquid_exchange, _portfolio) =

@@ -50,10 +50,7 @@ pub async fn deploy_contracts(
     )?
     .send()
     .await?;
-    info!(
-        "arbiter token x contract deployed at {:?}",
-        arbx.address()
-    );
+    info!("arbiter token x contract deployed at {:?}", arbx.address());
 
     // Deploy the arbiter token y contract
     let arby = arbiter_token::ArbiterToken::deploy(
@@ -66,10 +63,7 @@ pub async fn deploy_contracts(
     )?
     .send()
     .await?;
-    info!(
-        "arbiter token y contract deployed at {:?}",
-        arby.address()
-    );
+    info!("arbiter token y contract deployed at {:?}", arby.address());
 
     // Deploy the liquid exchange contract
     let liquid_exchange = liquid_exchange::LiquidExchange::deploy(
