@@ -17,6 +17,9 @@ const ENV_LABEL: &str = "portfolio";
 // Admin
 const ADMIN_LABEL: &str = "admin";
 
+// Secondary client
+const CLIENT_LABEL: &str = "client";
+
 // Tokens
 const ARBITER_TOKEN_X_NAME: &str = "Arbiter Token X";
 const ARBITER_TOKEN_X_SYMBOL: &str = "Arbiter Token X";
@@ -39,9 +42,19 @@ pub async fn main() -> Result<()> {
     }
     env_logger::init();
 
-    let (_manager, admin) = startup::initialize()?;
-    let (_weth, _arbx, _arby, _liquid_exchange, _portfolio) =
+    let (_manager, admin, client) = startup::initialize()?;
+    let (_weth, arbx, arby, liquid_exchange, portfolio) =
         startup::deploy_contracts(admin.clone()).await?;
+
+    let tokens = vec![arbx.clone(), arby];
+    let addresses_to_allocate_and_approve = vec![
+        admin.default_sender().unwrap(),
+        client.default_sender().unwrap(),
+        liquid_exchange.address(),
+        portfolio.address(),
+    ];
+
+    startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
 
     Ok(())
 }
