@@ -55,6 +55,7 @@ const IS_PERPETUAL: bool = true;
 const FEE_BASIS_POINTS: u16 = 10;
 const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
 const SECONDS_PER_YEAR: u64 = 31556953;
+const LIQUIDITY: u128 = 10_u128.pow(20);
 
 // Other
 // const WAD: u128 = 10_u128.pow(18);

@@ -248,7 +248,7 @@ pub async fn initialize_portfolio(
         use_max: false,
         recipient: lp_address,
         pool_id,
-        delta_liquidity: 10_u128.pow(18),
+        delta_liquidity: LIQUIDITY,
         max_delta_asset: u128::MAX / 2_u128,
         max_delta_quote: u128::MAX / 2_u128,
     };
