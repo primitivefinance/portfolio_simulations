@@ -1,5 +1,6 @@
 use anyhow::Result;
 use arbiter_core::bindings::*;
+use arbiter_core::bindings::liquid_exchange::LiquidExchange;
 use arbiter_core::manager::Manager;
 use arbiter_core::middleware::RevmMiddleware;
 use bindings::portfolio::AllocateCall;
@@ -110,15 +111,22 @@ pub async fn main() -> Result<()> {
     let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
     info!("allocated reserves: {:?}", reserves);
 
+    let mut arbitrageur = strategies::Arbitrageur::new(
+        LiquidExchange::new(liquid_exchange.address(), client.clone()),
+        bindings::portfolio::Portfolio::new(portfolio.address(), client.clone()),
+        pool_id,
+    ).await?;
+
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
         info!(
-            "\n
-        Step {}",
+            "\n\tStep {}",
             index
         );
         price_changer.update_price().await?;
-        info!("Price is now {}", liquid_exchange.price().call().await?);
+
+        let swap_direction = arbitrageur.detect_arbitrage().await?;
+        arbitrageur.execute_arbitrage(swap_direction).await?;
     }
 
     Ok(())
