@@ -169,7 +169,6 @@ impl Arbitrageur {
         let reserve_y = reserve_y * WAD.as_u128() / liquidity;
         info!("Reserves: {}, {}", reserve_x, reserve_y);
         let sigma = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        info!("Ratio: {}", ratio);
         // Note that in our units here, $\sqrt{\tau} = 1$.
 
         let mut innermost_term =
@@ -203,8 +202,8 @@ impl Arbitrageur {
         info!("Output ARBY: {}", output);
 
         Ok(Order {
-            input: input.as_u128(),
-            output: output.as_u128(),
+            input: input.as_u128() * liquidity / WAD.as_u128(),
+            output: output.as_u128() * liquidity / WAD.as_u128(),
             use_max: false,
             pool_id: self.pool_id,
             sell_asset,
@@ -224,7 +223,6 @@ impl Arbitrageur {
         info!("Reserves: {}, {}", reserve_x, reserve_y);
         let sigma = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
         let k = I256::from(STRIKE_PRICE as u64 * 10_u64.pow(18));
-        println!("Ratio: {}", ratio);
         // Note that in our units here, $\sqrt{\tau} = 1$.
         let mut innermost_term =
             (self.arbiter_math.log(I256::from_raw(ratio)).call().await? * wad) / sigma;
@@ -240,7 +238,7 @@ impl Arbitrageur {
         let cdf_term = self.arbiter_math.cdf(innermost_term).call().await?;
         info!("CDF term: {}", cdf_term);
 
-        let input = fee_inv * (k * cdf_term - I256::from(reserve_y));
+        let input = fee_inv * (k * cdf_term / I256::from_raw(WAD) - I256::from(reserve_y));
         info!("Input ARBY: {}", input);
 
         let sell_asset = false;
@@ -257,8 +255,8 @@ impl Arbitrageur {
         info!("Output ARBX: {}", output);
 
         Ok(Order {
-            input: input.as_u128(),
-            output: output.as_u128(),
+            input: input.as_u128() * liquidity / WAD.as_u128(),
+            output: output.as_u128() * liquidity / WAD.as_u128(),
             use_max: false,
             pool_id: self.pool_id,
             sell_asset,
