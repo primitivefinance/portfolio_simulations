@@ -41,29 +41,28 @@ const BLOCK_SEED: u64 = 0;
 // Price and time
 const INITIAL_PRICE: f64 = 1.0;
 const PRICE_MEAN: f64 = 1.0;
-const PRICE_STD_DEV: f64 = 0.1;
-const PRICE_THETA: f64 = 0.01;
+const PRICE_STD_DEV: f64 = 0.05;
+const PRICE_THETA: f64 = 0.1;
 const T_0: f64 = 0.0;
 const T_N: f64 = 1.0;
-const NUM_STEPS: usize = 3;
+const NUM_STEPS: usize = 10;
 
 // Portfolio pool settings
-const VOLATILITY_BASIS_POINTS: u16 = 10;
+const VOLATILITY_BASIS_POINTS: u16 = 100;
 const STRIKE_PRICE: f64 = 1.0;
 const TIME_REMAINING_YEARS: u64 = 1;
 const IS_PERPETUAL: bool = true;
 const FEE_BASIS_POINTS: u16 = 10;
 const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
 const SECONDS_PER_YEAR: u64 = 31556953;
-const LIQUIDITY: u128 = 10_u128.pow(20);
+const LIQUIDITY: u128 = 10_u128.pow(22);
 
 // Other
 // const WAD: u128 = 10_u128.pow(18);
-const WAD: ethers::types::U256 = ethers::types::U256([10_u64.pow(18),0,0,0]);
+const WAD: ethers::types::U256 = ethers::types::U256([10_u64.pow(18), 0, 0, 0]);
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
-    println!("WAD: {:?}", WAD);
     // Initialize the logger
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "debug");
@@ -74,9 +73,23 @@ pub async fn main() -> Result<()> {
     let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy, arbiter_math) =
         startup::deploy_contracts(admin.clone()).await?;
 
-    startup::allocate_and_approve(admin.clone(), arbitrageur.clone(), arbx.address(), arby.address(), liquid_exchange.address(), portfolio.address()).await?;
-    let pool_id =
-        startup::initialize_portfolio(&portfolio, &normal_strategy, arbx.address(), arby.address(), admin.default_sender().unwrap()).await?;
+    startup::allocate_and_approve(
+        admin.clone(),
+        arbitrageur.clone(),
+        arbx.address(),
+        arby.address(),
+        liquid_exchange.address(),
+        portfolio.address(),
+    )
+    .await?;
+    let pool_id = startup::initialize_portfolio(
+        &portfolio,
+        &normal_strategy,
+        arbx.address(),
+        arby.address(),
+        admin.default_sender().unwrap(),
+    )
+    .await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
     let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
@@ -96,9 +109,16 @@ pub async fn main() -> Result<()> {
         price_changer.update_price().await?;
 
         let swap_direction = arbitrageur.detect_arbitrage().await?;
-        info!("swap direction: {:?}", swap_direction);
+
         arbitrageur.execute_arbitrage(swap_direction).await?;
-        info!("Reserves are: {:?}", portfolio.get_pool_reserves(pool_id).call().await?);
+        info!(
+            "Portfolio price after swap is: {:?}",
+            portfolio.get_spot_price(pool_id).call().await?
+        );
+        info!(
+            "Reserves after swap are: {:?}",
+            portfolio.get_pool_reserves(pool_id).call().await?
+        );
     }
 
     Ok(())
