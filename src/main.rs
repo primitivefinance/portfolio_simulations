@@ -1,12 +1,15 @@
 use anyhow::Result;
-use arbiter_core::bindings::*;
+use arbiter_core::bindings::arbiter_token::ArbiterToken;
 use arbiter_core::bindings::liquid_exchange::LiquidExchange;
+use arbiter_core::bindings::*;
 use arbiter_core::manager::Manager;
 use arbiter_core::middleware::RevmMiddleware;
-use bindings::portfolio::AllocateCall;
+use bindings::portfolio::*;
 use ethers::providers::Middleware;
 use log::info;
 use std::sync::Arc;
+
+use ethers::types::I256;
 
 mod bindings;
 mod startup;
@@ -53,80 +56,48 @@ const FEE_BASIS_POINTS: u16 = 10;
 const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
 const SECONDS_PER_YEAR: u64 = 31556953;
 
+// Other
+// const WAD: u128 = 10_u128.pow(18);
+const WAD: ethers::types::U256 = ethers::types::U256([10_u64.pow(18),0,0,0]);
+
 #[tokio::main]
 pub async fn main() -> Result<()> {
+    println!("WAD: {:?}", WAD);
     // Initialize the logger
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "debug");
     }
     env_logger::init();
 
-    let (_manager, admin, client) = startup::initialize()?;
-    let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy) =
+    let (_manager, admin, arbitrageur) = startup::initialize()?;
+    let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy, arbiter_math) =
         startup::deploy_contracts(admin.clone()).await?;
 
-    let tokens = vec![&arbx, &arby];
-    let addresses_to_allocate_and_approve = vec![
-        admin.default_sender().unwrap(),
-        client.default_sender().unwrap(),
-        liquid_exchange.address(),
-        portfolio.address(),
-    ];
-    startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
+    startup::allocate_and_approve(admin.clone(), arbitrageur.clone(), arbx.address(), arby.address(), liquid_exchange.address(), portfolio.address()).await?;
     let pool_id =
-        startup::initialize_portfolio(&portfolio, &normal_strategy, arbx.address(), arby.address())
-            .await?;
+        startup::initialize_portfolio(&portfolio, &normal_strategy, arbx.address(), arby.address(), admin.default_sender().unwrap()).await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
     let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
 
-    // Provide funds to the portfolio pool
-    let AllocateCall {
-        use_max,
-        recipient,
-        pool_id,
-        delta_liquidity,
-        max_delta_asset,
-        max_delta_quote,
-    } = AllocateCall {
-        use_max: false,
-        recipient: admin.default_sender().unwrap(),
-        pool_id,
-        delta_liquidity: 10_u128.pow(18),
-        max_delta_asset: u128::MAX / 2_u128,
-        max_delta_quote: u128::MAX / 2_u128,
-    };
-    portfolio
-        .allocate(
-            use_max,
-            recipient,
-            pool_id,
-            delta_liquidity,
-            max_delta_asset,
-            max_delta_quote,
-        )
-        .send()
-        .await?
-        .await?;
-    let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
-    info!("allocated reserves: {:?}", reserves);
-
     let mut arbitrageur = strategies::Arbitrageur::new(
-        LiquidExchange::new(liquid_exchange.address(), client.clone()),
-        bindings::portfolio::Portfolio::new(portfolio.address(), client.clone()),
+        LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
+        bindings::portfolio::Portfolio::new(portfolio.address(), arbitrageur.clone()),
+        arbiter_math,
         pool_id,
-    ).await?;
+        arbitrageur.default_sender().unwrap(),
+    )
+    .await?;
 
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
-        info!(
-            "\n\tStep {}",
-            index
-        );
+        info!("\n\tStep {}", index);
         price_changer.update_price().await?;
 
         let swap_direction = arbitrageur.detect_arbitrage().await?;
+        info!("swap direction: {:?}", swap_direction);
         arbitrageur.execute_arbitrage(swap_direction).await?;
+        info!("Reserves are: {:?}", portfolio.get_pool_reserves(pool_id).call().await?);
     }
 
     Ok(())

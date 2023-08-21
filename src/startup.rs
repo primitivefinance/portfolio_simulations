@@ -51,6 +51,7 @@ pub async fn deploy_contracts(
     liquid_exchange::LiquidExchange<RevmMiddleware>,
     portfolio::Portfolio<RevmMiddleware>,
     normal_strategy::NormalStrategy<RevmMiddleware>,
+    arbiter_math::ArbiterMath<RevmMiddleware>,
 )> {
     // Deploy the weth contract
     let weth = bindings::weth::WETH::deploy(client.clone(), ())?
@@ -110,13 +111,18 @@ pub async fn deploy_contracts(
     info!("portfolio contract deployed at {:?}", portfolio.address());
 
     // Deploy the normal strategy contract
-    let normal_strategy = normal_strategy::NormalStrategy::deploy(client, portfolio.address())?
-        .send()
-        .await?;
+    let normal_strategy =
+        normal_strategy::NormalStrategy::deploy(client.clone(), portfolio.address())?
+            .send()
+            .await?;
     info!(
         "normal strategy contract deployed at {:?}",
         normal_strategy.address()
     );
+
+    let arbiter_math = arbiter_math::ArbiterMath::deploy(client, ())?
+        .send()
+        .await?;
 
     Ok((
         weth,
@@ -125,28 +131,37 @@ pub async fn deploy_contracts(
         liquid_exchange,
         portfolio,
         normal_strategy,
+        arbiter_math,
     ))
 }
 
 /// Allocate out funds to all the relevant contracts and approve them all to spend.
 pub async fn allocate_and_approve(
-    tokens: Vec<&arbiter_token::ArbiterToken<RevmMiddleware>>,
-    addresses: Vec<Address>,
+    admin: Client,
+    arbitrageur: Client,
+    arbx_address: Address,
+    arby_address: Address,
+    liquid_exchange_address: Address,
+    portfolio_address: Address,
 ) -> Result<()> {
-    for address in addresses {
-        for token in tokens.clone() {
-            token
-                .mint(address, U256::from(u128::MAX))
-                .send()
-                .await?
-                .await?;
-            token.approve(address, U256::MAX).send().await?.await?;
-        }
-        info!(
-            "allocated and approved address {:?} for both tokens.",
-            address
-        )
+    let admin_tokens = [ArbiterToken::new(arbx_address, admin.clone()), ArbiterToken::new(arby_address, admin.clone())];
+    let arbitrageur_tokens = [ArbiterToken::new(arbx_address, arbitrageur.clone()), ArbiterToken::new(arby_address, arbitrageur.clone())];
+    let admin_address = admin.default_sender().unwrap();
+    let arbitrageur_address = arbitrageur.default_sender().unwrap();
+
+    for token in admin_tokens {
+        token.mint(admin_address, U256::from(u128::MAX)).send().await?.await?;
+        token.mint(arbitrageur_address, U256::from(u128::MAX)).send().await?.await?;
+        token.mint(liquid_exchange_address, U256::from(u128::MAX)).send().await?.await?;
+        token.approve(portfolio_address, U256::from(u128::MAX)).send().await?.await?;
     }
+
+    for token in arbitrageur_tokens {
+        token.approve(liquid_exchange_address, U256::from(u128::MAX)).send().await?.await?;
+        token.approve(portfolio_address, U256::from(u128::MAX)).send().await?.await?;
+    }
+
+
     Ok(())
 }
 
@@ -155,6 +170,7 @@ pub async fn initialize_portfolio(
     normal_strategy: &NormalStrategy<RevmMiddleware>,
     asset: Address,
     quote: Address,
+    lp_address: Address,
 ) -> Result<u64> {
     // Create a pair
     portfolio.create_pair(asset, quote).send().await?.await?;
@@ -220,6 +236,36 @@ pub async fn initialize_portfolio(
     if let portfolio::PortfolioEvents::CreatePoolFilter(create_pool_filter) = portfolio_event {
         let pool_id = create_pool_filter.pool_id;
         info!("created a pool with pool_id: {:?}", pool_id);
+        // Provide funds to the portfolio pool
+     let AllocateCall {
+        use_max,
+        recipient,
+        pool_id,
+        delta_liquidity,
+        max_delta_asset,
+        max_delta_quote,
+    } = AllocateCall {
+        use_max: false,
+        recipient: lp_address,
+        pool_id,
+        delta_liquidity: 10_u128.pow(18),
+        max_delta_asset: u128::MAX / 2_u128,
+        max_delta_quote: u128::MAX / 2_u128,
+    };
+    portfolio
+        .allocate(
+            use_max,
+            recipient,
+            pool_id,
+            delta_liquidity,
+            max_delta_asset,
+            max_delta_quote,
+        )
+        .send()
+        .await?
+        .await?;
+    let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
+    info!("allocated reserves: {:?}", reserves);
         Ok(pool_id)
     } else {
         panic!("expected a `CreatePool` event");
