@@ -125,9 +125,8 @@ impl Arbitrageur {
                 let order = self.compute_order_input_x(ratio).await?;
                 info!("Order: {:?}", order);
                 match self.portfolio.swap(order).send().await {
-                    Ok(pending_tx) => {
-                        let receipt = pending_tx.await?.unwrap();    
-                        info!("Swap successful with logs: {:?}", receipt.logs);
+                    Ok(_pending_tx) => {
+                        info!("Swap successful");
                     },
                     Err(e) => {
                         let middleware_error = e.as_middleware_error().unwrap();
@@ -143,9 +142,8 @@ impl Arbitrageur {
                 let order = self.compute_order_input_y(ratio).await?;
                 info!("Order: {:?}", order);
                 match self.portfolio.swap(order).send().await {
-                    Ok(pending_tx) => {
-                        let receipt = pending_tx.await?.unwrap();    
-                        info!("Swap successful with logs: {:?}", receipt.logs);
+                    Ok(_pending_tx) => {
+                        info!("Swap successful");
                     },
                     Err(e) => {
                         let middleware_error = e.as_middleware_error().unwrap();
@@ -162,11 +160,13 @@ impl Arbitrageur {
     async fn compute_order_input_x(&self, ratio: U256) -> Result<Order> {
         let wad = I256::from_raw(WAD);
         let fee_inv = wad / I256::from_raw(self.pool_fee);
-        let (reserve_x, reserve_y) = self
+        let (reserve_x, reserve_y, liquidity, ..) = self
             .portfolio
-            .get_pool_reserves(self.pool_id)
+            .pools(self.pool_id)
             .call()
             .await?;
+        let reserve_x = reserve_x * WAD.as_u128() / liquidity;
+        let reserve_y = reserve_y * WAD.as_u128() / liquidity;
         info!("Reserves: {}, {}", reserve_x, reserve_y);
         let sigma = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
         info!("Ratio: {}", ratio);
@@ -178,7 +178,7 @@ impl Arbitrageur {
 
         innermost_term += self
             .arbiter_math
-            .ppf(wad - I256::from_raw(reserve_x))
+            .ppf(wad - I256::from(reserve_x))
             .call()
             .await?;
         info!("Innermost term second: {}", innermost_term);
@@ -186,7 +186,7 @@ impl Arbitrageur {
         let cdf_term = self.arbiter_math.cdf(innermost_term).call().await?;
         info!("CDF term: {}", cdf_term);
 
-        let input = fee_inv * (wad - I256::from_raw(reserve_x) - cdf_term);
+        let input = fee_inv * (wad - I256::from(reserve_x) - cdf_term);
         info!("Input ARBX: {}", input);
 
         let sell_asset = true;
@@ -214,11 +214,13 @@ impl Arbitrageur {
     async fn compute_order_input_y(&self, ratio: U256) -> Result<Order> {
         let wad = I256::from_raw(WAD);
         let fee_inv = wad / I256::from_raw(self.pool_fee);
-        let (reserve_x, reserve_y) = self
+        let (reserve_x, reserve_y, liquidity, ..) = self
             .portfolio
-            .get_pool_reserves(self.pool_id)
+            .pools(self.pool_id)
             .call()
             .await?;
+        let reserve_x = reserve_x * WAD.as_u128() / liquidity;
+        let reserve_y = reserve_y * WAD.as_u128() / liquidity;
         info!("Reserves: {}, {}", reserve_x, reserve_y);
         let sigma = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
         let k = I256::from(STRIKE_PRICE as u64 * 10_u64.pow(18));
@@ -229,7 +231,7 @@ impl Arbitrageur {
         info!("Innermost term first: {}", innermost_term);
         innermost_term += self
             .arbiter_math
-            .ppf(wad - I256::from_raw(reserve_x))
+            .ppf(wad - I256::from(reserve_x))
             .call()
             .await?
             - sigma;
@@ -238,7 +240,7 @@ impl Arbitrageur {
         let cdf_term = self.arbiter_math.cdf(innermost_term).call().await?;
         info!("CDF term: {}", cdf_term);
 
-        let input = fee_inv * (k * cdf_term - I256::from_raw(reserve_y));
+        let input = fee_inv * (k * cdf_term - I256::from(reserve_y));
         info!("Input ARBY: {}", input);
 
         let sell_asset = false;
