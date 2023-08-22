@@ -1,125 +1,95 @@
-use anyhow::Result;
-use arbiter_core::bindings::*;
-use arbiter_core::manager::Manager;
-use arbiter_core::middleware::RevmMiddleware;
-use bindings::portfolio::AllocateCall;
-use ethers::providers::Middleware;
-use log::info;
-use std::sync::Arc;
+use config::*;
+use startup::*;
+use strategies::*;
 
-mod bindings;
-mod startup;
-mod strategies;
-
-pub type Client = Arc<RevmMiddleware>;
-
-// Environment
-const ENV_LABEL: &str = "portfolio";
-
-// Admin
-const ADMIN_LABEL: &str = "admin";
-
-// Secondary client
-const CLIENT_LABEL: &str = "client";
-
-// Tokens
-const ARBITER_TOKEN_X_NAME: &str = "Arbiter Token X";
-const ARBITER_TOKEN_X_SYMBOL: &str = "Arbiter Token X";
-const ARBITER_TOKEN_X_DECIMALS: u8 = 18;
-
-const ARBITER_TOKEN_Y_NAME: &str = "Arbiter Token Y";
-const ARBITER_TOKEN_Y_SYMBOL: &str = "Arbiter Token Y";
-const ARBITER_TOKEN_Y_DECIMALS: u8 = 18;
-
-const BLOCK_RATE: f64 = 10.0;
-const BLOCK_SEED: u64 = 0;
-
-// Price and time
-const INITIAL_PRICE: f64 = 1.0;
-const PRICE_MEAN: f64 = 1.0;
-const PRICE_STD_DEV: f64 = 0.1;
-const PRICE_THETA: f64 = 0.01;
-const T_0: f64 = 0.0;
-const T_N: f64 = 1.0;
-const NUM_STEPS: usize = 3;
-
-// Portfolio pool settings
-const VOLATILITY_BASIS_POINTS: u16 = 10;
-const STRIKE_PRICE: f64 = 1.0;
-const TIME_REMAINING_YEARS: u64 = 1;
-const IS_PERPETUAL: bool = true;
-const FEE_BASIS_POINTS: u16 = 10;
-const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
-const SECONDS_PER_YEAR: u64 = 31556953;
+pub mod bindings;
+pub mod config;
+pub mod startup;
+pub mod strategies;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
     // Initialize the logger
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "debug");
+        std::env::set_var("RUST_LOG", "trace");
     }
     env_logger::init();
 
-    let (_manager, admin, client) = startup::initialize()?;
-    let (_weth, arbx, arby, liquid_exchange, portfolio, normal_strategy) =
-        startup::deploy_contracts(admin.clone()).await?;
+    let (mut manager, admin, arbitrageur) = initialize()?;
+    let SimulationContracts {
+        arbx,
+        arby,
+        liquid_exchange,
+        portfolio,
+        normal_strategy,
+        arbiter_math,
+    } = deploy_contracts(admin.clone()).await?;
 
-    let tokens = vec![&arbx, &arby];
-    let addresses_to_allocate_and_approve = vec![
-        admin.default_sender().unwrap(),
-        client.default_sender().unwrap(),
+    allocate_and_approve(
+        admin.clone(),
+        arbitrageur.clone(),
+        arbx.address(),
+        arby.address(),
         liquid_exchange.address(),
         portfolio.address(),
-    ];
-    startup::allocate_and_approve(tokens, addresses_to_allocate_and_approve).await?;
-    let pool_id =
-        startup::initialize_portfolio(&portfolio, &normal_strategy, arbx.address(), arby.address())
-            .await?;
+    )
+    .await?;
+
+    let pool_id = initialize_portfolio(
+        &portfolio,
+        &normal_strategy,
+        arbx.address(),
+        arby.address(),
+        admin.default_sender().unwrap(),
+    )
+    .await?;
 
     // This copy of the liquid exchange used here is the one with the admin client.
-    let mut price_changer = strategies::PriceChanger::new(liquid_exchange.clone());
+    let price_changer = PriceChanger::new(liquid_exchange.clone());
 
-    // Provide funds to the portfolio pool
-    let AllocateCall {
-        use_max,
-        recipient,
+    let arbitrageur = Arbitrageur::new(
+        LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
+        Portfolio::new(portfolio.address(), arbitrageur.clone()),
+        arbiter_math,
         pool_id,
-        delta_liquidity,
-        max_delta_asset,
-        max_delta_quote,
-    } = AllocateCall {
-        use_max: false,
-        recipient: admin.default_sender().unwrap(),
-        pool_id,
-        delta_liquidity: 10_u128.pow(18),
-        max_delta_asset: u128::MAX / 2_u128,
-        max_delta_quote: u128::MAX / 2_u128,
-    };
-    portfolio
-        .allocate(
-            use_max,
-            recipient,
-            pool_id,
-            delta_liquidity,
-            max_delta_asset,
-            max_delta_quote,
-        )
-        .send()
-        .await?
-        .await?;
-    let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
-    info!("allocated reserves: {:?}", reserves);
+        arbitrageur.default_sender().unwrap(),
+    )
+    .await?;
 
+    run(price_changer, arbitrageur).await?;
+
+    // Stop the environment
+    info!("Stopping the environment");
+    manager.stop_environment(ENV_LABEL)?;
+
+    Ok(())
+}
+
+async fn run(mut price_changer: PriceChanger, mut arbitrageur: Arbitrageur) -> Result<()> {
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
-        info!(
-            "\n
-        Step {}",
-            index
-        );
+        info!("\n\tStep {}", index);
         price_changer.update_price().await?;
-        info!("Price is now {}", liquid_exchange.price().call().await?);
-    }
 
+        let swap_direction = arbitrageur.detect_arbitrage().await?;
+
+        arbitrageur.execute_arbitrage(swap_direction).await?;
+        info!(
+            "Portfolio price after swap is: {:?}",
+            arbitrageur
+                .portfolio
+                .get_spot_price(arbitrageur.pool_id)
+                .call()
+                .await?
+        );
+        info!(
+            "Reserves after swap are: {:?}",
+            arbitrageur
+                .portfolio
+                .get_pool_reserves(arbitrageur.pool_id)
+                .call()
+                .await?
+        );
+    }
     Ok(())
 }

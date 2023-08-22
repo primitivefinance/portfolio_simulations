@@ -1,16 +1,4 @@
-use crate::bindings::{
-    normal_strategy::{self, NormalStrategy},
-    portfolio::portfolio,
-};
-
 use super::*;
-
-use arbiter_core::bindings::arbiter_token;
-use ethers::{
-    prelude::EthLogDecode,
-    types::{Address, U256},
-};
-use portfolio::CreatePoolCall;
 
 /// Initialize the environment and an admin client
 pub fn initialize() -> Result<(Manager, Client, Client)> {
@@ -42,24 +30,13 @@ pub fn initialize() -> Result<(Manager, Client, Client)> {
 }
 
 /// Deploy the contracts that we need for the simulations.
-pub async fn deploy_contracts(
-    client: Client,
-) -> Result<(
-    bindings::weth::WETH<RevmMiddleware>,
-    arbiter_token::ArbiterToken<RevmMiddleware>,
-    arbiter_token::ArbiterToken<RevmMiddleware>,
-    liquid_exchange::LiquidExchange<RevmMiddleware>,
-    portfolio::Portfolio<RevmMiddleware>,
-    normal_strategy::NormalStrategy<RevmMiddleware>,
-)> {
+pub async fn deploy_contracts(client: Client) -> Result<SimulationContracts> {
     // Deploy the weth contract
-    let weth = bindings::weth::WETH::deploy(client.clone(), ())?
-        .send()
-        .await?;
+    let weth = WETH::deploy(client.clone(), ())?.send().await?;
     info!("weth contract deployed at {:?}", weth.address());
 
     // Deploy the arbiter token x contract
-    let arbx = arbiter_token::ArbiterToken::deploy(
+    let arbx = ArbiterToken::deploy(
         client.clone(),
         (
             ARBITER_TOKEN_X_NAME.to_string(),
@@ -72,7 +49,7 @@ pub async fn deploy_contracts(
     info!("arbiter token x contract deployed at {:?}", arbx.address());
 
     // Deploy the arbiter token y contract
-    let arby = arbiter_token::ArbiterToken::deploy(
+    let arby = ArbiterToken::deploy(
         client.clone(),
         (
             ARBITER_TOKEN_Y_NAME.to_string(),
@@ -85,13 +62,9 @@ pub async fn deploy_contracts(
     info!("arbiter token y contract deployed at {:?}", arby.address());
 
     // Deploy the liquid exchange contract
-    let liquid_exchange = liquid_exchange::LiquidExchange::deploy(
+    let liquid_exchange = LiquidExchange::deploy(
         client.clone(),
-        (
-            arbx.address(),
-            arby.address(),
-            arbiter_core::math::float_to_wad(INITIAL_PRICE),
-        ),
+        (arbx.address(), arby.address(), float_to_wad(INITIAL_PRICE)),
     )?
     .send()
     .await?;
@@ -101,7 +74,7 @@ pub async fn deploy_contracts(
     );
 
     // Deploy the portfolio contract
-    let portfolio = portfolio::Portfolio::deploy(
+    let portfolio = Portfolio::deploy(
         client.clone(),
         (weth.address(), Address::default(), Address::default()),
     )?
@@ -110,7 +83,7 @@ pub async fn deploy_contracts(
     info!("portfolio contract deployed at {:?}", portfolio.address());
 
     // Deploy the normal strategy contract
-    let normal_strategy = normal_strategy::NormalStrategy::deploy(client, portfolio.address())?
+    let normal_strategy = NormalStrategy::deploy(client.clone(), portfolio.address())?
         .send()
         .await?;
     info!(
@@ -118,43 +91,83 @@ pub async fn deploy_contracts(
         normal_strategy.address()
     );
 
-    Ok((
-        weth,
+    let arbiter_math = ArbiterMath::deploy(client, ())?.send().await?;
+
+    Ok(SimulationContracts {
         arbx,
         arby,
         liquid_exchange,
         portfolio,
         normal_strategy,
-    ))
+        arbiter_math,
+    })
 }
 
 /// Allocate out funds to all the relevant contracts and approve them all to spend.
 pub async fn allocate_and_approve(
-    tokens: Vec<&arbiter_token::ArbiterToken<RevmMiddleware>>,
-    addresses: Vec<Address>,
+    admin: Client,
+    arbitrageur: Client,
+    arbx_address: Address,
+    arby_address: Address,
+    liquid_exchange_address: Address,
+    portfolio_address: Address,
 ) -> Result<()> {
-    for address in addresses {
-        for token in tokens.clone() {
-            token
-                .mint(address, U256::from(u128::MAX))
-                .send()
-                .await?
-                .await?;
-            token.approve(address, U256::MAX).send().await?.await?;
-        }
-        info!(
-            "allocated and approved address {:?} for both tokens.",
-            address
-        )
+    let admin_tokens = [
+        ArbiterToken::new(arbx_address, admin.clone()),
+        ArbiterToken::new(arby_address, admin.clone()),
+    ];
+    let arbitrageur_tokens = [
+        ArbiterToken::new(arbx_address, arbitrageur.clone()),
+        ArbiterToken::new(arby_address, arbitrageur.clone()),
+    ];
+    let admin_address = admin.default_sender().unwrap();
+    let arbitrageur_address = arbitrageur.default_sender().unwrap();
+
+    for token in admin_tokens {
+        token
+            .mint(admin_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
+        token
+            .mint(arbitrageur_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
+        token
+            .mint(liquid_exchange_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
+        token
+            .approve(portfolio_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
     }
+
+    for token in arbitrageur_tokens {
+        token
+            .approve(liquid_exchange_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
+        token
+            .approve(portfolio_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
+    }
+
     Ok(())
 }
 
 pub async fn initialize_portfolio(
-    portfolio: &portfolio::Portfolio<RevmMiddleware>,
+    portfolio: &Portfolio<RevmMiddleware>,
     normal_strategy: &NormalStrategy<RevmMiddleware>,
     asset: Address,
     quote: Address,
+    lp_address: Address,
 ) -> Result<u64> {
     // Create a pair
     portfolio.create_pair(asset, quote).send().await?.await?;
@@ -216,10 +229,40 @@ pub async fn initialize_portfolio(
 
     // The 2nd log is the one we want
     let create_pool_log = create_pool_output.logs[1].clone();
-    let portfolio_event = portfolio::PortfolioEvents::decode_log(&create_pool_log.into()).unwrap();
-    if let portfolio::PortfolioEvents::CreatePoolFilter(create_pool_filter) = portfolio_event {
+    let portfolio_event = PortfolioEvents::decode_log(&create_pool_log.into()).unwrap();
+    if let PortfolioEvents::CreatePoolFilter(create_pool_filter) = portfolio_event {
         let pool_id = create_pool_filter.pool_id;
         info!("created a pool with pool_id: {:?}", pool_id);
+        // Provide funds to the portfolio pool
+        let AllocateCall {
+            use_max,
+            recipient,
+            pool_id,
+            delta_liquidity,
+            max_delta_asset,
+            max_delta_quote,
+        } = AllocateCall {
+            use_max: false,
+            recipient: lp_address,
+            pool_id,
+            delta_liquidity: LIQUIDITY,
+            max_delta_asset: u128::MAX / 2_u128,
+            max_delta_quote: u128::MAX / 2_u128,
+        };
+        portfolio
+            .allocate(
+                use_max,
+                recipient,
+                pool_id,
+                delta_liquidity,
+                max_delta_asset,
+                max_delta_quote,
+            )
+            .send()
+            .await?
+            .await?;
+        let reserves = portfolio.get_pool_reserves(pool_id).call().await?;
+        info!("allocated reserves: {:?}", reserves);
         Ok(pool_id)
     } else {
         panic!("expected a `CreatePool` event");
