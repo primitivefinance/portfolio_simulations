@@ -7,6 +7,7 @@ pub mod config;
 pub mod startup;
 pub mod strategies;
 
+/// The entry point of the simulation.
 #[tokio::main]
 pub async fn main() -> Result<()> {
     // Initialize the logger to print out all the logs.
