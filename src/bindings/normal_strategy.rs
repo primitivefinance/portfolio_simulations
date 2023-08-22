@@ -762,7 +762,7 @@ pub mod normal_strategy {
             fallback: false,
         }
     }
-    ///The parsed JSON ABI of the contract.
+    /// The parsed JSON ABI of the contract.
     pub static NORMALSTRATEGY_ABI: ::ethers::contract::Lazy<::ethers::core::abi::Abi> =
         ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
@@ -800,8 +800,9 @@ pub mod normal_strategy {
         }
     }
     impl<M: ::ethers::providers::Middleware> NormalStrategy<M> {
-        /// Creates a new contract instance with the specified `ethers` client at
-        /// `address`. The contract derefs to a `ethers::Contract` object.
+        /// Creates a new contract instance with the specified `ethers` client
+        /// at `address`. The contract derefs to a `ethers::Contract`
+        /// object.
         pub fn new<T: Into<::ethers::core::types::Address>>(
             address: T,
             client: ::std::sync::Arc<M>,
@@ -812,20 +813,25 @@ pub mod normal_strategy {
                 client,
             ))
         }
-        /// Constructs the general purpose `Deployer` instance based on the provided constructor arguments and sends it.
-        /// Returns a new instance of a deployer that returns an instance of this contract after sending the transaction
+        /// Constructs the general purpose `Deployer` instance based on the
+        /// provided constructor arguments and sends it. Returns a new
+        /// instance of a deployer that returns an instance of this contract
+        /// after sending the transaction
         ///
         /// Notes:
-        /// - If there are no constructor arguments, you should pass `()` as the argument.
+        /// - If there are no constructor arguments, you should pass `()` as the
+        ///   argument.
         /// - The default poll duration is 7 seconds.
         /// - The default number of confirmations is 1 block.
         ///
         ///
         /// # Example
         ///
-        /// Generate contract bindings with `abigen!` and deploy a new contract instance.
+        /// Generate contract bindings with `abigen!` and deploy a new contract
+        /// instance.
         ///
-        /// *Note*: this requires a `bytecode` and `abi` object in the `greeter.json` artifact.
+        /// *Note*: this requires a `bytecode` and `abi` object in the
+        /// `greeter.json` artifact.
         ///
         /// ```ignore
         /// # async fn deploy<M: ethers::providers::Middleware>(client: ::std::sync::Arc<M>) {
@@ -851,7 +857,7 @@ pub mod normal_strategy {
             let deployer = ::ethers::contract::ContractDeployer::new(deployer);
             Ok(deployer)
         }
-        ///Calls the contract's `afterCreate` (0xe068787f) function
+        /// Calls the contract's `afterCreate` (0xe068787f) function
         pub fn after_create(
             &self,
             pool_id: u64,
@@ -861,7 +867,8 @@ pub mod normal_strategy {
                 .method_hash([224, 104, 120, 127], (pool_id, strategy_args))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `approximateReservesGivenPrice` (0x4bf346bf) function
+        /// Calls the contract's `approximateReservesGivenPrice` (0x4bf346bf)
+        /// function
         pub fn approximate_reserves_given_price(
             &self,
             price_wad: ::ethers::core::types::U256,
@@ -874,7 +881,7 @@ pub mod normal_strategy {
                 .method_hash([75, 243, 70, 191], (price_wad, strategy_args))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `beforeSwap` (0xec736854) function
+        /// Calls the contract's `beforeSwap` (0xec736854) function
         pub fn before_swap(
             &self,
             pool_id: u64,
@@ -886,7 +893,7 @@ pub mod normal_strategy {
                 .method_hash([236, 115, 104, 84], (pool_id, sell_asset, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `configs` (0x34dbc73b) function
+        /// Calls the contract's `configs` (0x34dbc73b) function
         pub fn configs(
             &self,
             pool_id: u64,
@@ -895,7 +902,7 @@ pub mod normal_strategy {
                 .method_hash([52, 219, 199, 59], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getAmountOut` (0x19057807) function
+        /// Calls the contract's `getAmountOut` (0x19057807) function
         pub fn get_amount_out(
             &self,
             pool_id: u64,
@@ -907,7 +914,7 @@ pub mod normal_strategy {
                 .method_hash([25, 5, 120, 7], (pool_id, sell_asset, amount_in, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getInvariant` (0x39434d5a) function
+        /// Calls the contract's `getInvariant` (0x39434d5a) function
         pub fn get_invariant(
             &self,
             pool_id: u64,
@@ -916,7 +923,7 @@ pub mod normal_strategy {
                 .method_hash([57, 67, 77, 90], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getMaxOrder` (0xf07b879e) function
+        /// Calls the contract's `getMaxOrder` (0xf07b879e) function
         pub fn get_max_order(
             &self,
             pool_id: u64,
@@ -927,7 +934,7 @@ pub mod normal_strategy {
                 .method_hash([240, 123, 135, 158], (pool_id, sell_asset, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getSpotPrice` (0xe331ba34) function
+        /// Calls the contract's `getSpotPrice` (0xe331ba34) function
         pub fn get_spot_price(
             &self,
             pool_id: u64,
@@ -936,7 +943,7 @@ pub mod normal_strategy {
                 .method_hash([227, 49, 186, 52], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getStrategyData` (0x452d2f18) function
+        /// Calls the contract's `getStrategyData` (0x452d2f18) function
         pub fn get_strategy_data(
             &self,
             strike_price_wad: ::ethers::core::types::U256,
@@ -965,7 +972,7 @@ pub mod normal_strategy {
                 )
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `portfolio` (0x16ede016) function
+        /// Calls the contract's `portfolio` (0x16ede016) function
         pub fn portfolio(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
@@ -973,7 +980,7 @@ pub mod normal_strategy {
                 .method_hash([22, 237, 224, 22], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `simulateSwap` (0x80af9d76) function
+        /// Calls the contract's `simulateSwap` (0x80af9d76) function
         pub fn simulate_swap(
             &self,
             order: Order,
@@ -991,7 +998,7 @@ pub mod normal_strategy {
                 .method_hash([128, 175, 157, 118], (order, timestamp, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `validatePool` (0xe6047b19) function
+        /// Calls the contract's `validatePool` (0xe6047b19) function
         pub fn validate_pool(
             &self,
             pool_id: u64,
@@ -1000,7 +1007,7 @@ pub mod normal_strategy {
                 .method_hash([230, 4, 123, 25], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `validateSwap` (0xa4478919) function
+        /// Calls the contract's `validateSwap` (0xa4478919) function
         pub fn validate_swap(
             &self,
             pool_id: u64,
@@ -1016,14 +1023,14 @@ pub mod normal_strategy {
                 )
                 .expect("method not found (this should never happen)")
         }
-        ///Gets the contract's `AfterCreate` event
+        /// Gets the contract's `AfterCreate` event
         pub fn after_create_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, AfterCreateFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `Genesis` event
+        /// Gets the contract's `Genesis` event
         pub fn genesis_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, GenesisFilter> {
@@ -1045,7 +1052,8 @@ pub mod normal_strategy {
             Self::new(contract.address(), contract.client())
         }
     }
-    ///Custom Error type `BisectionLib_InvalidBounds` with signature `BisectionLib_InvalidBounds(uint256,uint256)` and selector `0x6105bfb6`
+    /// Custom Error type `BisectionLib_InvalidBounds` with signature
+    /// `BisectionLib_InvalidBounds(uint256,uint256)` and selector `0x6105bfb6`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1064,7 +1072,9 @@ pub mod normal_strategy {
         pub lower: ::ethers::core::types::U256,
         pub upper: ::ethers::core::types::U256,
     }
-    ///Custom Error type `BisectionLib_RootOutsideBounds` with signature `BisectionLib_RootOutsideBounds(int256,int256)` and selector `0x1bc6f974`
+    /// Custom Error type `BisectionLib_RootOutsideBounds` with signature
+    /// `BisectionLib_RootOutsideBounds(int256,int256)` and selector
+    /// `0x1bc6f974`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1083,7 +1093,8 @@ pub mod normal_strategy {
         pub lower_result: ::ethers::core::types::I256,
         pub upper_result: ::ethers::core::types::I256,
     }
-    ///Custom Error type `Infinity` with signature `Infinity()` and selector `0x07a02127`
+    /// Custom Error type `Infinity` with signature `Infinity()` and selector
+    /// `0x07a02127`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1096,7 +1107,7 @@ pub mod normal_strategy {
     )]
     #[etherror(name = "Infinity", abi = "Infinity()")]
     pub struct Infinity;
-    ///Custom Error type `Min` with signature `Min()` and selector `0x4d2d75b1`
+    /// Custom Error type `Min` with signature `Min()` and selector `0x4d2d75b1`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1109,7 +1120,8 @@ pub mod normal_strategy {
     )]
     #[etherror(name = "Min", abi = "Min()")]
     pub struct Min;
-    ///Custom Error type `NegativeInfinity` with signature `NegativeInfinity()` and selector `0x8bb56614`
+    /// Custom Error type `NegativeInfinity` with signature `NegativeInfinity()`
+    /// and selector `0x8bb56614`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1122,7 +1134,8 @@ pub mod normal_strategy {
     )]
     #[etherror(name = "NegativeInfinity", abi = "NegativeInfinity()")]
     pub struct NegativeInfinity;
-    ///Custom Error type `NormalStrategyLib_ConfigExists` with signature `NormalStrategyLib_ConfigExists()` and selector `0x784e2684`
+    /// Custom Error type `NormalStrategyLib_ConfigExists` with signature
+    /// `NormalStrategyLib_ConfigExists()` and selector `0x784e2684`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1138,7 +1151,8 @@ pub mod normal_strategy {
         abi = "NormalStrategyLib_ConfigExists()"
     )]
     pub struct NormalStrategyLib_ConfigExists;
-    ///Custom Error type `NormalStrategyLib_InvalidDuration` with signature `NormalStrategyLib_InvalidDuration()` and selector `0xb597030f`
+    /// Custom Error type `NormalStrategyLib_InvalidDuration` with signature
+    /// `NormalStrategyLib_InvalidDuration()` and selector `0xb597030f`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1154,7 +1168,8 @@ pub mod normal_strategy {
         abi = "NormalStrategyLib_InvalidDuration()"
     )]
     pub struct NormalStrategyLib_InvalidDuration;
-    ///Custom Error type `NormalStrategyLib_InvalidStrategyArgs` with signature `NormalStrategyLib_InvalidStrategyArgs()` and selector `0x05655f4c`
+    /// Custom Error type `NormalStrategyLib_InvalidStrategyArgs` with signature
+    /// `NormalStrategyLib_InvalidStrategyArgs()` and selector `0x05655f4c`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1170,7 +1185,8 @@ pub mod normal_strategy {
         abi = "NormalStrategyLib_InvalidStrategyArgs()"
     )]
     pub struct NormalStrategyLib_InvalidStrategyArgs;
-    ///Custom Error type `NormalStrategyLib_InvalidStrikePrice` with signature `NormalStrategyLib_InvalidStrikePrice()` and selector `0xb242e341`
+    /// Custom Error type `NormalStrategyLib_InvalidStrikePrice` with signature
+    /// `NormalStrategyLib_InvalidStrikePrice()` and selector `0xb242e341`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1186,7 +1202,8 @@ pub mod normal_strategy {
         abi = "NormalStrategyLib_InvalidStrikePrice()"
     )]
     pub struct NormalStrategyLib_InvalidStrikePrice;
-    ///Custom Error type `NormalStrategyLib_InvalidVolatility` with signature `NormalStrategyLib_InvalidVolatility()` and selector `0x395d3819`
+    /// Custom Error type `NormalStrategyLib_InvalidVolatility` with signature
+    /// `NormalStrategyLib_InvalidVolatility()` and selector `0x395d3819`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1202,7 +1219,8 @@ pub mod normal_strategy {
         abi = "NormalStrategyLib_InvalidVolatility()"
     )]
     pub struct NormalStrategyLib_InvalidVolatility;
-    ///Custom Error type `NormalStrategyLib_NonExpiringPool` with signature `NormalStrategyLib_NonExpiringPool()` and selector `0xb0198497`
+    /// Custom Error type `NormalStrategyLib_NonExpiringPool` with signature
+    /// `NormalStrategyLib_NonExpiringPool()` and selector `0xb0198497`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1218,7 +1236,8 @@ pub mod normal_strategy {
         abi = "NormalStrategyLib_NonExpiringPool()"
     )]
     pub struct NormalStrategyLib_NonExpiringPool;
-    ///Custom Error type `NormalStrategy_NotPortfolio` with signature `NormalStrategy_NotPortfolio()` and selector `0xe88c95ac`
+    /// Custom Error type `NormalStrategy_NotPortfolio` with signature
+    /// `NormalStrategy_NotPortfolio()` and selector `0xe88c95ac`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1234,7 +1253,8 @@ pub mod normal_strategy {
         abi = "NormalStrategy_NotPortfolio()"
     )]
     pub struct NormalStrategy_NotPortfolio;
-    ///Custom Error type `OutOfBounds` with signature `OutOfBounds()` and selector `0xb4120f14`
+    /// Custom Error type `OutOfBounds` with signature `OutOfBounds()` and
+    /// selector `0xb4120f14`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1247,7 +1267,8 @@ pub mod normal_strategy {
     )]
     #[etherror(name = "OutOfBounds", abi = "OutOfBounds()")]
     pub struct OutOfBounds;
-    ///Custom Error type `SwapLib_OutputExceedsReserves` with signature `SwapLib_OutputExceedsReserves()` and selector `0x866a032b`
+    /// Custom Error type `SwapLib_OutputExceedsReserves` with signature
+    /// `SwapLib_OutputExceedsReserves()` and selector `0x866a032b`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1263,7 +1284,8 @@ pub mod normal_strategy {
         abi = "SwapLib_OutputExceedsReserves()"
     )]
     pub struct SwapLib_OutputExceedsReserves;
-    ///Custom Error type `SwapLib_ProtocolFeeTooHigh` with signature `SwapLib_ProtocolFeeTooHigh()` and selector `0xec8e1fce`
+    /// Custom Error type `SwapLib_ProtocolFeeTooHigh` with signature
+    /// `SwapLib_ProtocolFeeTooHigh()` and selector `0xec8e1fce`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1279,7 +1301,8 @@ pub mod normal_strategy {
         abi = "SwapLib_ProtocolFeeTooHigh()"
     )]
     pub struct SwapLib_ProtocolFeeTooHigh;
-    ///Custom Error type `SwapLib_ZeroXAdjustment` with signature `SwapLib_ZeroXAdjustment()` and selector `0x7276f08a`
+    /// Custom Error type `SwapLib_ZeroXAdjustment` with signature
+    /// `SwapLib_ZeroXAdjustment()` and selector `0x7276f08a`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1292,7 +1315,8 @@ pub mod normal_strategy {
     )]
     #[etherror(name = "SwapLib_ZeroXAdjustment", abi = "SwapLib_ZeroXAdjustment()")]
     pub struct SwapLib_ZeroXAdjustment;
-    ///Custom Error type `SwapLib_ZeroYAdjustment` with signature `SwapLib_ZeroYAdjustment()` and selector `0x1fb0b7dd`
+    /// Custom Error type `SwapLib_ZeroYAdjustment` with signature
+    /// `SwapLib_ZeroYAdjustment()` and selector `0x1fb0b7dd`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -1305,7 +1329,7 @@ pub mod normal_strategy {
     )]
     #[etherror(name = "SwapLib_ZeroYAdjustment", abi = "SwapLib_ZeroYAdjustment()")]
     pub struct SwapLib_ZeroYAdjustment;
-    ///Container type for all of the contract's custom errors
+    /// Container type for all of the contract's custom errors
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum NormalStrategyErrors {
         BisectionLib_InvalidBounds(BisectionLib_InvalidBounds),
@@ -1716,7 +1740,7 @@ pub mod normal_strategy {
         #[ethevent(indexed)]
         pub portfolio: ::ethers::core::types::Address,
     }
-    ///Container type for all of the contract's events
+    /// Container type for all of the contract's events
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum NormalStrategyEvents {
         AfterCreateFilter(AfterCreateFilter),
@@ -1753,7 +1777,8 @@ pub mod normal_strategy {
             Self::GenesisFilter(value)
         }
     }
-    ///Container type for all input parameters for the `afterCreate` function with signature `afterCreate(uint64,bytes)` and selector `0xe068787f`
+    /// Container type for all input parameters for the `afterCreate` function
+    /// with signature `afterCreate(uint64,bytes)` and selector `0xe068787f`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1769,7 +1794,9 @@ pub mod normal_strategy {
         pub pool_id: u64,
         pub strategy_args: ::ethers::core::types::Bytes,
     }
-    ///Container type for all input parameters for the `approximateReservesGivenPrice` function with signature `approximateReservesGivenPrice(uint256,bytes)` and selector `0x4bf346bf`
+    /// Container type for all input parameters for the
+    /// `approximateReservesGivenPrice` function with signature
+    /// `approximateReservesGivenPrice(uint256,bytes)` and selector `0x4bf346bf`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1788,7 +1815,9 @@ pub mod normal_strategy {
         pub price_wad: ::ethers::core::types::U256,
         pub strategy_args: ::ethers::core::types::Bytes,
     }
-    ///Container type for all input parameters for the `beforeSwap` function with signature `beforeSwap(uint64,bool,address)` and selector `0xec736854`
+    /// Container type for all input parameters for the `beforeSwap` function
+    /// with signature `beforeSwap(uint64,bool,address)` and selector
+    /// `0xec736854`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1805,7 +1834,8 @@ pub mod normal_strategy {
         pub sell_asset: bool,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `configs` function with signature `configs(uint64)` and selector `0x34dbc73b`
+    /// Container type for all input parameters for the `configs` function with
+    /// signature `configs(uint64)` and selector `0x34dbc73b`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1820,7 +1850,9 @@ pub mod normal_strategy {
     pub struct ConfigsCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `getAmountOut` function with signature `getAmountOut(uint64,bool,uint256,address)` and selector `0x19057807`
+    /// Container type for all input parameters for the `getAmountOut` function
+    /// with signature `getAmountOut(uint64,bool,uint256,address)` and selector
+    /// `0x19057807`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1841,7 +1873,8 @@ pub mod normal_strategy {
         pub amount_in: ::ethers::core::types::U256,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `getInvariant` function with signature `getInvariant(uint64)` and selector `0x39434d5a`
+    /// Container type for all input parameters for the `getInvariant` function
+    /// with signature `getInvariant(uint64)` and selector `0x39434d5a`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1856,7 +1889,9 @@ pub mod normal_strategy {
     pub struct GetInvariantCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `getMaxOrder` function with signature `getMaxOrder(uint64,bool,address)` and selector `0xf07b879e`
+    /// Container type for all input parameters for the `getMaxOrder` function
+    /// with signature `getMaxOrder(uint64,bool,address)` and selector
+    /// `0xf07b879e`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1873,7 +1908,8 @@ pub mod normal_strategy {
         pub sell_asset: bool,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `getSpotPrice` function with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
+    /// Container type for all input parameters for the `getSpotPrice` function
+    /// with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1888,7 +1924,10 @@ pub mod normal_strategy {
     pub struct GetSpotPriceCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `getStrategyData` function with signature `getStrategyData(uint256,uint256,uint256,bool,uint256)` and selector `0x452d2f18`
+    /// Container type for all input parameters for the `getStrategyData`
+    /// function with signature
+    /// `getStrategyData(uint256,uint256,uint256,bool,uint256)` and selector
+    /// `0x452d2f18`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1910,7 +1949,8 @@ pub mod normal_strategy {
         pub is_perpetual: bool,
         pub price_wad: ::ethers::core::types::U256,
     }
-    ///Container type for all input parameters for the `portfolio` function with signature `portfolio()` and selector `0x16ede016`
+    /// Container type for all input parameters for the `portfolio` function
+    /// with signature `portfolio()` and selector `0x16ede016`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1923,7 +1963,10 @@ pub mod normal_strategy {
     )]
     #[ethcall(name = "portfolio", abi = "portfolio()")]
     pub struct PortfolioCall;
-    ///Container type for all input parameters for the `simulateSwap` function with signature `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and selector `0x80af9d76`
+    /// Container type for all input parameters for the `simulateSwap` function
+    /// with signature
+    /// `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and
+    /// selector `0x80af9d76`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1943,7 +1986,8 @@ pub mod normal_strategy {
         pub timestamp: ::ethers::core::types::U256,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `validatePool` function with signature `validatePool(uint64)` and selector `0xe6047b19`
+    /// Container type for all input parameters for the `validatePool` function
+    /// with signature `validatePool(uint64)` and selector `0xe6047b19`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1958,7 +2002,9 @@ pub mod normal_strategy {
     pub struct ValidatePoolCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `validateSwap` function with signature `validateSwap(uint64,int256,uint256,uint256)` and selector `0xa4478919`
+    /// Container type for all input parameters for the `validateSwap` function
+    /// with signature `validateSwap(uint64,int256,uint256,uint256)` and
+    /// selector `0xa4478919`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -1979,7 +2025,7 @@ pub mod normal_strategy {
         pub reserve_x: ::ethers::core::types::U256,
         pub reserve_y: ::ethers::core::types::U256,
     }
-    ///Container type for all of the contract's call
+    /// Container type for all of the contract's call
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum NormalStrategyCalls {
         AfterCreate(AfterCreateCall),
@@ -2160,7 +2206,8 @@ pub mod normal_strategy {
             Self::ValidateSwap(value)
         }
     }
-    ///Container type for all return fields from the `afterCreate` function with signature `afterCreate(uint64,bytes)` and selector `0xe068787f`
+    /// Container type for all return fields from the `afterCreate` function
+    /// with signature `afterCreate(uint64,bytes)` and selector `0xe068787f`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2174,7 +2221,9 @@ pub mod normal_strategy {
     pub struct AfterCreateReturn {
         pub success: bool,
     }
-    ///Container type for all return fields from the `approximateReservesGivenPrice` function with signature `approximateReservesGivenPrice(uint256,bytes)` and selector `0x4bf346bf`
+    /// Container type for all return fields from the
+    /// `approximateReservesGivenPrice` function with signature
+    /// `approximateReservesGivenPrice(uint256,bytes)` and selector `0x4bf346bf`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2189,7 +2238,8 @@ pub mod normal_strategy {
         pub ::ethers::core::types::U256,
         pub ::ethers::core::types::U256,
     );
-    ///Container type for all return fields from the `beforeSwap` function with signature `beforeSwap(uint64,bool,address)` and selector `0xec736854`
+    /// Container type for all return fields from the `beforeSwap` function with
+    /// signature `beforeSwap(uint64,bool,address)` and selector `0xec736854`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2201,7 +2251,8 @@ pub mod normal_strategy {
         Hash,
     )]
     pub struct BeforeSwapReturn(pub bool, pub ::ethers::core::types::I256);
-    ///Container type for all return fields from the `configs` function with signature `configs(uint64)` and selector `0x34dbc73b`
+    /// Container type for all return fields from the `configs` function with
+    /// signature `configs(uint64)` and selector `0x34dbc73b`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2219,7 +2270,9 @@ pub mod normal_strategy {
         pub creation_timestamp: u32,
         pub is_perpetual: bool,
     }
-    ///Container type for all return fields from the `getAmountOut` function with signature `getAmountOut(uint64,bool,uint256,address)` and selector `0x19057807`
+    /// Container type for all return fields from the `getAmountOut` function
+    /// with signature `getAmountOut(uint64,bool,uint256,address)` and selector
+    /// `0x19057807`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2233,7 +2286,8 @@ pub mod normal_strategy {
     pub struct GetAmountOutReturn {
         pub output: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `getInvariant` function with signature `getInvariant(uint64)` and selector `0x39434d5a`
+    /// Container type for all return fields from the `getInvariant` function
+    /// with signature `getInvariant(uint64)` and selector `0x39434d5a`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2247,7 +2301,9 @@ pub mod normal_strategy {
     pub struct GetInvariantReturn {
         pub invariant: ::ethers::core::types::I256,
     }
-    ///Container type for all return fields from the `getMaxOrder` function with signature `getMaxOrder(uint64,bool,address)` and selector `0xf07b879e`
+    /// Container type for all return fields from the `getMaxOrder` function
+    /// with signature `getMaxOrder(uint64,bool,address)` and selector
+    /// `0xf07b879e`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2259,7 +2315,8 @@ pub mod normal_strategy {
         Hash,
     )]
     pub struct GetMaxOrderReturn(pub Order);
-    ///Container type for all return fields from the `getSpotPrice` function with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
+    /// Container type for all return fields from the `getSpotPrice` function
+    /// with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2273,7 +2330,9 @@ pub mod normal_strategy {
     pub struct GetSpotPriceReturn {
         pub price: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `getStrategyData` function with signature `getStrategyData(uint256,uint256,uint256,bool,uint256)` and selector `0x452d2f18`
+    /// Container type for all return fields from the `getStrategyData` function
+    /// with signature `getStrategyData(uint256,uint256,uint256,bool,uint256)`
+    /// and selector `0x452d2f18`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2289,7 +2348,8 @@ pub mod normal_strategy {
         pub initial_x: ::ethers::core::types::U256,
         pub initial_y: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `portfolio` function with signature `portfolio()` and selector `0x16ede016`
+    /// Container type for all return fields from the `portfolio` function with
+    /// signature `portfolio()` and selector `0x16ede016`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2301,7 +2361,10 @@ pub mod normal_strategy {
         Hash,
     )]
     pub struct PortfolioReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `simulateSwap` function with signature `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and selector `0x80af9d76`
+    /// Container type for all return fields from the `simulateSwap` function
+    /// with signature
+    /// `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and
+    /// selector `0x80af9d76`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2317,7 +2380,8 @@ pub mod normal_strategy {
         pub prev_invariant: ::ethers::core::types::I256,
         pub post_invariant: ::ethers::core::types::I256,
     }
-    ///Container type for all return fields from the `validatePool` function with signature `validatePool(uint64)` and selector `0xe6047b19`
+    /// Container type for all return fields from the `validatePool` function
+    /// with signature `validatePool(uint64)` and selector `0xe6047b19`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -2329,7 +2393,9 @@ pub mod normal_strategy {
         Hash,
     )]
     pub struct ValidatePoolReturn(pub bool);
-    ///Container type for all return fields from the `validateSwap` function with signature `validateSwap(uint64,int256,uint256,uint256)` and selector `0xa4478919`
+    /// Container type for all return fields from the `validateSwap` function
+    /// with signature `validateSwap(uint64,int256,uint256,uint256)` and
+    /// selector `0xa4478919`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,

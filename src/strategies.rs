@@ -1,22 +1,48 @@
+#![warn(missing_docs)]
+
+//! Contains the two strategies used in the simulation.
+//! - `PriceChanger` updates the price of the `LiquidExchange` contract.
+//! - `Arbitrageur` detects and executes arbitrage opportunities.
+
 use super::*;
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// PriceChanger
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+/// The `PriceChanger` holds the data and has methods that allow it to update
+/// the price of the `LiquidExchange`.
 pub struct PriceChanger {
+    /// The path the price process takes.
     pub trajectory: Trajectories,
+
+    /// The `LiquidExchange` contract with the admin `Client`.
     pub liquid_exchange: LiquidExchange<RevmMiddleware>,
+
+    /// The index of the current price in the trajectory.
     pub index: usize,
 }
 
 impl PriceChanger {
+    /// Create a new `PriceChanger` with the given `LiquidExchange` contract
+    /// bound to the admin `Client`. The `PriceChanger` will use the
+    /// `OrnsteinUhlenbeck` process to generate a price trajectory with the
+    /// constants defined in `config.rs`.
+    /// Ornstein-Uhlenbeck processes are useful for modeling the price of stable
+    /// tokens.
     pub fn new(liquid_exchange: LiquidExchange<RevmMiddleware>) -> Self {
         let process = OrnsteinUhlenbeck::new(PRICE_MEAN, PRICE_STD_DEV, PRICE_THETA);
         let trajectory = process.euler_maruyama(INITIAL_PRICE, T_0, T_N, NUM_STEPS, 1, false);
         Self {
             trajectory,
             liquid_exchange,
-            index: 1, // start after the initial price since it is already set on contract deployment
+            index: 1, /* start after the initial price since it is already set on contract
+                       * deployment */
         }
     }
 
+    /// Update the price of the `LiquidExchange` contract to the next price in
+    /// the trajectory and increment the index.
     pub async fn update_price(&mut self) -> Result<()> {
         let price = self.trajectory.paths[0][self.index];
         info!("Updating price of liquid_exchange to: {}", price);
@@ -30,37 +56,75 @@ impl PriceChanger {
     }
 }
 
-#[derive(Debug)]
-pub enum SwapDirection {
-    XToY(U256),
-    YToX(U256),
-    None,
-}
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Arbitrageur
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+/// The `Arbitrageur` holds the data and has methods that allow it to detect and
+/// execute arbitrage opportunities. It uses the `LiquidExchange` and
+/// `Portfolio` contracts bound to the arbitrageur `Client`.
 #[derive(Debug)]
 pub struct Arbitrageur {
+    /// The current prices of the `LiquidExchange` and `Portfolio` contracts.
     pub prices: [U256; 2],
+
+    /// The `LiquidExchange` contract with the arbitrageur `Client`.
     pub liquid_exchange: LiquidExchange<RevmMiddleware>,
+
+    /// The `Portfolio` contract with the arbitrageur `Client`.
     pub portfolio: Portfolio<RevmMiddleware>,
+
+    /// The `ArbiterMath` contract with the admin `Client`.
+    /// Note that this is only used to compute mathematical functions and not
+    /// write to state!
     pub arbiter_math: ArbiterMath<RevmMiddleware>,
+
+    /// The pool ID of the Portfolio pool.
     pub pool_id: u64,
+
+    /// The gamma parameter of the Portfolio pool.
+    /// Equal to 1 - fee in WAD units.
     pub gamma_wad: U256,
+
+    /// The address of the arbitrageur.
     pub address: Address,
+
+    /// ARBX address.
+    pub arbx_address: Address,
+
+    /// ARBY address.
+    pub arby_address: Address,
 }
 
 impl Arbitrageur {
+    /// Creates a new `Arbitrageur` with the given `LiquidExchange` and
+    /// `Portfolio` contracts bound to the arbitrageur `Client`.
+    /// The `Arbitrageur` will use the `ArbiterMath` contract bound to the admin
+    /// `Client` to compute mathematical functions. The `pool_id` is used to
+    /// swap on the correct pool.
     pub async fn new(
         liquid_exchange: LiquidExchange<RevmMiddleware>,
         portfolio: Portfolio<RevmMiddleware>,
         arbiter_math: ArbiterMath<RevmMiddleware>,
         pool_id: u64,
-        address: Address,
     ) -> Result<Self> {
+        // Get the address from the `Client` attached to the `LiquidExchange` contract.
+        let address = liquid_exchange.client().default_sender().unwrap();
+
+        // Get the two token addresses from the `LiquidExchange` contract.
+        let arbx_address = liquid_exchange.arbiter_token_x().call().await?;
+        let arby_address = liquid_exchange.arbiter_token_y().call().await?;
+
+        // Get the current (initial) prices of the `LiquidExchange` and `Portfolio`
+        // contracts.
         let prices = [
             liquid_exchange.price().call().await?,
             portfolio.get_spot_price(pool_id).call().await?,
         ];
+
+        // Compute the gamma parameter of the Portfolio pool.
         let gamma_wad = WAD - FEE_BASIS_POINTS as u128 * 10_u128.pow(14);
+
         Ok(Self {
             prices,
             liquid_exchange,
@@ -69,11 +133,17 @@ impl Arbitrageur {
             pool_id,
             gamma_wad,
             address,
+            arbx_address,
+            arby_address,
         })
     }
 
+    /// Detects if there is an arbitrage opportunity.
+    /// Returns the direction of the swap `XtoY` or `YtoX` if there is an
+    /// arbitrage opportunity. Returns `None` if there is no arbitrage
+    /// opportunity.
     pub async fn detect_arbitrage(&mut self) -> Result<SwapDirection> {
-        // Update the prices the for the arbitrageur
+        // Update the prices the for the arbitrageur.
         let new_prices = [
             self.liquid_exchange.price().call().await?,
             self.portfolio.get_spot_price(self.pool_id).call().await?,
@@ -85,14 +155,17 @@ impl Arbitrageur {
             liquid_exchange_price, portfolio_price
         );
 
-        // Compute the no-arbitrage bounds
+        // Compute the no-arbitrage bounds.
         let upper_arb_bound = WAD * portfolio_price / self.gamma_wad;
         info!("Upper bound: {}", upper_arb_bound);
 
         let lower_arb_bound = portfolio_price * self.gamma_wad / WAD;
         info!("Lower bound: {}", lower_arb_bound);
 
-        // Check if we have an arbitrage opportunity by comparing against the bounds and current price
+        // Check if we have an arbitrage opportunity by comparing against the bounds and
+        // current price.
+        // If these conditions are not satisfied, there cannot be a profitable
+        // arbitrage. See: [An Analysis of Uniswap Markets](https://arxiv.org/pdf/1911.03380.pdf) Eq. 3, for example.
         if liquid_exchange_price > upper_arb_bound && liquid_exchange_price > portfolio_price {
             // Raise the portfolio price by selling ARBY for ARBX
             Ok(SwapDirection::YToX(liquid_exchange_price))
@@ -106,6 +179,11 @@ impl Arbitrageur {
         }
     }
 
+    /// Executes an arbitrage opportunity.
+    /// If the swap direction is `XtoY`, then the arbitrageur will sell ARBX for
+    /// ARBY on the Portfolio contract and vice-versa. Then the arbitrageur
+    /// will swap the output ARBY for ARBX on the Liquid Exchange contract (and
+    /// vice-versa, respectively).
     pub async fn execute_arbitrage(&mut self, swap_direction: SwapDirection) -> Result<()> {
         // Compute the order to send to Portfolio, if necessary
         let mut order = match swap_direction {
@@ -123,10 +201,13 @@ impl Arbitrageur {
             }
         };
 
-        // The initial order size to be sent to Portfolio
+        // The initial order size to be sent to Portfolio.
         info!("Order: {:?}", order);
 
-        // Loop and decrease the output size until the swap succeeds (should not take many iterations, if any)
+        // Loop and decrease the output size until the swap succeeds (should not take
+        // many iterations, if any).
+        // This is necessary because of tiny math rounding errors that can occur in the
+        // Portfolio contract.
         loop {
             if let Err(contract_error) = self.portfolio.swap(order.clone()).send().await {
                 if let RevmMiddlewareError::ExecutionRevert {
@@ -146,14 +227,31 @@ impl Arbitrageur {
                     }
                 }
             } else {
-                info!("Swap successful");
+                info!("Portfolio swap successful");
                 break;
             }
         }
+
+        if order.sell_asset {
+            info!("Swapping ARBY for ARBX on Liquid Exchange");
+            self.liquid_exchange
+                .swap(self.arbx_address, U256::from(order.output))
+                .send()
+                .await?
+                .await?;
+        } else {
+            info!("Swapping ARBX for ARBY on Liquid Exchange");
+            self.liquid_exchange
+                .swap(self.arby_address, U256::from(order.output))
+                .send()
+                .await?
+                .await?;
+        }
+
+        info!("LiquidExchange swap successfull; arbitrage successful");
+
         Ok(())
     }
-
-    // TODO: Need to scale the input by the inverse of the fee parameter (gamma)
 
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
@@ -194,10 +292,14 @@ impl Arbitrageur {
         let virtual_input_x = target_virtual_reserve_x - virtual_reserve_x;
         info!("Virtual input: {}", virtual_input_x);
 
-        let input = virtual_input_x * rescaling;
+        // Rescale back to the real input amount and multiply by 1/gamma to account for
+        // the swap fee.
+        let final_scaling_wad = rescaling * (iwad * iwad / I256::from_raw(self.gamma_wad));
+        let input = virtual_input_x * final_scaling_wad / iwad;
         info!("Input ARBX: {}", input);
 
-        // Call the `getAmountOut()` function on the Portfolio contract to get the output amount
+        // Call the `getAmountOut()` function on the Portfolio contract to get the
+        // output amount
         let output = self
             .portfolio
             .get_amount_out(
@@ -258,10 +360,14 @@ impl Arbitrageur {
         let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;
         info!("Virtual input: {}", virtual_input_y);
 
-        let input = virtual_input_y * rescaling;
+        // Rescale back to the real input amount and multiply by 1/gamma to account for
+        // the swap fee.
+        let final_scaling_wad = rescaling * (iwad * iwad / I256::from_raw(self.gamma_wad));
+        let input = virtual_input_y * final_scaling_wad / iwad;
         info!("Input ARBY: {}", input);
 
-        // Call the `getAmountOut()` function on the Portfolio contract to get the output amount
+        // Call the `getAmountOut()` function on the Portfolio contract to get the
+        // output amount
         let output = self
             .portfolio
             .get_amount_out(
@@ -282,4 +388,20 @@ impl Arbitrageur {
             sell_asset,
         })
     }
+}
+
+/// Used to label the direction (if any) of a the Portfolio swap in a two-swap
+/// arbitrage between the Portfolio and LiquidExchange contracts.
+#[derive(Debug)]
+pub enum SwapDirection {
+    /// Swap ARBX for ARBY on the Portfolio contract with a target price of some
+    /// `U256`.
+    XToY(U256),
+
+    /// Swap ARBY for ARBX on the Portfolio contract with a target price of some
+    /// `U256`.
+    YToX(U256),
+
+    /// No swap is occuring.
+    None,
 }
