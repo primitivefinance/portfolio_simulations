@@ -41,11 +41,11 @@ const BLOCK_SEED: u64 = 0;
 // Price and time
 const INITIAL_PRICE: f64 = 1.0;
 const PRICE_MEAN: f64 = 1.0;
-const PRICE_STD_DEV: f64 = 0.05;
-const PRICE_THETA: f64 = 0.1;
+const PRICE_STD_DEV: f64 = 0.01;
+const PRICE_THETA: f64 = 0.5;
 const T_0: f64 = 0.0;
 const T_N: f64 = 1.0;
-const NUM_STEPS: usize = 10;
+const NUM_STEPS: usize = 100;
 
 // Portfolio pool settings
 const VOLATILITY_BASIS_POINTS: u16 = 100;

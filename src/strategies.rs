@@ -4,14 +4,14 @@ use super::*;
 
 use arbiter_core::{
     bindings::liquid_exchange::LiquidExchange,
-    math::{ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories, float_to_wad},
+    math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
     middleware::RevmMiddlewareError,
 };
 use ethers::{
     abi::AbiDecode,
     types::{Address, I256, U256},
 };
-use log::error;
+use log::warn;
 
 pub struct PriceChanger {
     pub trajectory: Trajectories,
@@ -99,23 +99,20 @@ impl Arbitrageur {
             "Arbitrageur sees prices:\n\tLiquid Exchange: {}\n\tPortfolio: {}",
             liquid_exchange_price, portfolio_price
         );
-        // Check the no-arbitrage bounds
-        let upper_arb_bound = WAD * liquid_exchange_price / self.gamma_wad;
-        let lower_arb_bound = liquid_exchange_price * self.gamma_wad / WAD;
 
-        if portfolio_price > upper_arb_bound {
-            // Lower the portfolio price by selling ARBX for ARBY
-            Ok(SwapDirection::XToY(
-                liquid_exchange_price * WAD / portfolio_price,
-            ))
-        } else if portfolio_price < lower_arb_bound {
+        // Check the no-arbitrage bounds
+        let upper_arb_bound = WAD * portfolio_price / self.gamma_wad;
+        info!("Upper bound: {}", upper_arb_bound);
+
+        let lower_arb_bound = portfolio_price * self.gamma_wad / WAD;
+        info!("Lower bound: {}", lower_arb_bound);
+
+        if liquid_exchange_price > upper_arb_bound &&  liquid_exchange_price > portfolio_price {
             // Raise the portfolio price by selling ARBY for ARBX
-            // In this case, it's possible that the portfolio price is listed at 0, in which case we will sell as much as possible.
-            Ok(SwapDirection::YToX(if portfolio_price != U256::from(0) {
-                liquid_exchange_price * WAD / portfolio_price
-            } else {
-                U256::MAX
-            }))
+            Ok(SwapDirection::YToX(liquid_exchange_price))
+        } else if liquid_exchange_price < lower_arb_bound && liquid_exchange_price < portfolio_price {
+            // Lower the portfolio price by selling ARBX for ARBY
+            Ok(SwapDirection::XToY(liquid_exchange_price))
         } else {
             // Prices are within the no-arbitrage bounds, so we don't have an arbitrage.
             info!("No swap occuring");
@@ -126,11 +123,11 @@ impl Arbitrageur {
     pub async fn execute_arbitrage(&mut self, swap_direction: SwapDirection) -> Result<()> {
         match swap_direction {
             SwapDirection::None => Ok(()),
-            SwapDirection::XToY(ratio) => {
+            SwapDirection::XToY(target_price) => {
                 info!("Swapping ARBX for ARBY on Portfolio");
-                let order = self.compute_order_input_x(ratio).await?;
+                let mut order = self.compute_order_input_x(target_price).await?;
                 info!("Order: {:?}", order);
-                match self.portfolio.swap(order).send().await {
+                match self.portfolio.swap(order.clone()).send().await {
                     Ok(_pending_tx) => {
                         info!("Swap successful");
                     }
@@ -141,20 +138,25 @@ impl Arbitrageur {
                             output,
                         } = middleware_error
                         {
-                            error!(
-                                "Swap failed due to revert: {:?}",
-                                PortfolioErrors::decode(output)
-                            );
+                            let error = PortfolioErrors::decode(output)?;
+                            warn!("Swap failed due to revert: {:?}", error);
+                            if let PortfolioErrors::Portfolio_InvalidInvariant(
+                                Portfolio_InvalidInvariant { prev, next },
+                            ) = error
+                            {
+                                order.output = order.output * 999 / 1000;
+                                self.portfolio.swap(order).send().await?.await?;
+                            }
                         }
                     }
                 }
                 Ok(())
             }
-            SwapDirection::YToX(ratio) => {
+            SwapDirection::YToX(target_price) => {
                 info!("Swapping ARBY for ARBX on Portfolio");
-                let order = self.compute_order_input_y(ratio).await?;
+                let mut order = self.compute_order_input_y(target_price).await?;
                 info!("Order: {:?}", order);
-                match self.portfolio.swap(order).send().await {
+                match self.portfolio.swap(order.clone()).send().await {
                     Ok(_pending_tx) => {
                         info!("Swap successful");
                     }
@@ -165,10 +167,15 @@ impl Arbitrageur {
                             output,
                         } = middleware_error
                         {
-                            error!(
-                                "Swap failed due to revert: {:?}",
-                                PortfolioErrors::decode(output)
-                            );
+                            let error = PortfolioErrors::decode(output)?;
+                            warn!("Swap failed due to revert: {:?}", error);
+                            if let PortfolioErrors::Portfolio_InvalidInvariant(
+                                Portfolio_InvalidInvariant { prev, next },
+                            ) = error
+                            {
+                                order.output = order.output * 999 / 1000;
+                                self.portfolio.swap(order).send().await?.await?;
+                            }
                         }
                     }
                 }
@@ -177,35 +184,45 @@ impl Arbitrageur {
         }
     }
 
-    async fn compute_order_input_x(&self, ratio: U256) -> Result<Order> {
+    // TODO: Need to scale the input by the inverse of the fee parameter (gamma)
+
+    async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
+        let iwad = I256::from_raw(WAD);
+        let sigma_iwad = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
+        let k_iwad = I256::from_raw(float_to_wad(STRIKE_PRICE));
+        let target_price_iwad = I256::from_raw(target_price_wad);
+
+
         // Sell the asset (X) for the quote token (Y)
         let sell_asset = true;
-        let wad = I256::from_raw(WAD);
+
+        // Get the reserves and liquidity
         let (reserve_x, _reserve_y, liquidity, ..) =
             self.portfolio.pools(self.pool_id).call().await?;
-        info!("Reserves: {}, {}", reserve_x, _reserve_y);
-        let rescaling = I256::from(liquidity) / wad;
-        let virtual_reserve_x = I256::from(reserve_x) / rescaling;
+        info!("Raw reserves: {}, {}", reserve_x, _reserve_y);
         info!("Liquidity: {}", liquidity);
+
+        // Compute the virtual reserves (divide by the liquidity rescaling factor)
+        let rescaling = I256::from(liquidity) / iwad;
+        let virtual_reserve_x = I256::from(reserve_x) / rescaling;
+        info!("Virtual reserve x: {}", virtual_reserve_x);
         
-        let sigma = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        // Note that in our units here, $\sqrt{\tau} = 1$.
+        // Note that in our units here, sqrt(tau) = 1.
+        // R1 = 1 - CDF( ln( S / K ) / sigma + 0.5 * sigma)
+        // S here is our target price
+        let s_div_k_iwad = target_price_iwad * iwad / k_iwad;
+        info!("S/K: {}", s_div_k_iwad);
 
-        let mut innermost_term =
-            (self.arbiter_math.log(I256::from_raw(ratio)).call().await? * wad) / sigma;
-        info!("Innermost term first: {}", innermost_term);
-        innermost_term += self
-            .arbiter_math
-            .ppf(wad - I256::from(virtual_reserve_x))
-            .call()
-            .await?;
-        info!("Innermost term second: {}", innermost_term);
+        let inside_term_iwad = (self.arbiter_math.log(s_div_k_iwad).call().await? * iwad ) / sigma_iwad + sigma_iwad / 2;
+        info!("Inside term: {}", inside_term_iwad);
 
-        let cdf_term = self.arbiter_math.cdf(innermost_term).call().await?;
-        info!("CDF term: {}", cdf_term);
+        let target_virtual_reserve_x = iwad - self.arbiter_math.cdf(inside_term_iwad).call().await?;
+        info!("Target virtual reserve: {}", target_virtual_reserve_x);
 
-        let input = (I256::from_raw(self.gamma_inv_wad) * (wad - I256::from(virtual_reserve_x) - cdf_term) / wad) * rescaling;
-        // let input = fee_inv * (wad - I256::from(reserve_x) - cdf_term);
+        let virtual_input_x = target_virtual_reserve_x - virtual_reserve_x;
+        info!("Virtual input: {}", virtual_input_x);
+
+        let input = virtual_input_x * rescaling;
         info!("Input ARBX: {}", input);
 
         let output = self
@@ -218,7 +235,7 @@ impl Arbitrageur {
             )
             .call()
             .await?;
-        // info!("Output ARBY: {}", output);
+        info!("Output ARBY: {}", output);
 
         Ok(Order {
             input: input.as_u128(),
@@ -229,50 +246,43 @@ impl Arbitrageur {
         })
     }
 
-    async fn compute_order_input_y(&self, ratio: U256) -> Result<Order> {
-        // Sell the quote token (Y) for the asset X
+    async fn compute_order_input_y(&self, target_price_wad: U256) -> Result<Order> {
+        let iwad = I256::from_raw(WAD);
+        let sigma_iwad = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
+        let k_iwad = I256::from_raw(float_to_wad(STRIKE_PRICE));
+        let target_price_iwad = I256::from_raw(target_price_wad);
+
+
+        // Sell the quote token (Y) for the asset token (X)
         let sell_asset = false;
-        let wad = I256::from_raw(WAD);
-        let (reserve_x, reserve_y, liquidity, ..) =
+
+        // Get the reserves and liquidity
+        let (_reserve_x, reserve_y, liquidity, ..) =
             self.portfolio.pools(self.pool_id).call().await?;
-        let rescaling = I256::from(liquidity) / wad;
-        let virtual_reserve_x = I256::from(reserve_x) / rescaling; // can div by rescaling
+        info!("Raw reserves: {}, {}", _reserve_x, reserve_y);
+        info!("Liquidity: {}", liquidity);
+
+        // Compute the virtual reserves (divide by the liquidity rescaling factor)
+        let rescaling = I256::from(liquidity) / iwad;
         let virtual_reserve_y = I256::from(reserve_y) / rescaling;
-        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
-        let sigma = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        info!("Sigma: {}", sigma);
-        let k_wad = I256::from_raw(float_to_wad(STRIKE_PRICE));
-
-        if ratio == U256::MAX {
-            let input = I256::from_raw(self.gamma_inv_wad) * ( k_wad - virtual_reserve_y ) * liquidity / wad / wad;
-            info!("Input ARBY: {}", input);
-            let sell_asset = false; 
-            let output = self.portfolio.get_amount_out(self.pool_id, sell_asset, U256::try_from(input)?, self.address).call().await?;
-            return Ok(Order {
-                input: input.as_u128(),
-                output: output.as_u128() - 1,
-                use_max: true,
-                pool_id: self.pool_id,
-                sell_asset,
-            });
-        }
+        info!("Virtual reserve y: {}", virtual_reserve_y);
         
-        // Note that in our units here, $\sqrt{\tau} = 1$.
-        let mut innermost_term =
-            (self.arbiter_math.log(I256::from_raw(ratio)).call().await? * wad) / sigma;
-        // info!("Innermost term first: {}", innermost_term);
-        innermost_term += self
-            .arbiter_math
-            .ppf(wad - I256::from(virtual_reserve_x))
-            .call()
-            .await?
-            - sigma;
-        info!("Innermost term second: {}", innermost_term);
+        // Note that in our units here, sqrt(tau) = 1.
+        // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma)
+        // S here is our target price
+        let s_div_k_iwad = target_price_iwad * iwad / k_iwad;
+        info!("S/K: {}", s_div_k_iwad);
 
-        let cdf_term = self.arbiter_math.cdf(innermost_term).call().await?;
-        info!("CDF term: {}", cdf_term);
+        let inside_term_iwad = (self.arbiter_math.log(s_div_k_iwad).call().await? * iwad ) / sigma_iwad - sigma_iwad / 2;
+        info!("Inside term: {}", inside_term_iwad);
 
-        let input = I256::from_raw(self.gamma_inv_wad) * (k_wad * cdf_term - virtual_reserve_y) * rescaling / wad / wad;
+        let target_virtual_reserve_y = k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
+        info!("Target virtual reserve: {}", target_virtual_reserve_y);
+
+        let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;
+        info!("Virtual input: {}", virtual_input_y);
+
+        let input = virtual_input_y * rescaling;
         info!("Input ARBY: {}", input);
 
         let output = self
@@ -285,7 +295,7 @@ impl Arbitrageur {
             )
             .call()
             .await?;
-        // info!("Output ARBX: {}", output);
+        info!("Output ARBX: {}", output);
 
         Ok(Order {
             input: input.as_u128(),
@@ -296,4 +306,3 @@ impl Arbitrageur {
         })
     }
 }
-
