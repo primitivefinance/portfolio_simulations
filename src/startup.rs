@@ -30,21 +30,9 @@ pub fn initialize() -> Result<(Manager, Client, Client)> {
 }
 
 /// Deploy the contracts that we need for the simulations.
-pub async fn deploy_contracts(
-    client: Client,
-) -> Result<(
-    WETH<RevmMiddleware>,
-    ArbiterToken<RevmMiddleware>,
-    ArbiterToken<RevmMiddleware>,
-    LiquidExchange<RevmMiddleware>,
-    Portfolio<RevmMiddleware>,
-    NormalStrategy<RevmMiddleware>,
-    ArbiterMath<RevmMiddleware>,
-)> {
+pub async fn deploy_contracts(client: Client) -> Result<SimulationContracts> {
     // Deploy the weth contract
-    let weth = bindings::weth::WETH::deploy(client.clone(), ())?
-        .send()
-        .await?;
+    let weth = WETH::deploy(client.clone(), ())?.send().await?;
     info!("weth contract deployed at {:?}", weth.address());
 
     // Deploy the arbiter token x contract
@@ -105,15 +93,14 @@ pub async fn deploy_contracts(
 
     let arbiter_math = ArbiterMath::deploy(client, ())?.send().await?;
 
-    Ok((
-        weth,
+    Ok(SimulationContracts {
         arbx,
         arby,
         liquid_exchange,
         portfolio,
         normal_strategy,
         arbiter_math,
-    ))
+    })
 }
 
 /// Allocate out funds to all the relevant contracts and approve them all to spend.
