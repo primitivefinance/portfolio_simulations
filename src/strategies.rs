@@ -28,6 +28,8 @@ impl PriceChanger {
     /// bound to the admin `Client`. The `PriceChanger` will use the
     /// `OrnsteinUhlenbeck` process to generate a price trajectory with the
     /// constants defined in `config.rs`.
+    /// Ornstein-Uhlenbeck processes are useful for modeling the price of stable
+    /// tokens.
     pub fn new(liquid_exchange: LiquidExchange<RevmMiddleware>) -> Self {
         let process = OrnsteinUhlenbeck::new(PRICE_MEAN, PRICE_STD_DEV, PRICE_THETA);
         let trajectory = process.euler_maruyama(INITIAL_PRICE, T_0, T_N, NUM_STEPS, 1, false);
@@ -122,11 +124,6 @@ impl Arbitrageur {
 
         // Compute the gamma parameter of the Portfolio pool.
         let gamma_wad = WAD - FEE_BASIS_POINTS as u128 * 10_u128.pow(14);
-
-        println!(
-            "thing: {:?}",
-            I256::from_raw(WAD) * I256::from_raw(WAD) / I256::from_raw(gamma_wad)
-        );
 
         Ok(Self {
             prices,
