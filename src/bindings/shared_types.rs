@@ -1,4 +1,4 @@
-///`Order(uint128,uint128,bool,uint64,bool)`
+/// `Order(uint128,uint128,bool,uint64,bool)`
 #[derive(
     Clone,
     ::ethers::contract::EthAbiType,

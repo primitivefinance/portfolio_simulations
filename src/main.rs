@@ -9,13 +9,17 @@ pub mod strategies;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
-    // Initialize the logger
+    // Initialize the logger to print out all the logs.
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "trace");
     }
     env_logger::init();
 
+    // Initialize the manager with a single environment and the admin and
+    // arbitrageur clients.
     let (mut manager, admin, arbitrageur) = initialize()?;
+
+    // Deploy the contracts that we need for the simulation.
     let SimulationContracts {
         arbx,
         arby,
@@ -25,6 +29,7 @@ pub async fn main() -> Result<()> {
         arbiter_math,
     } = deploy_contracts(admin.clone()).await?;
 
+    // Allocate tokens and approve their spending.
     allocate_and_approve(
         admin.clone(),
         arbitrageur.clone(),
@@ -35,6 +40,7 @@ pub async fn main() -> Result<()> {
     )
     .await?;
 
+    // Initialize a Portfolio pool.
     let pool_id = initialize_portfolio(
         &portfolio,
         &normal_strategy,
@@ -44,36 +50,53 @@ pub async fn main() -> Result<()> {
     )
     .await?;
 
-    // This copy of the liquid exchange used here is the one with the admin client.
+    // Create a `PriceChanger` which will update the price of the `LiquidExchange`
+    // contract. This copy of the `LiquidExchange` used here contains the admin
+    // client. This means the admin is taking the job as the price changer.
     let price_changer = PriceChanger::new(liquid_exchange.clone());
 
+    // Create an `Arbitrageur` which will detect and execute arbitrage
+    // opportunities. We create new copies of the `LiquidExchange` and
+    // `Portfolio` contracts that use the arbitrageur client.
     let arbitrageur = Arbitrageur::new(
         LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
         Portfolio::new(portfolio.address(), arbitrageur.clone()),
         arbiter_math,
         pool_id,
-        arbitrageur.default_sender().unwrap(),
     )
     .await?;
 
+    // Run the simulation.
     run(price_changer, arbitrageur).await?;
 
-    // Stop the environment
-    info!("Stopping the environment");
+    // Stop the environment once the simulation completes.
     manager.stop_environment(ENV_LABEL)?;
 
     Ok(())
 }
 
+/// This function houses a basic simulation loop.
+/// It will update the price, detect arbitrage opportunities, and execute them.
+/// It will do this for a set number of steps chosen in `config.rs`.
+/// It will print out the current state of the Portfolio pool after each step as
+/// logs. It will return an error if any of the steps fail.
+/// There is no need to check events or have the `Arbitrageur` or `PriceChanger`
+/// on separate threads.
 async fn run(mut price_changer: PriceChanger, mut arbitrageur: Arbitrageur) -> Result<()> {
-    // Run a loop to change the prices
+    // Run a loop over all the possible prices.
     for index in 0..NUM_STEPS {
         info!("\n\tStep {}", index);
+
+        // Update the price
         price_changer.update_price().await?;
 
+        // Detect if there is an arbitrage opportunity.
         let swap_direction = arbitrageur.detect_arbitrage().await?;
 
+        // Execute the arbitrage
         arbitrageur.execute_arbitrage(swap_direction).await?;
+
+        // Print out the current state of the Portfolio pool.
         info!(
             "Portfolio price after swap is: {:?}",
             arbitrageur

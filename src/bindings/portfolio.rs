@@ -2196,7 +2196,7 @@ pub mod portfolio {
             fallback: false,
         }
     }
-    ///The parsed JSON ABI of the contract.
+    /// The parsed JSON ABI of the contract.
     pub static PORTFOLIO_ABI: ::ethers::contract::Lazy<::ethers::core::abi::Abi> =
         ::ethers::contract::Lazy::new(__abi);
     #[rustfmt::skip]
@@ -2234,8 +2234,9 @@ pub mod portfolio {
         }
     }
     impl<M: ::ethers::providers::Middleware> Portfolio<M> {
-        /// Creates a new contract instance with the specified `ethers` client at
-        /// `address`. The contract derefs to a `ethers::Contract` object.
+        /// Creates a new contract instance with the specified `ethers` client
+        /// at `address`. The contract derefs to a `ethers::Contract`
+        /// object.
         pub fn new<T: Into<::ethers::core::types::Address>>(
             address: T,
             client: ::std::sync::Arc<M>,
@@ -2246,20 +2247,25 @@ pub mod portfolio {
                 client,
             ))
         }
-        /// Constructs the general purpose `Deployer` instance based on the provided constructor arguments and sends it.
-        /// Returns a new instance of a deployer that returns an instance of this contract after sending the transaction
+        /// Constructs the general purpose `Deployer` instance based on the
+        /// provided constructor arguments and sends it. Returns a new
+        /// instance of a deployer that returns an instance of this contract
+        /// after sending the transaction
         ///
         /// Notes:
-        /// - If there are no constructor arguments, you should pass `()` as the argument.
+        /// - If there are no constructor arguments, you should pass `()` as the
+        ///   argument.
         /// - The default poll duration is 7 seconds.
         /// - The default number of confirmations is 1 block.
         ///
         ///
         /// # Example
         ///
-        /// Generate contract bindings with `abigen!` and deploy a new contract instance.
+        /// Generate contract bindings with `abigen!` and deploy a new contract
+        /// instance.
         ///
-        /// *Note*: this requires a `bytecode` and `abi` object in the `greeter.json` artifact.
+        /// *Note*: this requires a `bytecode` and `abi` object in the
+        /// `greeter.json` artifact.
         ///
         /// ```ignore
         /// # async fn deploy<M: ethers::providers::Middleware>(client: ::std::sync::Arc<M>) {
@@ -2285,7 +2291,7 @@ pub mod portfolio {
             let deployer = ::ethers::contract::ContractDeployer::new(deployer);
             Ok(deployer)
         }
-        ///Calls the contract's `DEFAULT_STRATEGY` (0x531e17b3) function
+        /// Calls the contract's `DEFAULT_STRATEGY` (0x531e17b3) function
         pub fn default_strategy(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
@@ -2293,7 +2299,7 @@ pub mod portfolio {
                 .method_hash([83, 30, 23, 179], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `POSITION_RENDERER` (0xb0c3a950) function
+        /// Calls the contract's `POSITION_RENDERER` (0xb0c3a950) function
         pub fn position_renderer(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
@@ -2301,7 +2307,7 @@ pub mod portfolio {
                 .method_hash([176, 195, 169, 80], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `REGISTRY` (0x06433b1b) function
+        /// Calls the contract's `REGISTRY` (0x06433b1b) function
         pub fn registry(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
@@ -2309,7 +2315,7 @@ pub mod portfolio {
                 .method_hash([6, 67, 59, 27], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `VERSION` (0xffa1ad74) function
+        /// Calls the contract's `VERSION` (0xffa1ad74) function
         pub fn version(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::std::string::String> {
@@ -2317,7 +2323,7 @@ pub mod portfolio {
                 .method_hash([255, 161, 173, 116], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `WETH` (0xad5c4648) function
+        /// Calls the contract's `WETH` (0xad5c4648) function
         pub fn weth(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::Address> {
@@ -2325,7 +2331,7 @@ pub mod portfolio {
                 .method_hash([173, 92, 70, 72], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `allocate` (0x2f9e38e2) function
+        /// Calls the contract's `allocate` (0x2f9e38e2) function
         pub fn allocate(
             &self,
             use_max: bool,
@@ -2352,7 +2358,7 @@ pub mod portfolio {
                 )
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `balanceOf` (0x00fdd58e) function
+        /// Calls the contract's `balanceOf` (0x00fdd58e) function
         pub fn balance_of(
             &self,
             p0: ::ethers::core::types::Address,
@@ -2362,7 +2368,7 @@ pub mod portfolio {
                 .method_hash([0, 253, 213, 142], (p0, p1))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `balanceOfBatch` (0x4e1273f4) function
+        /// Calls the contract's `balanceOfBatch` (0x4e1273f4) function
         pub fn balance_of_batch(
             &self,
             owners: ::std::vec::Vec<::ethers::core::types::Address>,
@@ -2375,7 +2381,7 @@ pub mod portfolio {
                 .method_hash([78, 18, 115, 244], (owners, ids))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `changeParameters` (0x8a678967) function
+        /// Calls the contract's `changeParameters` (0x8a678967) function
         pub fn change_parameters(
             &self,
             pool_id: u64,
@@ -2386,7 +2392,7 @@ pub mod portfolio {
                 .method_hash([138, 103, 137, 103], (pool_id, priority_fee, fee))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `claimFee` (0xdda40797) function
+        /// Calls the contract's `claimFee` (0xdda40797) function
         pub fn claim_fee(
             &self,
             token: ::ethers::core::types::Address,
@@ -2396,7 +2402,7 @@ pub mod portfolio {
                 .method_hash([221, 164, 7, 151], (token, amount))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `createPair` (0xc9c65396) function
+        /// Calls the contract's `createPair` (0xc9c65396) function
         pub fn create_pair(
             &self,
             asset: ::ethers::core::types::Address,
@@ -2406,7 +2412,7 @@ pub mod portfolio {
                 .method_hash([201, 198, 83, 150], (asset, quote))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `createPool` (0x267a0cfe) function
+        /// Calls the contract's `createPool` (0x267a0cfe) function
         pub fn create_pool(
             &self,
             pair_id: u32,
@@ -2434,7 +2440,7 @@ pub mod portfolio {
                 )
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `deallocate` (0x5bc55464) function
+        /// Calls the contract's `deallocate` (0x5bc55464) function
         pub fn deallocate(
             &self,
             use_max: bool,
@@ -2459,7 +2465,7 @@ pub mod portfolio {
                 )
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getAmountOut` (0x19057807) function
+        /// Calls the contract's `getAmountOut` (0x19057807) function
         pub fn get_amount_out(
             &self,
             pool_id: u64,
@@ -2471,7 +2477,7 @@ pub mod portfolio {
                 .method_hash([25, 5, 120, 7], (pool_id, sell_asset, amount_in, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getInvariant` (0x39434d5a) function
+        /// Calls the contract's `getInvariant` (0x39434d5a) function
         pub fn get_invariant(
             &self,
             pool_id: u64,
@@ -2480,7 +2486,7 @@ pub mod portfolio {
                 .method_hash([57, 67, 77, 90], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getLiquidityDeltas` (0x8992f20a) function
+        /// Calls the contract's `getLiquidityDeltas` (0x8992f20a) function
         pub fn get_liquidity_deltas(
             &self,
             pool_id: u64,
@@ -2490,7 +2496,7 @@ pub mod portfolio {
                 .method_hash([137, 146, 242, 10], (pool_id, delta_liquidity))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getMaxLiquidity` (0xd6b7dec5) function
+        /// Calls the contract's `getMaxLiquidity` (0xd6b7dec5) function
         pub fn get_max_liquidity(
             &self,
             pool_id: u64,
@@ -2501,7 +2507,7 @@ pub mod portfolio {
                 .method_hash([214, 183, 222, 197], (pool_id, amount_0, amount_1))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getMaxOrder` (0xf07b879e) function
+        /// Calls the contract's `getMaxOrder` (0xf07b879e) function
         pub fn get_max_order(
             &self,
             pool_id: u64,
@@ -2512,7 +2518,7 @@ pub mod portfolio {
                 .method_hash([240, 123, 135, 158], (pool_id, sell_asset, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getNetBalance` (0x4dc68a90) function
+        /// Calls the contract's `getNetBalance` (0x4dc68a90) function
         pub fn get_net_balance(
             &self,
             token: ::ethers::core::types::Address,
@@ -2521,7 +2527,7 @@ pub mod portfolio {
                 .method_hash([77, 198, 138, 144], token)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getPairId` (0x3f92a339) function
+        /// Calls the contract's `getPairId` (0x3f92a339) function
         pub fn get_pair_id(
             &self,
             p0: ::ethers::core::types::Address,
@@ -2531,13 +2537,13 @@ pub mod portfolio {
                 .method_hash([63, 146, 163, 57], (p0, p1))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getPairNonce` (0x078888d6) function
+        /// Calls the contract's `getPairNonce` (0x078888d6) function
         pub fn get_pair_nonce(&self) -> ::ethers::contract::builders::ContractCall<M, u32> {
             self.0
                 .method_hash([7, 136, 136, 214], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getPoolNonce` (0xa5cd8a49) function
+        /// Calls the contract's `getPoolNonce` (0xa5cd8a49) function
         pub fn get_pool_nonce(
             &self,
             p0: u32,
@@ -2546,7 +2552,7 @@ pub mod portfolio {
                 .method_hash([165, 205, 138, 73], p0)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getPoolReserves` (0x2afb9df8) function
+        /// Calls the contract's `getPoolReserves` (0x2afb9df8) function
         pub fn get_pool_reserves(
             &self,
             pool_id: u64,
@@ -2558,7 +2564,7 @@ pub mod portfolio {
                 .method_hash([42, 251, 157, 248], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getReserve` (0xc9a396e9) function
+        /// Calls the contract's `getReserve` (0xc9a396e9) function
         pub fn get_reserve(
             &self,
             token: ::ethers::core::types::Address,
@@ -2567,7 +2573,7 @@ pub mod portfolio {
                 .method_hash([201, 163, 150, 233], token)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getSpotPrice` (0xe331ba34) function
+        /// Calls the contract's `getSpotPrice` (0xe331ba34) function
         pub fn get_spot_price(
             &self,
             pool_id: u64,
@@ -2576,7 +2582,7 @@ pub mod portfolio {
                 .method_hash([227, 49, 186, 52], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `getStrategy` (0x30244be7) function
+        /// Calls the contract's `getStrategy` (0x30244be7) function
         pub fn get_strategy(
             &self,
             pool_id: u64,
@@ -2585,7 +2591,7 @@ pub mod portfolio {
                 .method_hash([48, 36, 75, 231], pool_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `isApprovedForAll` (0xe985e9c5) function
+        /// Calls the contract's `isApprovedForAll` (0xe985e9c5) function
         pub fn is_approved_for_all(
             &self,
             p0: ::ethers::core::types::Address,
@@ -2595,7 +2601,7 @@ pub mod portfolio {
                 .method_hash([233, 133, 233, 197], (p0, p1))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `multicall` (0xac9650d8) function
+        /// Calls the contract's `multicall` (0xac9650d8) function
         pub fn multicall(
             &self,
             data: ::std::vec::Vec<::ethers::core::types::Bytes>,
@@ -2607,7 +2613,7 @@ pub mod portfolio {
                 .method_hash([172, 150, 80, 216], data)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `pairs` (0x5e47663c) function
+        /// Calls the contract's `pairs` (0x5e47663c) function
         pub fn pairs(
             &self,
             p0: u32,
@@ -2624,7 +2630,7 @@ pub mod portfolio {
                 .method_hash([94, 71, 102, 60], p0)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `pools` (0x89a5f084) function
+        /// Calls the contract's `pools` (0x89a5f084) function
         pub fn pools(
             &self,
             p0: u64,
@@ -2645,7 +2651,7 @@ pub mod portfolio {
                 .method_hash([137, 165, 240, 132], p0)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `protocolFee` (0xb0e21e8a) function
+        /// Calls the contract's `protocolFee` (0xb0e21e8a) function
         pub fn protocol_fee(
             &self,
         ) -> ::ethers::contract::builders::ContractCall<M, ::ethers::core::types::U256> {
@@ -2653,7 +2659,7 @@ pub mod portfolio {
                 .method_hash([176, 226, 30, 138], ())
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `protocolFees` (0xdcf844a7) function
+        /// Calls the contract's `protocolFees` (0xdcf844a7) function
         pub fn protocol_fees(
             &self,
             p0: ::ethers::core::types::Address,
@@ -2662,7 +2668,7 @@ pub mod portfolio {
                 .method_hash([220, 248, 68, 167], p0)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `safeBatchTransferFrom` (0x2eb2c2d6) function
+        /// Calls the contract's `safeBatchTransferFrom` (0x2eb2c2d6) function
         pub fn safe_batch_transfer_from(
             &self,
             from: ::ethers::core::types::Address,
@@ -2675,7 +2681,7 @@ pub mod portfolio {
                 .method_hash([46, 178, 194, 214], (from, to, ids, amounts, data))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `safeTransferFrom` (0xf242432a) function
+        /// Calls the contract's `safeTransferFrom` (0xf242432a) function
         pub fn safe_transfer_from(
             &self,
             from: ::ethers::core::types::Address,
@@ -2688,7 +2694,7 @@ pub mod portfolio {
                 .method_hash([242, 66, 67, 42], (from, to, id, amount, data))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `setApprovalForAll` (0xa22cb465) function
+        /// Calls the contract's `setApprovalForAll` (0xa22cb465) function
         pub fn set_approval_for_all(
             &self,
             operator: ::ethers::core::types::Address,
@@ -2698,7 +2704,7 @@ pub mod portfolio {
                 .method_hash([162, 44, 180, 101], (operator, approved))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `setProtocolFee` (0x787dce3d) function
+        /// Calls the contract's `setProtocolFee` (0x787dce3d) function
         pub fn set_protocol_fee(
             &self,
             fee: ::ethers::core::types::U256,
@@ -2707,7 +2713,7 @@ pub mod portfolio {
                 .method_hash([120, 125, 206, 61], fee)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `simulateSwap` (0x80af9d76) function
+        /// Calls the contract's `simulateSwap` (0x80af9d76) function
         pub fn simulate_swap(
             &self,
             order: Order,
@@ -2725,7 +2731,7 @@ pub mod portfolio {
                 .method_hash([128, 175, 157, 118], (order, timestamp, swapper))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `supportsInterface` (0x01ffc9a7) function
+        /// Calls the contract's `supportsInterface` (0x01ffc9a7) function
         pub fn supports_interface(
             &self,
             interface_id: [u8; 4],
@@ -2734,7 +2740,7 @@ pub mod portfolio {
                 .method_hash([1, 255, 201, 167], interface_id)
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `swap` (0xf33ae1bc) function
+        /// Calls the contract's `swap` (0xf33ae1bc) function
         pub fn swap(
             &self,
             args: Order,
@@ -2750,7 +2756,7 @@ pub mod portfolio {
                 .method_hash([243, 58, 225, 188], (args,))
                 .expect("method not found (this should never happen)")
         }
-        ///Calls the contract's `uri` (0x0e89341c) function
+        /// Calls the contract's `uri` (0x0e89341c) function
         pub fn uri(
             &self,
             id: ::ethers::core::types::U256,
@@ -2759,97 +2765,97 @@ pub mod portfolio {
                 .method_hash([14, 137, 52, 28], id)
                 .expect("method not found (this should never happen)")
         }
-        ///Gets the contract's `Allocate` event
+        /// Gets the contract's `Allocate` event
         pub fn allocate_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, AllocateFilter> {
             self.0.event()
         }
-        ///Gets the contract's `ApprovalForAll` event
+        /// Gets the contract's `ApprovalForAll` event
         pub fn approval_for_all_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, ApprovalForAllFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `ChangeParameters` event
+        /// Gets the contract's `ChangeParameters` event
         pub fn change_parameters_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, ChangeParametersFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `ClaimFees` event
+        /// Gets the contract's `ClaimFees` event
         pub fn claim_fees_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, ClaimFeesFilter> {
             self.0.event()
         }
-        ///Gets the contract's `CreatePair` event
+        /// Gets the contract's `CreatePair` event
         pub fn create_pair_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, CreatePairFilter> {
             self.0.event()
         }
-        ///Gets the contract's `CreatePool` event
+        /// Gets the contract's `CreatePool` event
         pub fn create_pool_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, CreatePoolFilter> {
             self.0.event()
         }
-        ///Gets the contract's `Deallocate` event
+        /// Gets the contract's `Deallocate` event
         pub fn deallocate_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, DeallocateFilter> {
             self.0.event()
         }
-        ///Gets the contract's `DecreaseReserveBalance` event
+        /// Gets the contract's `DecreaseReserveBalance` event
         pub fn decrease_reserve_balance_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, DecreaseReserveBalanceFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `Deposit` event
+        /// Gets the contract's `Deposit` event
         pub fn deposit_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, DepositFilter> {
             self.0.event()
         }
-        ///Gets the contract's `IncreaseReserveBalance` event
+        /// Gets the contract's `IncreaseReserveBalance` event
         pub fn increase_reserve_balance_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, IncreaseReserveBalanceFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `Swap` event
+        /// Gets the contract's `Swap` event
         pub fn swap_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, SwapFilter> {
             self.0.event()
         }
-        ///Gets the contract's `TransferBatch` event
+        /// Gets the contract's `TransferBatch` event
         pub fn transfer_batch_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, TransferBatchFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `TransferSingle` event
+        /// Gets the contract's `TransferSingle` event
         pub fn transfer_single_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, TransferSingleFilter>
         {
             self.0.event()
         }
-        ///Gets the contract's `URI` event
+        /// Gets the contract's `URI` event
         pub fn uri_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, UriFilter> {
             self.0.event()
         }
-        ///Gets the contract's `UpdateProtocolFee` event
+        /// Gets the contract's `UpdateProtocolFee` event
         pub fn update_protocol_fee_filter(
             &self,
         ) -> ::ethers::contract::builders::Event<::std::sync::Arc<M>, M, UpdateProtocolFeeFilter>
@@ -2869,7 +2875,8 @@ pub mod portfolio {
             Self::new(contract.address(), contract.client())
         }
     }
-    ///Custom Error type `EtherTransfer` with signature `EtherTransfer()` and selector `0x356594ab`
+    /// Custom Error type `EtherTransfer` with signature `EtherTransfer()` and
+    /// selector `0x356594ab`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2882,7 +2889,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "EtherTransfer", abi = "EtherTransfer()")]
     pub struct EtherTransfer;
-    ///Custom Error type `InsufficientReserve` with signature `InsufficientReserve(uint256,uint256)` and selector `0x315276c9`
+    /// Custom Error type `InsufficientReserve` with signature
+    /// `InsufficientReserve(uint256,uint256)` and selector `0x315276c9`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2901,7 +2909,8 @@ pub mod portfolio {
         pub amount: ::ethers::core::types::U256,
         pub delta: ::ethers::core::types::U256,
     }
-    ///Custom Error type `InvalidBalance` with signature `InvalidBalance()` and selector `0xc52e3eff`
+    /// Custom Error type `InvalidBalance` with signature `InvalidBalance()` and
+    /// selector `0xc52e3eff`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2914,7 +2923,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "InvalidBalance", abi = "InvalidBalance()")]
     pub struct InvalidBalance;
-    ///Custom Error type `PoolLib_AlreadyCreated` with signature `PoolLib_AlreadyCreated()` and selector `0xe930cedf`
+    /// Custom Error type `PoolLib_AlreadyCreated` with signature
+    /// `PoolLib_AlreadyCreated()` and selector `0xe930cedf`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2927,7 +2937,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "PoolLib_AlreadyCreated", abi = "PoolLib_AlreadyCreated()")]
     pub struct PoolLib_AlreadyCreated;
-    ///Custom Error type `PoolLib_InvalidFee` with signature `PoolLib_InvalidFee(uint256)` and selector `0x971b3109`
+    /// Custom Error type `PoolLib_InvalidFee` with signature
+    /// `PoolLib_InvalidFee(uint256)` and selector `0x971b3109`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2940,7 +2951,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "PoolLib_InvalidFee", abi = "PoolLib_InvalidFee(uint256)")]
     pub struct PoolLib_InvalidFee(pub ::ethers::core::types::U256);
-    ///Custom Error type `PoolLib_InvalidPriorityFee` with signature `PoolLib_InvalidPriorityFee(uint256)` and selector `0xeddfe119`
+    /// Custom Error type `PoolLib_InvalidPriorityFee` with signature
+    /// `PoolLib_InvalidPriorityFee(uint256)` and selector `0xeddfe119`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2956,7 +2968,8 @@ pub mod portfolio {
         abi = "PoolLib_InvalidPriorityFee(uint256)"
     )]
     pub struct PoolLib_InvalidPriorityFee(pub ::ethers::core::types::U256);
-    ///Custom Error type `PoolLib_InvalidReserveX` with signature `PoolLib_InvalidReserveX()` and selector `0x5d3f506c`
+    /// Custom Error type `PoolLib_InvalidReserveX` with signature
+    /// `PoolLib_InvalidReserveX()` and selector `0x5d3f506c`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2969,7 +2982,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "PoolLib_InvalidReserveX", abi = "PoolLib_InvalidReserveX()")]
     pub struct PoolLib_InvalidReserveX;
-    ///Custom Error type `PoolLib_InvalidReserveY` with signature `PoolLib_InvalidReserveY()` and selector `0x2869c5f3`
+    /// Custom Error type `PoolLib_InvalidReserveY` with signature
+    /// `PoolLib_InvalidReserveY()` and selector `0x2869c5f3`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2982,7 +2996,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "PoolLib_InvalidReserveY", abi = "PoolLib_InvalidReserveY()")]
     pub struct PoolLib_InvalidReserveY;
-    ///Custom Error type `PoolLib_UpperLiquidityLimit` with signature `PoolLib_UpperLiquidityLimit()` and selector `0xacc9407b`
+    /// Custom Error type `PoolLib_UpperLiquidityLimit` with signature
+    /// `PoolLib_UpperLiquidityLimit()` and selector `0xacc9407b`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -2998,7 +3013,8 @@ pub mod portfolio {
         abi = "PoolLib_UpperLiquidityLimit()"
     )]
     pub struct PoolLib_UpperLiquidityLimit;
-    ///Custom Error type `Portfolio_BeforeSwapFail` with signature `Portfolio_BeforeSwapFail()` and selector `0x2ed0ea01`
+    /// Custom Error type `Portfolio_BeforeSwapFail` with signature
+    /// `Portfolio_BeforeSwapFail()` and selector `0x2ed0ea01`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3011,7 +3027,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "Portfolio_BeforeSwapFail", abi = "Portfolio_BeforeSwapFail()")]
     pub struct Portfolio_BeforeSwapFail;
-    ///Custom Error type `Portfolio_DuplicateToken` with signature `Portfolio_DuplicateToken()` and selector `0x05134ccc`
+    /// Custom Error type `Portfolio_DuplicateToken` with signature
+    /// `Portfolio_DuplicateToken()` and selector `0x05134ccc`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3024,7 +3041,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "Portfolio_DuplicateToken", abi = "Portfolio_DuplicateToken()")]
     pub struct Portfolio_DuplicateToken;
-    ///Custom Error type `Portfolio_Insolvent` with signature `Portfolio_Insolvent(address,int256)` and selector `0xaa269de2`
+    /// Custom Error type `Portfolio_Insolvent` with signature
+    /// `Portfolio_Insolvent(address,int256)` and selector `0xaa269de2`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3043,7 +3061,8 @@ pub mod portfolio {
         pub token: ::ethers::core::types::Address,
         pub net: ::ethers::core::types::I256,
     }
-    ///Custom Error type `Portfolio_InsufficientLiquidity` with signature `Portfolio_InsufficientLiquidity()` and selector `0xcb6dab75`
+    /// Custom Error type `Portfolio_InsufficientLiquidity` with signature
+    /// `Portfolio_InsufficientLiquidity()` and selector `0xcb6dab75`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3059,7 +3078,8 @@ pub mod portfolio {
         abi = "Portfolio_InsufficientLiquidity()"
     )]
     pub struct Portfolio_InsufficientLiquidity;
-    ///Custom Error type `Portfolio_InvalidDecimals` with signature `Portfolio_InvalidDecimals(uint8)` and selector `0xc3da7747`
+    /// Custom Error type `Portfolio_InvalidDecimals` with signature
+    /// `Portfolio_InvalidDecimals(uint8)` and selector `0xc3da7747`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3077,7 +3097,8 @@ pub mod portfolio {
     pub struct Portfolio_InvalidDecimals {
         pub decimals: u8,
     }
-    ///Custom Error type `Portfolio_InvalidInvariant` with signature `Portfolio_InvalidInvariant(int256,int256)` and selector `0xb93dee0a`
+    /// Custom Error type `Portfolio_InvalidInvariant` with signature
+    /// `Portfolio_InvalidInvariant(int256,int256)` and selector `0xb93dee0a`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3096,7 +3117,8 @@ pub mod portfolio {
         pub prev: ::ethers::core::types::I256,
         pub next: ::ethers::core::types::I256,
     }
-    ///Custom Error type `Portfolio_InvalidMulticall` with signature `Portfolio_InvalidMulticall()` and selector `0x55e1f7c5`
+    /// Custom Error type `Portfolio_InvalidMulticall` with signature
+    /// `Portfolio_InvalidMulticall()` and selector `0x55e1f7c5`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3112,7 +3134,8 @@ pub mod portfolio {
         abi = "Portfolio_InvalidMulticall()"
     )]
     pub struct Portfolio_InvalidMulticall;
-    ///Custom Error type `Portfolio_InvalidPairNonce` with signature `Portfolio_InvalidPairNonce()` and selector `0xcc7a739b`
+    /// Custom Error type `Portfolio_InvalidPairNonce` with signature
+    /// `Portfolio_InvalidPairNonce()` and selector `0xcc7a739b`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3128,7 +3151,8 @@ pub mod portfolio {
         abi = "Portfolio_InvalidPairNonce()"
     )]
     pub struct Portfolio_InvalidPairNonce;
-    ///Custom Error type `Portfolio_InvalidPool` with signature `Portfolio_InvalidPool(uint64)` and selector `0xbc27a517`
+    /// Custom Error type `Portfolio_InvalidPool` with signature
+    /// `Portfolio_InvalidPool(uint64)` and selector `0xbc27a517`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3143,7 +3167,8 @@ pub mod portfolio {
     pub struct Portfolio_InvalidPool {
         pub pool_id: u64,
     }
-    ///Custom Error type `Portfolio_InvalidProtocolFee` with signature `Portfolio_InvalidProtocolFee(uint256)` and selector `0x64597477`
+    /// Custom Error type `Portfolio_InvalidProtocolFee` with signature
+    /// `Portfolio_InvalidProtocolFee(uint256)` and selector `0x64597477`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3161,7 +3186,8 @@ pub mod portfolio {
     pub struct Portfolio_InvalidProtocolFee {
         pub protocol_fee: ::ethers::core::types::U256,
     }
-    ///Custom Error type `Portfolio_InvalidReentrancy` with signature `Portfolio_InvalidReentrancy()` and selector `0x02b8002d`
+    /// Custom Error type `Portfolio_InvalidReentrancy` with signature
+    /// `Portfolio_InvalidReentrancy()` and selector `0x02b8002d`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3177,7 +3203,8 @@ pub mod portfolio {
         abi = "Portfolio_InvalidReentrancy()"
     )]
     pub struct Portfolio_InvalidReentrancy;
-    ///Custom Error type `Portfolio_InvalidSettlement` with signature `Portfolio_InvalidSettlement()` and selector `0x326efa43`
+    /// Custom Error type `Portfolio_InvalidSettlement` with signature
+    /// `Portfolio_InvalidSettlement()` and selector `0x326efa43`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3193,7 +3220,8 @@ pub mod portfolio {
         abi = "Portfolio_InvalidSettlement()"
     )]
     pub struct Portfolio_InvalidSettlement;
-    ///Custom Error type `Portfolio_MaxAssetExceeded` with signature `Portfolio_MaxAssetExceeded()` and selector `0xace41c3a`
+    /// Custom Error type `Portfolio_MaxAssetExceeded` with signature
+    /// `Portfolio_MaxAssetExceeded()` and selector `0xace41c3a`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3209,7 +3237,8 @@ pub mod portfolio {
         abi = "Portfolio_MaxAssetExceeded()"
     )]
     pub struct Portfolio_MaxAssetExceeded;
-    ///Custom Error type `Portfolio_MaxQuoteExceeded` with signature `Portfolio_MaxQuoteExceeded()` and selector `0x84c05a5c`
+    /// Custom Error type `Portfolio_MaxQuoteExceeded` with signature
+    /// `Portfolio_MaxQuoteExceeded()` and selector `0x84c05a5c`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3225,7 +3254,8 @@ pub mod portfolio {
         abi = "Portfolio_MaxQuoteExceeded()"
     )]
     pub struct Portfolio_MaxQuoteExceeded;
-    ///Custom Error type `Portfolio_MinAssetExceeded` with signature `Portfolio_MinAssetExceeded()` and selector `0x63448430`
+    /// Custom Error type `Portfolio_MinAssetExceeded` with signature
+    /// `Portfolio_MinAssetExceeded()` and selector `0x63448430`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3241,7 +3271,8 @@ pub mod portfolio {
         abi = "Portfolio_MinAssetExceeded()"
     )]
     pub struct Portfolio_MinAssetExceeded;
-    ///Custom Error type `Portfolio_MinQuoteExceeded` with signature `Portfolio_MinQuoteExceeded()` and selector `0xacb5bdea`
+    /// Custom Error type `Portfolio_MinQuoteExceeded` with signature
+    /// `Portfolio_MinQuoteExceeded()` and selector `0xacb5bdea`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3257,7 +3288,8 @@ pub mod portfolio {
         abi = "Portfolio_MinQuoteExceeded()"
     )]
     pub struct Portfolio_MinQuoteExceeded;
-    ///Custom Error type `Portfolio_NonExistentPool` with signature `Portfolio_NonExistentPool(uint64)` and selector `0x1216e0fa`
+    /// Custom Error type `Portfolio_NonExistentPool` with signature
+    /// `Portfolio_NonExistentPool(uint64)` and selector `0x1216e0fa`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3275,7 +3307,8 @@ pub mod portfolio {
     pub struct Portfolio_NonExistentPool {
         pub pool_id: u64,
     }
-    ///Custom Error type `Portfolio_NotController` with signature `Portfolio_NotController()` and selector `0xffbe9c2c`
+    /// Custom Error type `Portfolio_NotController` with signature
+    /// `Portfolio_NotController()` and selector `0xffbe9c2c`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3288,7 +3321,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "Portfolio_NotController", abi = "Portfolio_NotController()")]
     pub struct Portfolio_NotController;
-    ///Custom Error type `Portfolio_PairExists` with signature `Portfolio_PairExists(uint24)` and selector `0xb0988c43`
+    /// Custom Error type `Portfolio_PairExists` with signature
+    /// `Portfolio_PairExists(uint24)` and selector `0xb0988c43`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3303,7 +3337,8 @@ pub mod portfolio {
     pub struct Portfolio_PairExists {
         pub pair_id: u32,
     }
-    ///Custom Error type `Portfolio_ZeroAmountsAllocate` with signature `Portfolio_ZeroAmountsAllocate()` and selector `0x658b16ed`
+    /// Custom Error type `Portfolio_ZeroAmountsAllocate` with signature
+    /// `Portfolio_ZeroAmountsAllocate()` and selector `0x658b16ed`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3319,7 +3354,8 @@ pub mod portfolio {
         abi = "Portfolio_ZeroAmountsAllocate()"
     )]
     pub struct Portfolio_ZeroAmountsAllocate;
-    ///Custom Error type `Portfolio_ZeroLiquidityAllocate` with signature `Portfolio_ZeroLiquidityAllocate()` and selector `0x90609a7d`
+    /// Custom Error type `Portfolio_ZeroLiquidityAllocate` with signature
+    /// `Portfolio_ZeroLiquidityAllocate()` and selector `0x90609a7d`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3335,7 +3371,8 @@ pub mod portfolio {
         abi = "Portfolio_ZeroLiquidityAllocate()"
     )]
     pub struct Portfolio_ZeroLiquidityAllocate;
-    ///Custom Error type `Portfolio_ZeroLiquidityDeallocate` with signature `Portfolio_ZeroLiquidityDeallocate()` and selector `0x14ef605e`
+    /// Custom Error type `Portfolio_ZeroLiquidityDeallocate` with signature
+    /// `Portfolio_ZeroLiquidityDeallocate()` and selector `0x14ef605e`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3351,7 +3388,8 @@ pub mod portfolio {
         abi = "Portfolio_ZeroLiquidityDeallocate()"
     )]
     pub struct Portfolio_ZeroLiquidityDeallocate;
-    ///Custom Error type `Portfolio_ZeroSwapInput` with signature `Portfolio_ZeroSwapInput()` and selector `0x13fd9b6d`
+    /// Custom Error type `Portfolio_ZeroSwapInput` with signature
+    /// `Portfolio_ZeroSwapInput()` and selector `0x13fd9b6d`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3364,7 +3402,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "Portfolio_ZeroSwapInput", abi = "Portfolio_ZeroSwapInput()")]
     pub struct Portfolio_ZeroSwapInput;
-    ///Custom Error type `Portfolio_ZeroSwapLiquidity` with signature `Portfolio_ZeroSwapLiquidity()` and selector `0x7a95cb21`
+    /// Custom Error type `Portfolio_ZeroSwapLiquidity` with signature
+    /// `Portfolio_ZeroSwapLiquidity()` and selector `0x7a95cb21`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3380,7 +3419,8 @@ pub mod portfolio {
         abi = "Portfolio_ZeroSwapLiquidity()"
     )]
     pub struct Portfolio_ZeroSwapLiquidity;
-    ///Custom Error type `Portfolio_ZeroSwapOutput` with signature `Portfolio_ZeroSwapOutput()` and selector `0x6f85b34e`
+    /// Custom Error type `Portfolio_ZeroSwapOutput` with signature
+    /// `Portfolio_ZeroSwapOutput()` and selector `0x6f85b34e`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3393,7 +3433,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "Portfolio_ZeroSwapOutput", abi = "Portfolio_ZeroSwapOutput()")]
     pub struct Portfolio_ZeroSwapOutput;
-    ///Custom Error type `SwapLib_OutputExceedsReserves` with signature `SwapLib_OutputExceedsReserves()` and selector `0x866a032b`
+    /// Custom Error type `SwapLib_OutputExceedsReserves` with signature
+    /// `SwapLib_OutputExceedsReserves()` and selector `0x866a032b`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3409,7 +3450,8 @@ pub mod portfolio {
         abi = "SwapLib_OutputExceedsReserves()"
     )]
     pub struct SwapLib_OutputExceedsReserves;
-    ///Custom Error type `SwapLib_ProtocolFeeTooHigh` with signature `SwapLib_ProtocolFeeTooHigh()` and selector `0xec8e1fce`
+    /// Custom Error type `SwapLib_ProtocolFeeTooHigh` with signature
+    /// `SwapLib_ProtocolFeeTooHigh()` and selector `0xec8e1fce`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3425,7 +3467,8 @@ pub mod portfolio {
         abi = "SwapLib_ProtocolFeeTooHigh()"
     )]
     pub struct SwapLib_ProtocolFeeTooHigh;
-    ///Custom Error type `SwapLib_ZeroXAdjustment` with signature `SwapLib_ZeroXAdjustment()` and selector `0x7276f08a`
+    /// Custom Error type `SwapLib_ZeroXAdjustment` with signature
+    /// `SwapLib_ZeroXAdjustment()` and selector `0x7276f08a`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3438,7 +3481,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "SwapLib_ZeroXAdjustment", abi = "SwapLib_ZeroXAdjustment()")]
     pub struct SwapLib_ZeroXAdjustment;
-    ///Custom Error type `SwapLib_ZeroYAdjustment` with signature `SwapLib_ZeroYAdjustment()` and selector `0x1fb0b7dd`
+    /// Custom Error type `SwapLib_ZeroYAdjustment` with signature
+    /// `SwapLib_ZeroYAdjustment()` and selector `0x1fb0b7dd`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3451,7 +3495,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "SwapLib_ZeroYAdjustment", abi = "SwapLib_ZeroYAdjustment()")]
     pub struct SwapLib_ZeroYAdjustment;
-    ///Custom Error type `TokenTransfer` with signature `TokenTransfer()` and selector `0xeb2cf4fc`
+    /// Custom Error type `TokenTransfer` with signature `TokenTransfer()` and
+    /// selector `0xeb2cf4fc`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3464,7 +3509,8 @@ pub mod portfolio {
     )]
     #[etherror(name = "TokenTransfer", abi = "TokenTransfer()")]
     pub struct TokenTransfer;
-    ///Custom Error type `TokenTransferFrom` with signature `TokenTransferFrom()` and selector `0x6e89eca5`
+    /// Custom Error type `TokenTransferFrom` with signature
+    /// `TokenTransferFrom()` and selector `0x6e89eca5`
     #[derive(
         Clone,
         ::ethers::contract::EthError,
@@ -3477,7 +3523,7 @@ pub mod portfolio {
     )]
     #[etherror(name = "TokenTransferFrom", abi = "TokenTransferFrom()")]
     pub struct TokenTransferFrom;
-    ///Container type for all of the contract's custom errors
+    /// Container type for all of the contract's custom errors
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum PortfolioErrors {
         EtherTransfer(EtherTransfer),
@@ -4599,7 +4645,7 @@ pub mod portfolio {
         pub prev_fee: ::ethers::core::types::U256,
         pub next_fee: ::ethers::core::types::U256,
     }
-    ///Container type for all of the contract's events
+    /// Container type for all of the contract's events
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum PortfolioEvents {
         AllocateFilter(AllocateFilter),
@@ -4770,7 +4816,8 @@ pub mod portfolio {
             Self::UpdateProtocolFeeFilter(value)
         }
     }
-    ///Container type for all input parameters for the `DEFAULT_STRATEGY` function with signature `DEFAULT_STRATEGY()` and selector `0x531e17b3`
+    /// Container type for all input parameters for the `DEFAULT_STRATEGY`
+    /// function with signature `DEFAULT_STRATEGY()` and selector `0x531e17b3`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4783,7 +4830,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "DEFAULT_STRATEGY", abi = "DEFAULT_STRATEGY()")]
     pub struct DefaultStrategyCall;
-    ///Container type for all input parameters for the `POSITION_RENDERER` function with signature `POSITION_RENDERER()` and selector `0xb0c3a950`
+    /// Container type for all input parameters for the `POSITION_RENDERER`
+    /// function with signature `POSITION_RENDERER()` and selector `0xb0c3a950`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4796,7 +4844,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "POSITION_RENDERER", abi = "POSITION_RENDERER()")]
     pub struct PositionRendererCall;
-    ///Container type for all input parameters for the `REGISTRY` function with signature `REGISTRY()` and selector `0x06433b1b`
+    /// Container type for all input parameters for the `REGISTRY` function with
+    /// signature `REGISTRY()` and selector `0x06433b1b`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4809,7 +4858,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "REGISTRY", abi = "REGISTRY()")]
     pub struct RegistryCall;
-    ///Container type for all input parameters for the `VERSION` function with signature `VERSION()` and selector `0xffa1ad74`
+    /// Container type for all input parameters for the `VERSION` function with
+    /// signature `VERSION()` and selector `0xffa1ad74`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4822,7 +4872,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "VERSION", abi = "VERSION()")]
     pub struct VersionCall;
-    ///Container type for all input parameters for the `WETH` function with signature `WETH()` and selector `0xad5c4648`
+    /// Container type for all input parameters for the `WETH` function with
+    /// signature `WETH()` and selector `0xad5c4648`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4835,7 +4886,9 @@ pub mod portfolio {
     )]
     #[ethcall(name = "WETH", abi = "WETH()")]
     pub struct WethCall;
-    ///Container type for all input parameters for the `allocate` function with signature `allocate(bool,address,uint64,uint128,uint128,uint128)` and selector `0x2f9e38e2`
+    /// Container type for all input parameters for the `allocate` function with
+    /// signature `allocate(bool,address,uint64,uint128,uint128,uint128)` and
+    /// selector `0x2f9e38e2`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4858,7 +4911,8 @@ pub mod portfolio {
         pub max_delta_asset: u128,
         pub max_delta_quote: u128,
     }
-    ///Container type for all input parameters for the `balanceOf` function with signature `balanceOf(address,uint256)` and selector `0x00fdd58e`
+    /// Container type for all input parameters for the `balanceOf` function
+    /// with signature `balanceOf(address,uint256)` and selector `0x00fdd58e`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4874,7 +4928,9 @@ pub mod portfolio {
         pub ::ethers::core::types::Address,
         pub ::ethers::core::types::U256,
     );
-    ///Container type for all input parameters for the `balanceOfBatch` function with signature `balanceOfBatch(address[],uint256[])` and selector `0x4e1273f4`
+    /// Container type for all input parameters for the `balanceOfBatch`
+    /// function with signature `balanceOfBatch(address[],uint256[])` and
+    /// selector `0x4e1273f4`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4890,7 +4946,9 @@ pub mod portfolio {
         pub owners: ::std::vec::Vec<::ethers::core::types::Address>,
         pub ids: ::std::vec::Vec<::ethers::core::types::U256>,
     }
-    ///Container type for all input parameters for the `changeParameters` function with signature `changeParameters(uint64,uint16,uint16)` and selector `0x8a678967`
+    /// Container type for all input parameters for the `changeParameters`
+    /// function with signature `changeParameters(uint64,uint16,uint16)` and
+    /// selector `0x8a678967`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4910,7 +4968,8 @@ pub mod portfolio {
         pub priority_fee: u16,
         pub fee: u16,
     }
-    ///Container type for all input parameters for the `claimFee` function with signature `claimFee(address,uint256)` and selector `0xdda40797`
+    /// Container type for all input parameters for the `claimFee` function with
+    /// signature `claimFee(address,uint256)` and selector `0xdda40797`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4926,7 +4985,8 @@ pub mod portfolio {
         pub token: ::ethers::core::types::Address,
         pub amount: ::ethers::core::types::U256,
     }
-    ///Container type for all input parameters for the `createPair` function with signature `createPair(address,address)` and selector `0xc9c65396`
+    /// Container type for all input parameters for the `createPair` function
+    /// with signature `createPair(address,address)` and selector `0xc9c65396`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4942,7 +5002,10 @@ pub mod portfolio {
         pub asset: ::ethers::core::types::Address,
         pub quote: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `createPool` function with signature `createPool(uint24,uint256,uint256,uint16,uint16,address,address,bytes)` and selector `0x267a0cfe`
+    /// Container type for all input parameters for the `createPool` function
+    /// with signature
+    /// `createPool(uint24,uint256,uint256,uint16,uint16,address,address,bytes)`
+    /// and selector `0x267a0cfe`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4967,7 +5030,9 @@ pub mod portfolio {
         pub strategy: ::ethers::core::types::Address,
         pub strategy_args: ::ethers::core::types::Bytes,
     }
-    ///Container type for all input parameters for the `deallocate` function with signature `deallocate(bool,uint64,uint128,uint128,uint128)` and selector `0x5bc55464`
+    /// Container type for all input parameters for the `deallocate` function
+    /// with signature `deallocate(bool,uint64,uint128,uint128,uint128)` and
+    /// selector `0x5bc55464`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -4989,7 +5054,9 @@ pub mod portfolio {
         pub min_delta_asset: u128,
         pub min_delta_quote: u128,
     }
-    ///Container type for all input parameters for the `getAmountOut` function with signature `getAmountOut(uint64,bool,uint256,address)` and selector `0x19057807`
+    /// Container type for all input parameters for the `getAmountOut` function
+    /// with signature `getAmountOut(uint64,bool,uint256,address)` and selector
+    /// `0x19057807`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5010,7 +5077,8 @@ pub mod portfolio {
         pub amount_in: ::ethers::core::types::U256,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `getInvariant` function with signature `getInvariant(uint64)` and selector `0x39434d5a`
+    /// Container type for all input parameters for the `getInvariant` function
+    /// with signature `getInvariant(uint64)` and selector `0x39434d5a`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5025,7 +5093,9 @@ pub mod portfolio {
     pub struct GetInvariantCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `getLiquidityDeltas` function with signature `getLiquidityDeltas(uint64,int128)` and selector `0x8992f20a`
+    /// Container type for all input parameters for the `getLiquidityDeltas`
+    /// function with signature `getLiquidityDeltas(uint64,int128)` and selector
+    /// `0x8992f20a`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5041,7 +5111,9 @@ pub mod portfolio {
         pub pool_id: u64,
         pub delta_liquidity: i128,
     }
-    ///Container type for all input parameters for the `getMaxLiquidity` function with signature `getMaxLiquidity(uint64,uint256,uint256)` and selector `0xd6b7dec5`
+    /// Container type for all input parameters for the `getMaxLiquidity`
+    /// function with signature `getMaxLiquidity(uint64,uint256,uint256)` and
+    /// selector `0xd6b7dec5`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5061,7 +5133,9 @@ pub mod portfolio {
         pub amount_0: ::ethers::core::types::U256,
         pub amount_1: ::ethers::core::types::U256,
     }
-    ///Container type for all input parameters for the `getMaxOrder` function with signature `getMaxOrder(uint64,bool,address)` and selector `0xf07b879e`
+    /// Container type for all input parameters for the `getMaxOrder` function
+    /// with signature `getMaxOrder(uint64,bool,address)` and selector
+    /// `0xf07b879e`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5078,7 +5152,8 @@ pub mod portfolio {
         pub sell_asset: bool,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `getNetBalance` function with signature `getNetBalance(address)` and selector `0x4dc68a90`
+    /// Container type for all input parameters for the `getNetBalance` function
+    /// with signature `getNetBalance(address)` and selector `0x4dc68a90`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5093,7 +5168,8 @@ pub mod portfolio {
     pub struct GetNetBalanceCall {
         pub token: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `getPairId` function with signature `getPairId(address,address)` and selector `0x3f92a339`
+    /// Container type for all input parameters for the `getPairId` function
+    /// with signature `getPairId(address,address)` and selector `0x3f92a339`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5109,7 +5185,8 @@ pub mod portfolio {
         pub ::ethers::core::types::Address,
         pub ::ethers::core::types::Address,
     );
-    ///Container type for all input parameters for the `getPairNonce` function with signature `getPairNonce()` and selector `0x078888d6`
+    /// Container type for all input parameters for the `getPairNonce` function
+    /// with signature `getPairNonce()` and selector `0x078888d6`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5122,7 +5199,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "getPairNonce", abi = "getPairNonce()")]
     pub struct GetPairNonceCall;
-    ///Container type for all input parameters for the `getPoolNonce` function with signature `getPoolNonce(uint24)` and selector `0xa5cd8a49`
+    /// Container type for all input parameters for the `getPoolNonce` function
+    /// with signature `getPoolNonce(uint24)` and selector `0xa5cd8a49`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5135,7 +5213,9 @@ pub mod portfolio {
     )]
     #[ethcall(name = "getPoolNonce", abi = "getPoolNonce(uint24)")]
     pub struct GetPoolNonceCall(pub u32);
-    ///Container type for all input parameters for the `getPoolReserves` function with signature `getPoolReserves(uint64)` and selector `0x2afb9df8`
+    /// Container type for all input parameters for the `getPoolReserves`
+    /// function with signature `getPoolReserves(uint64)` and selector
+    /// `0x2afb9df8`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5150,7 +5230,8 @@ pub mod portfolio {
     pub struct GetPoolReservesCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `getReserve` function with signature `getReserve(address)` and selector `0xc9a396e9`
+    /// Container type for all input parameters for the `getReserve` function
+    /// with signature `getReserve(address)` and selector `0xc9a396e9`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5165,7 +5246,8 @@ pub mod portfolio {
     pub struct GetReserveCall {
         pub token: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `getSpotPrice` function with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
+    /// Container type for all input parameters for the `getSpotPrice` function
+    /// with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5180,7 +5262,8 @@ pub mod portfolio {
     pub struct GetSpotPriceCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `getStrategy` function with signature `getStrategy(uint64)` and selector `0x30244be7`
+    /// Container type for all input parameters for the `getStrategy` function
+    /// with signature `getStrategy(uint64)` and selector `0x30244be7`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5195,7 +5278,9 @@ pub mod portfolio {
     pub struct GetStrategyCall {
         pub pool_id: u64,
     }
-    ///Container type for all input parameters for the `isApprovedForAll` function with signature `isApprovedForAll(address,address)` and selector `0xe985e9c5`
+    /// Container type for all input parameters for the `isApprovedForAll`
+    /// function with signature `isApprovedForAll(address,address)` and selector
+    /// `0xe985e9c5`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5211,7 +5296,8 @@ pub mod portfolio {
         pub ::ethers::core::types::Address,
         pub ::ethers::core::types::Address,
     );
-    ///Container type for all input parameters for the `multicall` function with signature `multicall(bytes[])` and selector `0xac9650d8`
+    /// Container type for all input parameters for the `multicall` function
+    /// with signature `multicall(bytes[])` and selector `0xac9650d8`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5226,7 +5312,8 @@ pub mod portfolio {
     pub struct MulticallCall {
         pub data: ::std::vec::Vec<::ethers::core::types::Bytes>,
     }
-    ///Container type for all input parameters for the `pairs` function with signature `pairs(uint24)` and selector `0x5e47663c`
+    /// Container type for all input parameters for the `pairs` function with
+    /// signature `pairs(uint24)` and selector `0x5e47663c`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5239,7 +5326,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "pairs", abi = "pairs(uint24)")]
     pub struct PairsCall(pub u32);
-    ///Container type for all input parameters for the `pools` function with signature `pools(uint64)` and selector `0x89a5f084`
+    /// Container type for all input parameters for the `pools` function with
+    /// signature `pools(uint64)` and selector `0x89a5f084`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5252,7 +5340,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "pools", abi = "pools(uint64)")]
     pub struct PoolsCall(pub u64);
-    ///Container type for all input parameters for the `protocolFee` function with signature `protocolFee()` and selector `0xb0e21e8a`
+    /// Container type for all input parameters for the `protocolFee` function
+    /// with signature `protocolFee()` and selector `0xb0e21e8a`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5265,7 +5354,8 @@ pub mod portfolio {
     )]
     #[ethcall(name = "protocolFee", abi = "protocolFee()")]
     pub struct ProtocolFeeCall;
-    ///Container type for all input parameters for the `protocolFees` function with signature `protocolFees(address)` and selector `0xdcf844a7`
+    /// Container type for all input parameters for the `protocolFees` function
+    /// with signature `protocolFees(address)` and selector `0xdcf844a7`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5278,7 +5368,10 @@ pub mod portfolio {
     )]
     #[ethcall(name = "protocolFees", abi = "protocolFees(address)")]
     pub struct ProtocolFeesCall(pub ::ethers::core::types::Address);
-    ///Container type for all input parameters for the `safeBatchTransferFrom` function with signature `safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)` and selector `0x2eb2c2d6`
+    /// Container type for all input parameters for the `safeBatchTransferFrom`
+    /// function with signature
+    /// `safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)` and
+    /// selector `0x2eb2c2d6`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5300,7 +5393,10 @@ pub mod portfolio {
         pub amounts: ::std::vec::Vec<::ethers::core::types::U256>,
         pub data: ::ethers::core::types::Bytes,
     }
-    ///Container type for all input parameters for the `safeTransferFrom` function with signature `safeTransferFrom(address,address,uint256,uint256,bytes)` and selector `0xf242432a`
+    /// Container type for all input parameters for the `safeTransferFrom`
+    /// function with signature
+    /// `safeTransferFrom(address,address,uint256,uint256,bytes)` and selector
+    /// `0xf242432a`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5322,7 +5418,9 @@ pub mod portfolio {
         pub amount: ::ethers::core::types::U256,
         pub data: ::ethers::core::types::Bytes,
     }
-    ///Container type for all input parameters for the `setApprovalForAll` function with signature `setApprovalForAll(address,bool)` and selector `0xa22cb465`
+    /// Container type for all input parameters for the `setApprovalForAll`
+    /// function with signature `setApprovalForAll(address,bool)` and selector
+    /// `0xa22cb465`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5338,7 +5436,9 @@ pub mod portfolio {
         pub operator: ::ethers::core::types::Address,
         pub approved: bool,
     }
-    ///Container type for all input parameters for the `setProtocolFee` function with signature `setProtocolFee(uint256)` and selector `0x787dce3d`
+    /// Container type for all input parameters for the `setProtocolFee`
+    /// function with signature `setProtocolFee(uint256)` and selector
+    /// `0x787dce3d`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5353,7 +5453,10 @@ pub mod portfolio {
     pub struct SetProtocolFeeCall {
         pub fee: ::ethers::core::types::U256,
     }
-    ///Container type for all input parameters for the `simulateSwap` function with signature `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and selector `0x80af9d76`
+    /// Container type for all input parameters for the `simulateSwap` function
+    /// with signature
+    /// `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and
+    /// selector `0x80af9d76`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5373,7 +5476,9 @@ pub mod portfolio {
         pub timestamp: ::ethers::core::types::U256,
         pub swapper: ::ethers::core::types::Address,
     }
-    ///Container type for all input parameters for the `supportsInterface` function with signature `supportsInterface(bytes4)` and selector `0x01ffc9a7`
+    /// Container type for all input parameters for the `supportsInterface`
+    /// function with signature `supportsInterface(bytes4)` and selector
+    /// `0x01ffc9a7`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5388,7 +5493,9 @@ pub mod portfolio {
     pub struct SupportsInterfaceCall {
         pub interface_id: [u8; 4],
     }
-    ///Container type for all input parameters for the `swap` function with signature `swap((uint128,uint128,bool,uint64,bool))` and selector `0xf33ae1bc`
+    /// Container type for all input parameters for the `swap` function with
+    /// signature `swap((uint128,uint128,bool,uint64,bool))` and selector
+    /// `0xf33ae1bc`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5403,7 +5510,8 @@ pub mod portfolio {
     pub struct SwapCall {
         pub args: Order,
     }
-    ///Container type for all input parameters for the `uri` function with signature `uri(uint256)` and selector `0x0e89341c`
+    /// Container type for all input parameters for the `uri` function with
+    /// signature `uri(uint256)` and selector `0x0e89341c`
     #[derive(
         Clone,
         ::ethers::contract::EthCall,
@@ -5418,7 +5526,7 @@ pub mod portfolio {
     pub struct UriCall {
         pub id: ::ethers::core::types::U256,
     }
-    ///Container type for all of the contract's call
+    /// Container type for all of the contract's call
     #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
     pub enum PortfolioCalls {
         DefaultStrategy(DefaultStrategyCall),
@@ -5920,7 +6028,8 @@ pub mod portfolio {
             Self::Uri(value)
         }
     }
-    ///Container type for all return fields from the `DEFAULT_STRATEGY` function with signature `DEFAULT_STRATEGY()` and selector `0x531e17b3`
+    /// Container type for all return fields from the `DEFAULT_STRATEGY`
+    /// function with signature `DEFAULT_STRATEGY()` and selector `0x531e17b3`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -5932,7 +6041,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct DefaultStrategyReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `POSITION_RENDERER` function with signature `POSITION_RENDERER()` and selector `0xb0c3a950`
+    /// Container type for all return fields from the `POSITION_RENDERER`
+    /// function with signature `POSITION_RENDERER()` and selector `0xb0c3a950`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -5944,7 +6054,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct PositionRendererReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `REGISTRY` function with signature `REGISTRY()` and selector `0x06433b1b`
+    /// Container type for all return fields from the `REGISTRY` function with
+    /// signature `REGISTRY()` and selector `0x06433b1b`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -5956,7 +6067,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct RegistryReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `VERSION` function with signature `VERSION()` and selector `0xffa1ad74`
+    /// Container type for all return fields from the `VERSION` function with
+    /// signature `VERSION()` and selector `0xffa1ad74`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -5968,7 +6080,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct VersionReturn(pub ::std::string::String);
-    ///Container type for all return fields from the `WETH` function with signature `WETH()` and selector `0xad5c4648`
+    /// Container type for all return fields from the `WETH` function with
+    /// signature `WETH()` and selector `0xad5c4648`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -5980,7 +6093,9 @@ pub mod portfolio {
         Hash,
     )]
     pub struct WethReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `allocate` function with signature `allocate(bool,address,uint64,uint128,uint128,uint128)` and selector `0x2f9e38e2`
+    /// Container type for all return fields from the `allocate` function with
+    /// signature `allocate(bool,address,uint64,uint128,uint128,uint128)` and
+    /// selector `0x2f9e38e2`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -5995,7 +6110,8 @@ pub mod portfolio {
         pub delta_asset: ::ethers::core::types::U256,
         pub delta_quote: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `balanceOf` function with signature `balanceOf(address,uint256)` and selector `0x00fdd58e`
+    /// Container type for all return fields from the `balanceOf` function with
+    /// signature `balanceOf(address,uint256)` and selector `0x00fdd58e`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6007,7 +6123,9 @@ pub mod portfolio {
         Hash,
     )]
     pub struct BalanceOfReturn(pub ::ethers::core::types::U256);
-    ///Container type for all return fields from the `balanceOfBatch` function with signature `balanceOfBatch(address[],uint256[])` and selector `0x4e1273f4`
+    /// Container type for all return fields from the `balanceOfBatch` function
+    /// with signature `balanceOfBatch(address[],uint256[])` and selector
+    /// `0x4e1273f4`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6021,7 +6139,8 @@ pub mod portfolio {
     pub struct BalanceOfBatchReturn {
         pub balances: ::std::vec::Vec<::ethers::core::types::U256>,
     }
-    ///Container type for all return fields from the `createPair` function with signature `createPair(address,address)` and selector `0xc9c65396`
+    /// Container type for all return fields from the `createPair` function with
+    /// signature `createPair(address,address)` and selector `0xc9c65396`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6035,7 +6154,9 @@ pub mod portfolio {
     pub struct CreatePairReturn {
         pub pair_id: u32,
     }
-    ///Container type for all return fields from the `createPool` function with signature `createPool(uint24,uint256,uint256,uint16,uint16,address,address,bytes)` and selector `0x267a0cfe`
+    /// Container type for all return fields from the `createPool` function with
+    /// signature `createPool(uint24,uint256,uint256,uint16,uint16,address,
+    /// address,bytes)` and selector `0x267a0cfe`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6049,7 +6170,9 @@ pub mod portfolio {
     pub struct CreatePoolReturn {
         pub pool_id: u64,
     }
-    ///Container type for all return fields from the `deallocate` function with signature `deallocate(bool,uint64,uint128,uint128,uint128)` and selector `0x5bc55464`
+    /// Container type for all return fields from the `deallocate` function with
+    /// signature `deallocate(bool,uint64,uint128,uint128,uint128)` and selector
+    /// `0x5bc55464`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6064,7 +6187,9 @@ pub mod portfolio {
         pub delta_asset: ::ethers::core::types::U256,
         pub delta_quote: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `getAmountOut` function with signature `getAmountOut(uint64,bool,uint256,address)` and selector `0x19057807`
+    /// Container type for all return fields from the `getAmountOut` function
+    /// with signature `getAmountOut(uint64,bool,uint256,address)` and selector
+    /// `0x19057807`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6078,7 +6203,8 @@ pub mod portfolio {
     pub struct GetAmountOutReturn {
         pub output: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `getInvariant` function with signature `getInvariant(uint64)` and selector `0x39434d5a`
+    /// Container type for all return fields from the `getInvariant` function
+    /// with signature `getInvariant(uint64)` and selector `0x39434d5a`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6090,7 +6216,9 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetInvariantReturn(pub ::ethers::core::types::I256);
-    ///Container type for all return fields from the `getLiquidityDeltas` function with signature `getLiquidityDeltas(uint64,int128)` and selector `0x8992f20a`
+    /// Container type for all return fields from the `getLiquidityDeltas`
+    /// function with signature `getLiquidityDeltas(uint64,int128)` and selector
+    /// `0x8992f20a`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6105,7 +6233,9 @@ pub mod portfolio {
         pub delta_asset: u128,
         pub delta_quote: u128,
     }
-    ///Container type for all return fields from the `getMaxLiquidity` function with signature `getMaxLiquidity(uint64,uint256,uint256)` and selector `0xd6b7dec5`
+    /// Container type for all return fields from the `getMaxLiquidity` function
+    /// with signature `getMaxLiquidity(uint64,uint256,uint256)` and selector
+    /// `0xd6b7dec5`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6119,7 +6249,9 @@ pub mod portfolio {
     pub struct GetMaxLiquidityReturn {
         pub delta_liquidity: u128,
     }
-    ///Container type for all return fields from the `getMaxOrder` function with signature `getMaxOrder(uint64,bool,address)` and selector `0xf07b879e`
+    /// Container type for all return fields from the `getMaxOrder` function
+    /// with signature `getMaxOrder(uint64,bool,address)` and selector
+    /// `0xf07b879e`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6131,7 +6263,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetMaxOrderReturn(pub Order);
-    ///Container type for all return fields from the `getNetBalance` function with signature `getNetBalance(address)` and selector `0x4dc68a90`
+    /// Container type for all return fields from the `getNetBalance` function
+    /// with signature `getNetBalance(address)` and selector `0x4dc68a90`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6143,7 +6276,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetNetBalanceReturn(pub ::ethers::core::types::I256);
-    ///Container type for all return fields from the `getPairId` function with signature `getPairId(address,address)` and selector `0x3f92a339`
+    /// Container type for all return fields from the `getPairId` function with
+    /// signature `getPairId(address,address)` and selector `0x3f92a339`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6155,7 +6289,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetPairIdReturn(pub u32);
-    ///Container type for all return fields from the `getPairNonce` function with signature `getPairNonce()` and selector `0x078888d6`
+    /// Container type for all return fields from the `getPairNonce` function
+    /// with signature `getPairNonce()` and selector `0x078888d6`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6167,7 +6302,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetPairNonceReturn(pub u32);
-    ///Container type for all return fields from the `getPoolNonce` function with signature `getPoolNonce(uint24)` and selector `0xa5cd8a49`
+    /// Container type for all return fields from the `getPoolNonce` function
+    /// with signature `getPoolNonce(uint24)` and selector `0xa5cd8a49`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6179,7 +6315,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetPoolNonceReturn(pub u32);
-    ///Container type for all return fields from the `getPoolReserves` function with signature `getPoolReserves(uint64)` and selector `0x2afb9df8`
+    /// Container type for all return fields from the `getPoolReserves` function
+    /// with signature `getPoolReserves(uint64)` and selector `0x2afb9df8`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6194,7 +6331,8 @@ pub mod portfolio {
         pub delta_asset: ::ethers::core::types::U256,
         pub delta_quote: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `getReserve` function with signature `getReserve(address)` and selector `0xc9a396e9`
+    /// Container type for all return fields from the `getReserve` function with
+    /// signature `getReserve(address)` and selector `0xc9a396e9`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6206,7 +6344,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetReserveReturn(pub ::ethers::core::types::U256);
-    ///Container type for all return fields from the `getSpotPrice` function with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
+    /// Container type for all return fields from the `getSpotPrice` function
+    /// with signature `getSpotPrice(uint64)` and selector `0xe331ba34`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6220,7 +6359,8 @@ pub mod portfolio {
     pub struct GetSpotPriceReturn {
         pub price: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `getStrategy` function with signature `getStrategy(uint64)` and selector `0x30244be7`
+    /// Container type for all return fields from the `getStrategy` function
+    /// with signature `getStrategy(uint64)` and selector `0x30244be7`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6232,7 +6372,9 @@ pub mod portfolio {
         Hash,
     )]
     pub struct GetStrategyReturn(pub ::ethers::core::types::Address);
-    ///Container type for all return fields from the `isApprovedForAll` function with signature `isApprovedForAll(address,address)` and selector `0xe985e9c5`
+    /// Container type for all return fields from the `isApprovedForAll`
+    /// function with signature `isApprovedForAll(address,address)` and selector
+    /// `0xe985e9c5`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6244,7 +6386,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct IsApprovedForAllReturn(pub bool);
-    ///Container type for all return fields from the `multicall` function with signature `multicall(bytes[])` and selector `0xac9650d8`
+    /// Container type for all return fields from the `multicall` function with
+    /// signature `multicall(bytes[])` and selector `0xac9650d8`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6258,7 +6401,8 @@ pub mod portfolio {
     pub struct MulticallReturn {
         pub results: ::std::vec::Vec<::ethers::core::types::Bytes>,
     }
-    ///Container type for all return fields from the `pairs` function with signature `pairs(uint24)` and selector `0x5e47663c`
+    /// Container type for all return fields from the `pairs` function with
+    /// signature `pairs(uint24)` and selector `0x5e47663c`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6275,7 +6419,8 @@ pub mod portfolio {
         pub token_quote: ::ethers::core::types::Address,
         pub decimals_quote: u8,
     }
-    ///Container type for all return fields from the `pools` function with signature `pools(uint64)` and selector `0x89a5f084`
+    /// Container type for all return fields from the `pools` function with
+    /// signature `pools(uint64)` and selector `0x89a5f084`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6296,7 +6441,8 @@ pub mod portfolio {
         pub controller: ::ethers::core::types::Address,
         pub strategy: ::ethers::core::types::Address,
     }
-    ///Container type for all return fields from the `protocolFee` function with signature `protocolFee()` and selector `0xb0e21e8a`
+    /// Container type for all return fields from the `protocolFee` function
+    /// with signature `protocolFee()` and selector `0xb0e21e8a`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6308,7 +6454,8 @@ pub mod portfolio {
         Hash,
     )]
     pub struct ProtocolFeeReturn(pub ::ethers::core::types::U256);
-    ///Container type for all return fields from the `protocolFees` function with signature `protocolFees(address)` and selector `0xdcf844a7`
+    /// Container type for all return fields from the `protocolFees` function
+    /// with signature `protocolFees(address)` and selector `0xdcf844a7`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6320,7 +6467,10 @@ pub mod portfolio {
         Hash,
     )]
     pub struct ProtocolFeesReturn(pub ::ethers::core::types::U256);
-    ///Container type for all return fields from the `simulateSwap` function with signature `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and selector `0x80af9d76`
+    /// Container type for all return fields from the `simulateSwap` function
+    /// with signature
+    /// `simulateSwap((uint128,uint128,bool,uint64,bool),uint256,address)` and
+    /// selector `0x80af9d76`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6336,7 +6486,9 @@ pub mod portfolio {
         pub prev_invariant: ::ethers::core::types::I256,
         pub post_invariant: ::ethers::core::types::I256,
     }
-    ///Container type for all return fields from the `supportsInterface` function with signature `supportsInterface(bytes4)` and selector `0x01ffc9a7`
+    /// Container type for all return fields from the `supportsInterface`
+    /// function with signature `supportsInterface(bytes4)` and selector
+    /// `0x01ffc9a7`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6348,7 +6500,9 @@ pub mod portfolio {
         Hash,
     )]
     pub struct SupportsInterfaceReturn(pub bool);
-    ///Container type for all return fields from the `swap` function with signature `swap((uint128,uint128,bool,uint64,bool))` and selector `0xf33ae1bc`
+    /// Container type for all return fields from the `swap` function with
+    /// signature `swap((uint128,uint128,bool,uint64,bool))` and selector
+    /// `0xf33ae1bc`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
@@ -6364,7 +6518,8 @@ pub mod portfolio {
         pub input: ::ethers::core::types::U256,
         pub output: ::ethers::core::types::U256,
     }
-    ///Container type for all return fields from the `uri` function with signature `uri(uint256)` and selector `0x0e89341c`
+    /// Container type for all return fields from the `uri` function with
+    /// signature `uri(uint256)` and selector `0x0e89341c`
     #[derive(
         Clone,
         ::ethers::contract::EthAbiType,
