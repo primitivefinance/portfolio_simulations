@@ -1,15 +1,32 @@
-use anyhow::Result;
-use arbiter_core::bindings::arbiter_token::ArbiterToken;
-use arbiter_core::bindings::liquid_exchange::LiquidExchange;
-use arbiter_core::bindings::*;
-use arbiter_core::manager::Manager;
-use arbiter_core::middleware::RevmMiddleware;
-use bindings::portfolio::*;
-use ethers::providers::Middleware;
-use log::info;
 use std::sync::Arc;
 
-use ethers::types::I256;
+use anyhow::Result;
+use arbiter_core::{
+    bindings::{
+        arbiter_math::ArbiterMath, arbiter_token::ArbiterToken, liquid_exchange::LiquidExchange,
+    },
+    manager::Manager,
+    math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
+    middleware::{RevmMiddleware, RevmMiddlewareError},
+};
+use ethers::{
+    abi::AbiDecode,
+    prelude::EthLogDecode,
+    providers::Middleware,
+    types::{Address, I256, U256},
+};
+use log::{info, warn};
+
+use bindings::{
+    normal_strategy::NormalStrategy,
+    portfolio::{
+        AllocateCall, CreatePoolCall, Portfolio, PortfolioErrors, PortfolioEvents,
+        Portfolio_InvalidInvariant,
+    },
+    shared_types::Order,
+    weth::WETH,
+};
+use strategies::*;
 
 mod bindings;
 mod startup;
@@ -28,11 +45,11 @@ const CLIENT_LABEL: &str = "client";
 
 // Tokens
 const ARBITER_TOKEN_X_NAME: &str = "Arbiter Token X";
-const ARBITER_TOKEN_X_SYMBOL: &str = "Arbiter Token X";
+const ARBITER_TOKEN_X_SYMBOL: &str = "ARBX";
 const ARBITER_TOKEN_X_DECIMALS: u8 = 18;
 
 const ARBITER_TOKEN_Y_NAME: &str = "Arbiter Token Y";
-const ARBITER_TOKEN_Y_SYMBOL: &str = "Arbiter Token Y";
+const ARBITER_TOKEN_Y_SYMBOL: &str = "ARBY";
 const ARBITER_TOKEN_Y_DECIMALS: u8 = 18;
 
 const BLOCK_RATE: f64 = 10.0;
@@ -57,8 +74,7 @@ const PRIORITY_FEE_BASIS_POINTS: u16 = 0;
 const SECONDS_PER_YEAR: u64 = 31556953;
 const LIQUIDITY: u128 = 10_u128.pow(22);
 
-// Other
-// const WAD: u128 = 10_u128.pow(18);
+// Other constants
 const WAD: ethers::types::U256 = ethers::types::U256([10_u64.pow(18), 0, 0, 0]);
 
 #[tokio::main]
@@ -96,13 +112,19 @@ pub async fn main() -> Result<()> {
 
     let mut arbitrageur = strategies::Arbitrageur::new(
         LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
-        bindings::portfolio::Portfolio::new(portfolio.address(), arbitrageur.clone()),
+        Portfolio::new(portfolio.address(), arbitrageur.clone()),
         arbiter_math,
         pool_id,
         arbitrageur.default_sender().unwrap(),
     )
     .await?;
 
+    run(price_changer, arbitrageur);
+
+    Ok(())
+}
+
+async fn run(mut price_changer: PriceChanger, mut arbitrageur: Arbitrageur) -> Result<()> {
     // Run a loop to change the prices
     for index in 0..NUM_STEPS {
         info!("\n\tStep {}", index);
@@ -113,13 +135,20 @@ pub async fn main() -> Result<()> {
         arbitrageur.execute_arbitrage(swap_direction).await?;
         info!(
             "Portfolio price after swap is: {:?}",
-            portfolio.get_spot_price(pool_id).call().await?
+            arbitrageur
+                .portfolio
+                .get_spot_price(arbitrageur.pool_id)
+                .call()
+                .await?
         );
         info!(
             "Reserves after swap are: {:?}",
-            portfolio.get_pool_reserves(pool_id).call().await?
+            arbitrageur
+                .portfolio
+                .get_pool_reserves(arbitrageur.pool_id)
+                .call()
+                .await?
         );
     }
-
     Ok(())
 }
