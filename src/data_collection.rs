@@ -1,18 +1,35 @@
-// #![warn(missing_docs)]
+#![warn(missing_docs)]
+
+//! Contains the `SimulationOutput` struct which is used to collect data during
+//! the simulation and write it out to a CSV file for post processing.
 
 use super::*;
 
+/// The struct here is used to provide a collection for all the data we want to
+/// collect in this simulation.
 #[derive(Serialize)]
 pub struct SimulationOutput {
+    /// The prices of the `LiquidExchange` contract.
     pub liquid_exchange_prices: Vec<String>,
+
+    /// The prices of the `Portfolio` contract.
     pub portfolio_prices: Vec<String>,
+
+    /// The ARBX reserves of the `Portfolio` contract.
     pub portfolio_reserves_x: Vec<String>,
+
+    /// The ARBY reserves of the `Portfolio` contract.
     pub portfolio_reserves_y: Vec<String>,
+
+    /// The ARBX balances of the arbitrageur.
     pub arbitrageur_balances_x: Vec<String>,
+
+    /// The ARBY balances of the arbitrageur.
     pub arbitrageur_balances_y: Vec<String>,
 }
 
 impl SimulationOutput {
+    /// Create a new `SimulationOutput` struct that is completely empty.
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
@@ -25,6 +42,8 @@ impl SimulationOutput {
         }
     }
 
+    /// Call this function to update each of the pieces of data that we want to
+    /// collect.
     pub async fn update_output(
         &mut self,
         simulation_contracts: &SimulationContracts,
@@ -78,10 +97,16 @@ impl SimulationOutput {
         Ok(())
     }
 
+    /// Call this function to finalize the data collection by writing everything
+    /// out to a CSV for post processing.
     pub fn finalize(&mut self, label: &str) -> Result<()> {
-        let mut series_vec = vec![];
+        // Serialize the `SimulationOutput`and deserialize into a JSON key/value pair.
+        // The key represents the field names of the struct and the value will be the
+        // data.
         let serialized = serde_json::to_string(&self)?;
         let deserialized: HashMap<String, Value> = serde_json::from_str(&serialized)?;
+
+        let mut series_vec = vec![];
         for (name, value) in deserialized.iter() {
             series_vec.push(Series::new(
                 name,
