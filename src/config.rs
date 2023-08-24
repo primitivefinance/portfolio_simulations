@@ -3,7 +3,7 @@
 //! Contains all the imports, configuration constants, type aliases, and a
 //! struct to house contracts used in the simulation.
 
-pub use std::sync::Arc;
+pub use std::{collections::HashMap, fs::File, sync::Arc};
 
 pub use anyhow::Result;
 pub use arbiter_core::{
@@ -21,6 +21,12 @@ pub use ethers::{
     types::{Address, I256, U256},
 };
 pub use log::{info, warn};
+pub use polars::{
+    prelude::{CsvWriter, DataFrame, NamedFrom, SerWriter},
+    series::Series,
+};
+pub use serde::Serialize;
+pub use serde_json::Value;
 
 pub use crate::bindings::{
     normal_strategy::NormalStrategy,
@@ -113,7 +119,7 @@ pub const WAD: ethers::types::U256 = ethers::types::U256([10_u64.pow(18), 0, 0, 
 /// all that are deployed!
 /// Each is bound to a `Client` and can be used to interact with the contract.
 /// The client in this case will be the admin.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SimulationContracts {
     /// The `ArbiterToken` X contract.
     pub arbx: ArbiterToken<RevmMiddleware>,

@@ -15,3 +15,5 @@ docs/
 .env
 *.lock
 
+# Ignore all CSV files
+*.csv
