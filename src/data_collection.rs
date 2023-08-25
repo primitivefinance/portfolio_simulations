@@ -137,9 +137,17 @@ impl SimulationOutput {
         }
         let mut dataframe = DataFrame::new(series_vec)?;
 
-        let file = File::create(format!("{label}.csv",))?;
+        // Create a directory in the CWD to store the CSV file.
+        let current_dir = env::current_dir()?;
+        let output_dir = current_dir.join("output");
+        fs::create_dir_all(&output_dir)?;
+
+        // Write out the CSV file using the environment label.
+        let file_path = output_dir.join(format!("{}.csv", label));
+        let file = fs::File::create(file_path)?;
         let mut writer = CsvWriter::new(file);
         writer.finish(&mut dataframe)?;
+
         Ok(())
     }
 }
