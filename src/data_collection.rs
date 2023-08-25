@@ -33,12 +33,12 @@ impl SimulationOutput {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
-            liquid_exchange_prices: Vec::with_capacity(NUM_STEPS),
-            portfolio_prices: Vec::with_capacity(NUM_STEPS),
-            portfolio_reserves_x: Vec::with_capacity(NUM_STEPS),
-            portfolio_reserves_y: Vec::with_capacity(NUM_STEPS),
-            arbitrageur_balances_x: Vec::with_capacity(NUM_STEPS),
-            arbitrageur_balances_y: Vec::with_capacity(NUM_STEPS),
+            liquid_exchange_prices: vec![],
+            portfolio_prices: vec![],
+            portfolio_reserves_x: vec![],
+            portfolio_reserves_y: vec![],
+            arbitrageur_balances_x: vec![],
+            arbitrageur_balances_y: vec![],
         }
     }
 
@@ -122,7 +122,7 @@ impl SimulationOutput {
         }
         let mut dataframe = DataFrame::new(series_vec)?;
 
-        let file = File::create(format!("{label}.csv",))?;
+        let file = File::create(format!("{label}.csv"))?;
         let mut writer = CsvWriter::new(file);
         writer.finish(&mut dataframe)?;
         Ok(())
