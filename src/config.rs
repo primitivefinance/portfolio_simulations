@@ -79,16 +79,16 @@ pub const INITIAL_PRICE: f64 = 1.0;
 /// The mean (price) of the process.
 pub const PRICE_MEAN: f64 = 1.0;
 /// The standard deviation of the process.
-pub const PRICE_STD_DEV: f64 = 0.01;
+pub const PRICE_STD_DEV: f64 = 0.005;
 /// The theta parameter of the process.
 /// This describes how strongly the process will revert to the mean.
-pub const PRICE_THETA: f64 = 0.5;
+pub const PRICE_THETA: f64 = 1.0;
 /// The start time of the process.
 pub const T_0: f64 = 0.0;
 /// The end time of the process.
 pub const T_N: f64 = 1.0;
 /// The number of steps in the process.
-pub const NUM_STEPS: usize = 100;
+pub const NUM_STEPS: usize = 1000;
 
 // All the possible settings for the Portfolio pool.
 /// The implied volatility parameter in the `NormalStrategy`.

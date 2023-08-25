@@ -155,18 +155,13 @@ pub async fn allocate_and_approve(
     let arbitrageur_address = arbitrageur.default_sender().unwrap();
 
     // Loop over the tokens that have the admin `Client` and mint a large amount of
-    // tokens to the admin, arbitrageur, and the `LiquidExchange`. Note that the
+    // tokens to the admin and the `LiquidExchange`. Note that the
     // admin `Client` is the only one that can mint! Finally, we approve the
     // `Portfolio` contract to spend all the tokens from the admin since the admin
     // will be the sole LP in the `Portfolio` pool.
-    for admin_token in admin_tokens {
+    for admin_token in admin_tokens.clone() {
         admin_token
             .mint(admin_address, U256::from(u128::MAX))
-            .send()
-            .await?
-            .await?;
-        admin_token
-            .mint(arbitrageur_address, U256::from(u128::MAX))
             .send()
             .await?
             .await?;
@@ -181,6 +176,9 @@ pub async fn allocate_and_approve(
             .await?
             .await?;
     }
+
+    // Give the arbitrageur just some token Y (quote).
+    admin_tokens[1].mint(arbitrageur_address, U256::from(u128::MAX)).send().await?.await?;
 
     // Loop over the tokens that have the arbitrageur `Client` and approve the
     // `LiquidExchange` and `Portfolio` contracts to spend all the tokens from the

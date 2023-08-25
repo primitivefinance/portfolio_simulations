@@ -144,12 +144,12 @@ impl Arbitrageur {
     /// opportunity.
     pub async fn detect_arbitrage(&mut self) -> Result<SwapDirection> {
         // Update the prices the for the arbitrageur.
-        let new_prices = [
+        self.prices = [
             self.liquid_exchange.price().call().await?,
             self.portfolio.get_spot_price(self.pool_id).call().await?,
         ];
-        let liquid_exchange_price = new_prices[0];
-        let portfolio_price = new_prices[1];
+        let liquid_exchange_price = self.prices[0];
+        let portfolio_price = self.prices[1];
         info!(
             "Arbitrageur sees prices:\n\tLiquid Exchange: {}\n\tPortfolio: {}",
             liquid_exchange_price, portfolio_price
@@ -184,40 +184,61 @@ impl Arbitrageur {
     /// ARBY on the Portfolio contract and vice-versa. Then the arbitrageur
     /// will swap the output ARBY for ARBX on the Liquid Exchange contract (and
     /// vice-versa, respectively).
+    // TODO: REWRITE COMMENTS , ALWAYS WANT TO END IN QUOTE ARBY
     pub async fn execute_arbitrage(
         &mut self,
         swap_direction: SwapDirection,
     ) -> Result<Option<Log>> {
-        // Compute the order to send to Portfolio, if necessary
-        let mut order = match swap_direction {
+        Ok(match swap_direction {
             SwapDirection::None => {
                 info!("No swap occuring");
                 return Ok(None);
             }
             SwapDirection::XToY(target_price) => {
+                // Get how much ARBX we need to sell to get the target price on Portfolio.
+                let order = self.compute_order_input_x(target_price).await?;
+                // Swap on LE first
+                // Get the amount to send to LE with quick math
+                let le_input = U256::from(order.input) * self.prices[0] / WAD + 1; 
+                info!("Swapping ARBY for ARBX on Liquid Exchange");
+                self.liquid_exchange
+                    .swap(self.arby_address, le_input)
+                    .send()
+                    .await?
+                    .await?
+                    .unwrap();
+
+                // Now swap on Portfolio
                 info!("Swapping ARBX for ARBY on Portfolio");
-                self.compute_order_input_x(target_price).await?
+                self.portfolio_swap(order).await?
             }
             SwapDirection::YToX(target_price) => {
                 info!("Swapping ARBY for ARBX on Portfolio");
-                self.compute_order_input_y(target_price).await?
+                let order = self.compute_order_input_y(target_price).await?;
+                let logs = self.portfolio_swap(order.clone()).await?;
+                info!("Swapping ARBX for ARBY on Liquid Exchange");
+                self.liquid_exchange
+                    .swap(self.arbx_address, U256::from(order.output))
+                    .send()
+                    .await?
+                    .await?;
+                logs
             }
-        };
+        })
+    }
 
-        // The initial order size to be sent to Portfolio.
-        info!("Order: {:?}", order);
-
+    async fn portfolio_swap(&self, mut order: Order) -> Result<Option<Log>> {
         // Loop and decrease the output size until the swap succeeds (should not take
         // many iterations, if any).
         // This is necessary because of tiny math rounding errors that can occur in the
         // Portfolio contract.
-        let logs = loop {
+        loop {
             match self.portfolio.swap(order.clone()).send().await {
                 Ok(pending_tx) => {
                     info!("Portfolio swap successful");
                     let receipt = pending_tx.await?.unwrap();
                     // The third log will be the `Swap` event.
-                    break Some(receipt.logs[2].clone());
+                    break Ok(Some(receipt.logs[2].clone()));
                 }
                 Err(contract_error) => {
                     if let RevmMiddlewareError::ExecutionRevert {
@@ -238,27 +259,7 @@ impl Arbitrageur {
                     }
                 }
             }
-        };
-
-        if order.sell_asset {
-            info!("Swapping ARBY for ARBX on Liquid Exchange");
-            self.liquid_exchange
-                .swap(self.arbx_address, U256::from(order.output))
-                .send()
-                .await?
-                .await?;
-        } else {
-            info!("Swapping ARBX for ARBY on Liquid Exchange");
-            self.liquid_exchange
-                .swap(self.arby_address, U256::from(order.output))
-                .send()
-                .await?
-                .await?;
         }
-
-        info!("LiquidExchange swap successfull; arbitrage successful");
-
-        Ok(logs)
     }
 
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
