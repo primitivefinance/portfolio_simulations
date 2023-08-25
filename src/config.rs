@@ -12,13 +12,13 @@ pub use arbiter_core::{
     },
     manager::Manager,
     math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
-    middleware::{RevmMiddleware, RevmMiddlewareError},
+    middleware::{Connection, RevmMiddleware, RevmMiddlewareError},
 };
 pub use ethers::{
-    abi::AbiDecode,
+    abi::{AbiDecode, RawLog},
     prelude::EthLogDecode,
     providers::Middleware,
-    types::{Address, I256, U256},
+    types::{Address, Log, I256, U256},
 };
 pub use log::{info, warn};
 pub use polars::{

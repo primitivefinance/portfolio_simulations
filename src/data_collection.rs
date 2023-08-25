@@ -21,6 +21,9 @@ pub struct SimulationOutput {
     /// The ARBY reserves of the `Portfolio` contract.
     pub portfolio_reserves_y: Vec<String>,
 
+    /// The amount of LP fees collected.
+    pub lp_fees: Vec<String>,
+
     /// The ARBX balances of the arbitrageur.
     pub arbitrageur_balances_x: Vec<String>,
 
@@ -33,12 +36,13 @@ impl SimulationOutput {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
-            liquid_exchange_prices: Vec::with_capacity(NUM_STEPS),
-            portfolio_prices: Vec::with_capacity(NUM_STEPS),
-            portfolio_reserves_x: Vec::with_capacity(NUM_STEPS),
-            portfolio_reserves_y: Vec::with_capacity(NUM_STEPS),
-            arbitrageur_balances_x: Vec::with_capacity(NUM_STEPS),
-            arbitrageur_balances_y: Vec::with_capacity(NUM_STEPS),
+            liquid_exchange_prices: vec![],
+            portfolio_prices: vec![],
+            portfolio_reserves_x: vec![],
+            portfolio_reserves_y: vec![],
+            lp_fees: vec![],
+            arbitrageur_balances_x: vec![],
+            arbitrageur_balances_y: vec![],
         }
     }
 
@@ -49,6 +53,7 @@ impl SimulationOutput {
         simulation_contracts: &SimulationContracts,
         pool_id: u64,
         arbitrageur_address: Address,
+        swap_event: Option<Log>,
     ) -> Result<()> {
         // Update the prices of both exchanges.
         self.liquid_exchange_prices.push(
@@ -94,6 +99,18 @@ impl SimulationOutput {
                 .await?
                 .to_string(),
         );
+
+        // Update the LP fees collected.
+        if let Some(swap) = swap_event {
+            let decoded_log = PortfolioEvents::decode_log(&RawLog::from(swap))?;
+            if let PortfolioEvents::SwapFilter(swap) = decoded_log {
+                self.lp_fees.push(swap.fee_amount_dec.to_string());
+            } else {
+                panic!("This should not happen.")
+            }
+        } else {
+            self.lp_fees.push("0".to_string());
+        };
         Ok(())
     }
 
