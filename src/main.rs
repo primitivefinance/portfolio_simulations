@@ -1,9 +1,11 @@
 use config::*;
+use data_collection::*;
 use startup::*;
 use strategies::*;
 
 pub mod bindings;
 pub mod config;
+pub mod data_collection;
 pub mod startup;
 pub mod strategies;
 
@@ -12,7 +14,7 @@ pub mod strategies;
 pub async fn main() -> Result<()> {
     // Initialize the logger to print out all the logs.
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "trace");
+        std::env::set_var("RUST_LOG", "warn");
     }
     env_logger::init();
 
@@ -21,6 +23,7 @@ pub async fn main() -> Result<()> {
     let (mut manager, admin, arbitrageur) = initialize()?;
 
     // Deploy the contracts that we need for the simulation.
+    let simulation_contracts = deploy_contracts(admin.clone()).await?;
     let SimulationContracts {
         arbx,
         arby,
@@ -28,7 +31,7 @@ pub async fn main() -> Result<()> {
         portfolio,
         normal_strategy,
         arbiter_math,
-    } = deploy_contracts(admin.clone()).await?;
+    } = simulation_contracts.clone();
 
     // Allocate tokens and approve their spending.
     allocate_and_approve(
@@ -67,11 +70,23 @@ pub async fn main() -> Result<()> {
     )
     .await?;
 
+    // Prepare the data collection struct.
+    let mut simulation_output = SimulationOutput::new();
+
     // Run the simulation.
-    run(price_changer, arbitrageur).await?;
+    run(
+        price_changer,
+        arbitrageur,
+        simulation_contracts,
+        &mut simulation_output,
+    )
+    .await?;
 
     // Stop the environment once the simulation completes.
     manager.stop_environment(ENV_LABEL)?;
+
+    // Print out the data collected to a CSV.
+    simulation_output.finalize(ENV_LABEL)?;
 
     Ok(())
 }
@@ -83,7 +98,12 @@ pub async fn main() -> Result<()> {
 /// logs. It will return an error if any of the steps fail.
 /// There is no need to check events or have the `Arbitrageur` or `PriceChanger`
 /// on separate threads.
-async fn run(mut price_changer: PriceChanger, mut arbitrageur: Arbitrageur) -> Result<()> {
+async fn run(
+    mut price_changer: PriceChanger,
+    mut arbitrageur: Arbitrageur,
+    simulation_contracts: SimulationContracts,
+    simulation_output: &mut SimulationOutput,
+) -> Result<()> {
     // Run a loop over all the possible prices.
     for index in 0..NUM_STEPS {
         info!("\n\tStep {}", index);
@@ -114,6 +134,14 @@ async fn run(mut price_changer: PriceChanger, mut arbitrageur: Arbitrageur) -> R
                 .call()
                 .await?
         );
+
+        simulation_output
+            .update_output(
+                &simulation_contracts,
+                arbitrageur.pool_id,
+                arbitrageur.address,
+            )
+            .await?;
     }
     Ok(())
 }
