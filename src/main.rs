@@ -116,7 +116,7 @@ async fn run(
         let swap_direction = arbitrageur.detect_arbitrage().await?;
 
         // Execute the arbitrage
-        arbitrageur.execute_arbitrage(swap_direction).await?;
+        let swap_event = arbitrageur.execute_arbitrage(swap_direction).await?;
 
         // Print out the current state of the Portfolio pool.
         info!(
@@ -141,6 +141,7 @@ async fn run(
                 &simulation_contracts,
                 arbitrageur.pool_id,
                 arbitrageur.address,
+                swap_event,
             )
             .await?;
     }

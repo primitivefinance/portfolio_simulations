@@ -3,7 +3,7 @@
 //! Contains all the imports, configuration constants, type aliases, and a
 //! struct to house contracts used in the simulation.
 
-pub use std::{collections::BTreeMap, fs::File, sync::Arc};
+pub use std::{collections::HashMap, env, fs, sync::Arc};
 
 pub use anyhow::Result;
 pub use arbiter_core::{
@@ -12,13 +12,13 @@ pub use arbiter_core::{
     },
     manager::Manager,
     math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
-    middleware::{RevmMiddleware, RevmMiddlewareError},
+    middleware::{Connection, RevmMiddleware, RevmMiddlewareError},
 };
 pub use ethers::{
-    abi::AbiDecode,
+    abi::{AbiDecode, RawLog},
     prelude::EthLogDecode,
     providers::Middleware,
-    types::{Address, I256, U256},
+    types::{Address, Log, I256, U256},
 };
 pub use log::{info, warn};
 pub use polars::{
