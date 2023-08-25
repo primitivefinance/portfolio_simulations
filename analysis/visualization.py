@@ -1,14 +1,20 @@
-import pandas as pd
-from decimal import Decimal
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Read CSV file into a DataFrame
-df = pd.read_csv('../portfolio.csv', dtype=str)
+def plot_prices(df):
+    # Initialize the Seaborn plot
+    sns.set_theme(style="darkgrid")
 
+    # Plot multiple line plots
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(x=df.index, y='liquid_exchange_prices', data=df, label='Liquid Exchange Prices')
+    sns.lineplot(x=df.index, y='portfolio_prices', data=df, label='Portfolio Prices')
 
-def to_decimal(x):
-    return Decimal(x).scaleb(-18)
+    # Add title and labels
+    plt.title('Prices Over Time')
+    plt.xlabel('Index')
+    plt.ylabel('Price')
+    plt.legend()
 
-
-df = df.applymap(to_decimal)
-
-print(df)
+    # Show the plot
+    plt.show()
