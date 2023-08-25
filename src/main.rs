@@ -72,7 +72,7 @@ pub async fn main() -> Result<()> {
 
     // Prepare the data collection struct and get the initial data.
     let mut simulation_output = SimulationOutput::new();
-    simulation_output.update_output(&simulation_contracts, pool_id, arbitrageur.address).await?;
+    simulation_output.update_output(&simulation_contracts, pool_id, arbitrageur.address, None).await?;
 
     // Run the simulation.
     run(

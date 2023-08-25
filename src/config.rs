@@ -3,7 +3,7 @@
 //! Contains all the imports, configuration constants, type aliases, and a
 //! struct to house contracts used in the simulation.
 
-pub use std::{collections::HashMap, env, fs, sync::Arc};
+pub use std::{collections::BTreeMap, env, fs, sync::Arc};
 
 pub use anyhow::Result;
 pub use arbiter_core::{
