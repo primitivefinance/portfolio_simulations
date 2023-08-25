@@ -25,12 +25,28 @@ def plot_portfolio_reserves(ax, df):
     ax.set_ylabel('Reserve in wei')
     ax.legend()
 
+def plot_lp_portfolio_values(ax, df):
+    sns.lineplot(x=df.index, y='lp_portfolio_value', data=df, label='LP Portfolio Value', ax=ax)
+    ax.set_title('LP Portfolio Values Over Time')
+    ax.set_xlabel('Index')
+    ax.set_ylabel('Value in wei')
+    ax.legend()
+
+def plot_arbitrageur_portfolio_values(ax, df):
+    sns.lineplot(x=df.index, y='arbitrageur_portfolio_value', data=df, label='Arbitrageur Portfolio Value', ax=ax)
+    ax.set_title('Arbitrageur Portfolio Values Over Time')
+    ax.set_xlabel('Index')
+    ax.set_ylabel('Value in wei')
+    ax.legend()
+
 def plot_all(df, filename):
     sns.set_theme(style="darkgrid")
-    fig, axes = plt.subplots(3, 1, figsize=(16, 9))
+    fig, axes = plt.subplots(5, 1, figsize=(16, 16))
 
     plot_prices(axes[0], df)
     plot_arbitrageur_relative_balances(axes[1], df)
     plot_portfolio_reserves(axes[2], df)
+    plot_lp_portfolio_values(axes[3], df)
+    plot_arbitrageur_portfolio_values(axes[4], df)
 
     plt.savefig(filename)
