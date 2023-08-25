@@ -3,7 +3,7 @@
 //! Contains all the imports, configuration constants, type aliases, and a
 //! struct to house contracts used in the simulation.
 
-pub use std::{collections::HashMap, env, fs, sync::Arc};
+pub use std::{collections::BTreeMap, env, fs, sync::Arc};
 
 pub use anyhow::Result;
 pub use arbiter_core::{
@@ -88,7 +88,7 @@ pub const T_0: f64 = 0.0;
 /// The end time of the process.
 pub const T_N: f64 = 1.0;
 /// The number of steps in the process.
-pub const NUM_STEPS: usize = 5;
+pub const NUM_STEPS: usize = 100;
 
 // All the possible settings for the Portfolio pool.
 /// The implied volatility parameter in the `NormalStrategy`.

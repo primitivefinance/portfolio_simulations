@@ -70,8 +70,9 @@ pub async fn main() -> Result<()> {
     )
     .await?;
 
-    // Prepare the data collection struct.
+    // Prepare the data collection struct and get the initial data.
     let mut simulation_output = SimulationOutput::new();
+    simulation_output.update_output(&simulation_contracts, pool_id, arbitrageur.address, None).await?;
 
     // Run the simulation.
     run(
@@ -104,8 +105,8 @@ async fn run(
     simulation_contracts: SimulationContracts,
     simulation_output: &mut SimulationOutput,
 ) -> Result<()> {
-    // Run a loop over all the possible prices.
-    for index in 0..NUM_STEPS {
+    // Run a loop over all the possible prices, start with index of 1 since we already set initial prices.
+    for index in 1..NUM_STEPS {
         info!("\n\tStep {}", index);
 
         // Update the price

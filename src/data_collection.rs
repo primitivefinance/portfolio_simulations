@@ -131,8 +131,10 @@ impl SimulationOutput {
         // Serialize the `SimulationOutput`and deserialize into a JSON key/value pair.
         // The key represents the field names of the struct and the value will be the
         // data.
+        // BTreeMap preserves (lexicographical) order of the columns which may not match
+        // the struct ordering.
         let serialized = serde_json::to_string(&self)?;
-        let deserialized: HashMap<String, Value> = serde_json::from_str(&serialized)?;
+        let deserialized: BTreeMap<String, Value> = serde_json::from_str(&serialized)?;
 
         let mut series_vec = vec![];
         for (name, value) in deserialized.iter() {
