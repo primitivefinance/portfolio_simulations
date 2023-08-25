@@ -27,7 +27,7 @@ def plot_portfolio_reserves(ax, df):
 
 def plot_all(df, filename):
     sns.set_theme(style="darkgrid")
-    fig, axes = plt.subplots(3, 1, figsize=(10, 18))
+    fig, axes = plt.subplots(3, 1, figsize=(16, 9))
 
     plot_prices(axes[0], df)
     plot_arbitrageur_relative_balances(axes[1], df)
