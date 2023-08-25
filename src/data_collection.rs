@@ -21,8 +21,11 @@ pub struct SimulationOutput {
     /// The ARBY reserves of the `Portfolio` contract.
     pub portfolio_reserves_y: Vec<String>,
 
-    /// The amount of LP fees collected.
-    pub lp_fees: Vec<String>,
+    /// The amount of LP fees collected in ARBX.
+    pub lp_fees_x: Vec<String>,
+
+    /// The amount of LP fees collected in ARBX.
+    pub lp_fees_y: Vec<String>,
 
     /// The ARBX balances of the arbitrageur.
     pub arbitrageur_balances_x: Vec<String>,
@@ -40,7 +43,8 @@ impl SimulationOutput {
             portfolio_prices: vec![],
             portfolio_reserves_x: vec![],
             portfolio_reserves_y: vec![],
-            lp_fees: vec![],
+            lp_fees_x: vec![],
+            lp_fees_y: vec![],
             arbitrageur_balances_x: vec![],
             arbitrageur_balances_y: vec![],
         }
@@ -104,12 +108,19 @@ impl SimulationOutput {
         if let Some(swap) = swap_event {
             let decoded_log = PortfolioEvents::decode_log(&RawLog::from(swap))?;
             if let PortfolioEvents::SwapFilter(swap) = decoded_log {
-                self.lp_fees.push(swap.fee_amount_dec.to_string());
+                if swap.sell_asset {
+                    self.lp_fees_x.push(swap.fee_amount_dec.to_string());
+                    self.lp_fees_y.push(0.to_string())
+                } else {
+                    self.lp_fees_x.push(0.to_string());
+                    self.lp_fees_y.push(swap.fee_amount_dec.to_string());
+                }
             } else {
                 panic!("This should not happen.")
             }
         } else {
-            self.lp_fees.push("0".to_string());
+            self.lp_fees_x.push(0.to_string());
+            self.lp_fees_y.push(0.to_string());
         };
         Ok(())
     }
