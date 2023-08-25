@@ -184,12 +184,15 @@ impl Arbitrageur {
     /// ARBY on the Portfolio contract and vice-versa. Then the arbitrageur
     /// will swap the output ARBY for ARBX on the Liquid Exchange contract (and
     /// vice-versa, respectively).
-    pub async fn execute_arbitrage(&mut self, swap_direction: SwapDirection) -> Result<()> {
+    pub async fn execute_arbitrage(
+        &mut self,
+        swap_direction: SwapDirection,
+    ) -> Result<Option<Log>> {
         // Compute the order to send to Portfolio, if necessary
         let mut order = match swap_direction {
             SwapDirection::None => {
                 info!("No swap occuring");
-                return Ok(());
+                return Ok(None);
             }
             SwapDirection::XToY(target_price) => {
                 info!("Swapping ARBX for ARBY on Portfolio");
@@ -208,29 +211,34 @@ impl Arbitrageur {
         // many iterations, if any).
         // This is necessary because of tiny math rounding errors that can occur in the
         // Portfolio contract.
-        loop {
-            if let Err(contract_error) = self.portfolio.swap(order.clone()).send().await {
-                if let RevmMiddlewareError::ExecutionRevert {
-                    gas_used: _,
-                    output,
-                } = contract_error.as_middleware_error().unwrap()
-                {
-                    let error = PortfolioErrors::decode(output)?;
-                    warn!("Swap failed due to revert: {:?}", error);
-                    if let PortfolioErrors::Portfolio_InvalidInvariant(
-                        Portfolio_InvalidInvariant { prev: _, next: _ },
-                    ) = error
+        let logs = loop {
+            match self.portfolio.swap(order.clone()).send().await {
+                Ok(pending_tx) => {
+                    info!("Portfolio swap successful");
+                    let receipt = pending_tx.await?.unwrap();
+                    // The third log will be the `Swap` event.
+                    break Some(receipt.logs[2].clone());
+                }
+                Err(contract_error) => {
+                    if let RevmMiddlewareError::ExecutionRevert {
+                        gas_used: _,
+                        output,
+                    } = contract_error.as_middleware_error().unwrap()
                     {
-                        warn!("Shrinking order output size by 0.1%");
-                        order.output = order.output * 999 / 1000;
-                        continue;
+                        let error = PortfolioErrors::decode(output)?;
+                        warn!("Swap failed due to revert: {:?}", error);
+                        if let PortfolioErrors::Portfolio_InvalidInvariant(
+                            Portfolio_InvalidInvariant { prev: _, next: _ },
+                        ) = error
+                        {
+                            warn!("Shrinking order output size by 0.1%");
+                            order.output = order.output * 999 / 1000;
+                            continue;
+                        }
                     }
                 }
-            } else {
-                info!("Portfolio swap successful");
-                break;
             }
-        }
+        };
 
         if order.sell_asset {
             info!("Swapping ARBY for ARBX on Liquid Exchange");
@@ -250,7 +258,7 @@ impl Arbitrageur {
 
         info!("LiquidExchange swap successfull; arbitrage successful");
 
-        Ok(())
+        Ok(logs)
     }
 
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
