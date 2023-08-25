@@ -6,6 +6,7 @@ def import_wad_csv(path):
     df = df.applymap(to_decimal)
     df = create_arbitrageur_relative_balances(df)
     df = compute_portfolio_values(df)
+    df = compute_accumulated_fees(df)
     return df
 
 def to_decimal(x):
@@ -25,5 +26,10 @@ def create_arbitrageur_relative_balances(df):
 def compute_portfolio_values(df):
     df['lp_portfolio_value'] = df['portfolio_reserves_x'] * df['liquid_exchange_prices'] + df['portfolio_reserves_y']
     df['arbitrageur_portfolio_value'] = df['arbitrageur_relative_balances_x'] * df['liquid_exchange_prices'] + df['arbitrageur_relative_balances_y']
+
+    return df
+
+def compute_accumulated_fees(df):
+    df['accumulated_lp_fees'] = df['lp_fees'].cumsum()
 
     return df

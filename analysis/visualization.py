@@ -39,14 +39,22 @@ def plot_arbitrageur_portfolio_values(ax, df):
     ax.set_ylabel('Value in wei')
     ax.legend()
 
+def plot_lp_fees(ax, df):
+    sns.lineplot(x=df.index, y='accumulated_lp_fees', data=df, label='Accumulated LP Fees', ax=ax)
+    ax.set_title('Accumulated LP Fees Over Time')
+    ax.set_xlabel('Index')
+    ax.set_ylabel('Fees in wei')
+    ax.legend()
+
 def plot_all(df, filename):
     sns.set_theme(style="darkgrid")
-    fig, axes = plt.subplots(5, 1, figsize=(16, 16))
+    fig, axes = plt.subplots(6, 1, figsize=(16, 16))
 
     plot_prices(axes[0], df)
     plot_arbitrageur_relative_balances(axes[1], df)
     plot_portfolio_reserves(axes[2], df)
     plot_lp_portfolio_values(axes[3], df)
     plot_arbitrageur_portfolio_values(axes[4], df)
+    plot_lp_fees(axes[5], df)
 
     plt.savefig(filename)
