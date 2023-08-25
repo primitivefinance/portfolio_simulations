@@ -29,9 +29,7 @@ cd portfolio_simulations
 cargo run
 ```
 If all is working properly, then the simulation will take place.
-By default, we output verbose logs to the console so that you can see what is happening.
-This is useful for debugging and understanding the simulation.
-For instance, you will likely see a stream of output that looks like this:
+By default, we output `warn` logs to the console so that you can see if there are any important events that happened during the simulation. If you instead put `info` or `debug` in the `RUST_LOG` environment variable, then you will see more output like the following:
 ```
 [INFO  arbiter_core::manager] Added environment labeled portfolio
 [INFO  portfolio_simulation::startup] Admin client with address 0xcfaaf7059d10aee23d6e37455df0756603472ca9
@@ -84,26 +82,15 @@ Also added are inline comments to help explain the code and why specific choices
 
 ## Visualization
 
-Using python, we can visualize the results of the simulation.
-
-Set up a local python environment:
+Using Python, we can visualize the results of the simulation.
+We can set this up by `cd`ing into the `visualization` directory and running the following:
 ```bash
-pyenv install 3.10.12
-pyenv local 3.10.12
-python -m venv py_env
+./py_setup.sh
+```
+This will get the Python environment set up for you locally and install all the necessary imports.
+Then, you can run the following to generate the plots:
+```bash
+python main.py
 ```
 
-Activate the environment by running:
-```bash
-source py_env/bin/activate
-```
-
-To deactivate this, just put
-```bash
-deactivate
-```
-
-Install the requirements:
-```bash
-pip install -r py_requirements.txt
-```
+Currently the file path is hardcoded to `../output/portfolio.csv` which is where the simulation will output the results if you `cargo run` from the `portfolio_simulations` directory.
