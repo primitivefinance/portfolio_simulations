@@ -36,7 +36,8 @@ def plot_arbitrageur_portfolio_values(ax, df):
     customize_plot(ax, 'Arbitrageur Portfolio Values Over Time', 'Index', 'Value in wei')
 
 def plot_lp_fees(ax, df):
-    sns.lineplot(x=df.index, y='accumulated_lp_fees', data=df, label='Accumulated LP Fees', ax=ax, linewidth=2)
+    sns.lineplot(x=df.index, y='accumulated_lp_fees_x', data=df, label='Accumulated LP Fees X', ax=ax, linewidth=2)
+    sns.lineplot(x=df.index, y='accumulated_lp_fees_y', data=df, label='Accumulated LP Fees Y', ax=ax, linewidth=2)
     customize_plot(ax, 'Accumulated LP Fees Over Time', 'Index', 'Fees in wei')
 
 def plot_arbitrageur_balances_and_values(ax, df):

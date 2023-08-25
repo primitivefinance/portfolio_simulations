@@ -30,6 +30,7 @@ def compute_portfolio_values(df):
     return df
 
 def compute_accumulated_fees(df):
-    df['accumulated_lp_fees'] = df['lp_fees'].cumsum()
+    df['accumulated_lp_fees_x'] = df['lp_fees_x'].cumsum()
+    df['accumulated_lp_fees_y'] = df['lp_fees_y'].cumsum()
 
     return df
