@@ -17,3 +17,7 @@ docs/
 
 # Ignore all CSV files
 *.csv
+
+# Ignore certain Python files
+analysis/py_env/
+analysis/__pycache__/

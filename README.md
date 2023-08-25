@@ -81,3 +81,29 @@ To view the documentation, run the following:
 cargo doc --no-deps --open
 ```
 Also added are inline comments to help explain the code and why specific choices were made.
+
+## Visualization
+
+Using python, we can visualize the results of the simulation.
+
+Set up a local python environment:
+```bash
+pyenv install 3.10.12
+pyenv local 3.10.12
+python -m venv py_env
+```
+
+Activate the environment by running:
+```bash
+source py_env/bin/activate
+```
+
+To deactivate this, just put
+```bash
+deactivate
+```
+
+Install the requirements:
+```bash
+pip install -r py_requirements.txt
+```
