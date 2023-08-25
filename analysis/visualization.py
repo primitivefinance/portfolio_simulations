@@ -84,14 +84,20 @@ def plot_portfolio_balances_and_values(ax, df):
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax2.legend(lines + lines2, labels + labels2, loc=0, fontsize=12)
 
+def plot_liquid_exchange_relative_reserves(ax, df):
+    sns.lineplot(x=df.index, y='liquid_exchange_relative_reserves_x', data=df, label='Relative Liquid Exchange Reserves X', ax=ax, linewidth=2)
+    sns.lineplot(x=df.index, y='liquid_exchange_relative_reserves_y', data=df, label='Relative Liquid Exchange Reserves Y', ax=ax, linewidth=2)
+    customize_plot(ax, 'Liquid Exchange Reserves Over Time', 'Index', 'Reserve in WAD')
+
 
 def plot_all(df, filename):
-    fig, axes = plt.subplots(4, 1, figsize=(16, 20))
+    fig, axes = plt.subplots(5, 1, figsize=(16, 20))
 
     plot_prices(axes[0], df)
     plot_arbitrageur_balances_and_values(axes[1], df)
-    plot_portfolio_balances_and_values(axes[2], df)
-    plot_lp_fees(axes[3], df)
+    plot_liquid_exchange_relative_reserves(axes[2], df)
+    plot_portfolio_balances_and_values(axes[3], df)
+    plot_lp_fees(axes[4], df)
 
     plt.tight_layout()  # Adjusts subplot params for better layout
     plt.savefig(filename)

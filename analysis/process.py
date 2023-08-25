@@ -5,6 +5,7 @@ def import_wad_csv(path):
     df = pd.read_csv(path, dtype=str)
     df = df.applymap(to_decimal)
     df = create_arbitrageur_relative_balances(df)
+    df = create_liquid_exchange_relative_reserves(df)
     df = compute_portfolio_values(df)
     df = compute_accumulated_fees(df)
     return df
@@ -20,6 +21,17 @@ def create_arbitrageur_relative_balances(df):
     # Create a new column 'arbitrageur_relative_balances_x' by subtracting the initial balance
     initial_balance_y = df.loc[0, 'arbitrageur_balances_y']
     df['arbitrageur_relative_balances_y'] = df['arbitrageur_balances_y'] - initial_balance_y
+
+    return df
+
+def create_liquid_exchange_relative_reserves(df):
+    # Create a new column 'liquid_exchange_relative_reserves_x' by subtracting the initial balance
+    initial_reserve_x = df.loc[0, 'liquid_exchange_reserves_x']
+    df['liquid_exchange_relative_reserves_x'] = df['liquid_exchange_reserves_x'] - initial_reserve_x
+
+    # Create a new column 'liquid_exchange_relative_reserves_x' by subtracting the initial balance
+    initial_reserve_y = df.loc[0, 'liquid_exchange_reserves_y']
+    df['liquid_exchange_relative_reserves_y'] = df['liquid_exchange_reserves_y'] - initial_reserve_y
 
     return df
 
