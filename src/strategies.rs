@@ -181,10 +181,20 @@ impl Arbitrageur {
 
     /// Executes an arbitrage opportunity.
     /// If the swap direction is `XtoY`, then the arbitrageur will sell ARBX for
-    /// ARBY on the Portfolio contract and vice-versa. Then the arbitrageur
-    /// will swap the output ARBY for ARBX on the Liquid Exchange contract (and
-    /// vice-versa, respectively).
-    // TODO: REWRITE COMMENTS , ALWAYS WANT TO END IN QUOTE ARBY
+    /// ARBY on the Portfolio contract and vice-versa.
+    ///
+    /// Then the arbitrageur has a goal of ending up only with the quote token
+    /// (ARBY) since this is viewed as a risk-free cash asset.
+    /// This means that:
+    /// - If the swap direction is `XtoY`, then the arbitrageur will sell ARBY
+    ///   on the LiquidExchange for ARBX, then swap the ARBX for ARBY on
+    ///   Portfolio such that the resulting Portfolio pirce matches the
+    ///   LiquidExchange.
+    /// The exact amount of ARBX to sell is computed by the
+    /// `compute_order_input_x` function.
+    /// - If the swap direction is `YtoX`, then the arbitrageur will sell ARBY
+    ///   on Portfolio for ARBX, then swap the ARBX for ARBY on the
+    ///   LiquidExchange after.
     pub async fn execute_arbitrage(
         &mut self,
         swap_direction: SwapDirection,
@@ -199,7 +209,7 @@ impl Arbitrageur {
                 let order = self.compute_order_input_x(target_price).await?;
                 // Swap on LE first
                 // Get the amount to send to LE with quick math
-                let le_input = U256::from(order.input) * self.prices[0] / WAD + 1; 
+                let le_input = U256::from(order.input) * self.prices[0] / WAD + 1;
                 info!("Swapping ARBY for ARBX on Liquid Exchange");
                 self.liquid_exchange
                     .swap(self.arby_address, le_input)
@@ -217,6 +227,7 @@ impl Arbitrageur {
                 let order = self.compute_order_input_y(target_price).await?;
                 let logs = self.portfolio_swap(order.clone()).await?;
                 info!("Swapping ARBX for ARBY on Liquid Exchange");
+
                 self.liquid_exchange
                     .swap(self.arbx_address, U256::from(order.output))
                     .send()

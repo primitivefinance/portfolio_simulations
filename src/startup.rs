@@ -178,7 +178,11 @@ pub async fn allocate_and_approve(
     }
 
     // Give the arbitrageur just some token Y (quote).
-    admin_tokens[1].mint(arbitrageur_address, U256::from(u128::MAX)).send().await?.await?;
+    admin_tokens[1]
+        .mint(arbitrageur_address, U256::from(u128::MAX))
+        .send()
+        .await?
+        .await?;
 
     // Loop over the tokens that have the arbitrageur `Client` and approve the
     // `LiquidExchange` and `Portfolio` contracts to spend all the tokens from the

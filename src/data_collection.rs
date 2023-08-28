@@ -95,8 +95,22 @@ impl SimulationOutput {
         self.portfolio_reserves_y.push(reserve_y.to_string());
 
         // Update the reserves of the Liquid Exchange.
-        self.liquid_exchange_reserves_x.push(simulation_contracts.arbx.balance_of(simulation_contracts.liquid_exchange.address()).call().await?.to_string());
-        self.liquid_exchange_reserves_y.push(simulation_contracts.arby.balance_of(simulation_contracts.liquid_exchange.address()).call().await?.to_string());
+        self.liquid_exchange_reserves_x.push(
+            simulation_contracts
+                .arbx
+                .balance_of(simulation_contracts.liquid_exchange.address())
+                .call()
+                .await?
+                .to_string(),
+        );
+        self.liquid_exchange_reserves_y.push(
+            simulation_contracts
+                .arby
+                .balance_of(simulation_contracts.liquid_exchange.address())
+                .call()
+                .await?
+                .to_string(),
+        );
 
         // Update the balances of the arbitrageur.
         self.arbitrageur_balances_x.push(
