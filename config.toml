@@ -38,7 +38,7 @@ decimals = 18
 
 # We need to set the parameters for the Portfolio pool
 [portfolio_pool_parameters]
-volatility_basis_points = 100
+volatility_basis_points = 1000
 strike_price = 1.0
 time_remaining_years = 1
 is_perpetual = false
@@ -47,3 +47,14 @@ priority_fee_basis_points = 0
 liquidity_mantissa = 1
 liquidity_exponent = 20
 initial_price = 1.0
+
+
+# Simulation Parameters
+[simulation_parameters]
+number_of_paths = 5
+
+[simulation_parameters.sweep_parameters]
+  [simulation_parameters.sweep_parameters.sweeps.volatility_basis_points]
+  start = 5
+  end = 100
+  steps = 10
