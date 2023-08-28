@@ -11,6 +11,31 @@
 
 use super::*;
 
+/// All the possible contracts that this simulation will actively use, but not
+/// all that are deployed!
+/// Each is bound to a `Client` and can be used to interact with the contract.
+/// The client in this case will be the admin.
+#[derive(Clone, Debug)]
+pub struct SimulationContracts {
+    /// The `ArbiterToken` X contract.
+    pub arbx: ArbiterToken<RevmMiddleware>,
+
+    /// The `ArbiterToken` Y contract.
+    pub arby: ArbiterToken<RevmMiddleware>,
+
+    /// The `LiquidExchange` contract.
+    pub liquid_exchange: LiquidExchange<RevmMiddleware>,
+
+    /// The `Portfolio` contract.
+    pub portfolio: Portfolio<RevmMiddleware>,
+
+    /// The `NormalStrategy` contract.
+    pub normal_strategy: NormalStrategy<RevmMiddleware>,
+
+    /// The `ArbiterMath` contract.
+    pub arbiter_math: ArbiterMath<RevmMiddleware>,
+}
+
 /// Initialize the manager with an environment, an admin client, and the
 /// arbitrageur client.
 pub fn initialize(

@@ -1,17 +1,57 @@
+use std::io::Read;
+use std::{collections::BTreeMap, env, fs, sync::Arc};
+
+use anyhow::Result;
+use arbiter_core::{
+    bindings::{
+        arbiter_math::ArbiterMath, arbiter_token::ArbiterToken, liquid_exchange::LiquidExchange,
+    },
+    environment::EnvironmentParameters,
+    manager::Manager,
+    math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
+    middleware::{RevmMiddleware, RevmMiddlewareError},
+};
+use ethers::{
+    abi::{AbiDecode, RawLog},
+    prelude::EthLogDecode,
+    providers::Middleware,
+    types::{Address, Log, I256, U256},
+};
+use log::{info, warn};
+use polars::{
+    prelude::{CsvWriter, DataFrame, NamedFrom, SerWriter},
+    series::Series,
+};
+use serde::Deserialize;
+use serde::Serialize;
+use serde_json::Value;
+
+use crate::bindings::{
+    normal_strategy::NormalStrategy,
+    portfolio::{
+        AllocateCall, CreatePoolCall, Portfolio, PortfolioErrors, PortfolioEvents,
+        Portfolio_InvalidInvariant,
+    },
+    shared_types::Order,
+    weth::WETH,
+};
+
 use config::*;
 use data_collection::*;
+use parameters::*;
 use startup::*;
 use strategies::*;
 
-pub mod bindings;
-pub mod config;
-pub mod data_collection;
-pub mod startup;
-pub mod strategies;
+mod bindings;
+mod config;
+mod data_collection;
+mod parameters;
+mod startup;
+mod strategies;
 
 /// The entry point of the simulation.
 #[tokio::main]
-pub async fn main() -> Result<()> {
+async fn main() -> Result<()> {
     // Initialize the logger to print out all the logs.
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "warn");
@@ -25,6 +65,7 @@ pub async fn main() -> Result<()> {
         asset_token_parameters,
         quote_token_parameters,
         portfolio_pool_parameters,
+        sweep_parameters
     } = read_config()?;
 
     // Initialize the manager with a single environment and the admin and

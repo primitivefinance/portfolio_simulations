@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 arbiter-core = { git = "https://github.com/primitivefinance/arbiter", branch = "feat-derives-for-environmentparams" }
 tokio = { version = "1.11.0", features = ["full"] }
+rayon = "1.7.0"
 ethers = { git = "https://github.com/primitivefinance/ethers-rs" }
 anyhow = "1.0.75"
 polars = "0.32.1"
