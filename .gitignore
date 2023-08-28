@@ -24,3 +24,6 @@ docs/
 # Ignore certain Python files
 analysis/py_env/
 analysis/__pycache__/
+
+# Others
+.DS_store

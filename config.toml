@@ -13,11 +13,11 @@ mean = 1.0
 std_dev = 0.005
 # The theta parameter of the process.
 # This describes how strongly the process will revert to the mean.
-theta = 1.0
+theta = 2.0
 # The start time of the process.
 t_0 = 0.0
 # The end time of the process.
-t_n = 1.0
+t_n = 100
 # The number of steps in the process.
 num_steps = 1000
 
