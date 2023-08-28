@@ -59,7 +59,6 @@ pub struct PortfolioPoolParameters {
 
     pub liquidity_mantissa: u64,
     pub liquidity_exponent: u32,
-    
 
     /// The initial price of the Portfolio pool.
     pub initial_price: f64,
@@ -77,7 +76,7 @@ pub struct SweepParameters {
 }
 
 #[derive(Copy, Clone, Debug, Deserialize)]
-pub struct LinspaceParameters{
+pub struct LinspaceParameters {
     pub start: f64,
     pub end: f64,
     pub steps: usize,

@@ -17,9 +17,9 @@ theta = 2.0
 # The start time of the process.
 t_0 = 0.0
 # The end time of the process.
-t_n = 1
+t_n = 10
 # The number of steps in the process.
-num_steps = 5
+num_steps = 100
 
 
 # We will need two tokens for the simulation.

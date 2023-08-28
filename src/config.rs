@@ -52,8 +52,12 @@ pub fn read_config() -> Result<SimulationConfig> {
 pub fn parse_config() -> Result<Vec<SimulationConfig>> {
     let simulation_config = read_config()?;
 
-    if let Some(sweep) = simulation_config.simulation_parameters.sweep_parameters.clone() {
-        println!("{:?}", sweep);
+    if let Some(sweep) = simulation_config
+        .simulation_parameters
+        .sweep_parameters
+        .clone()
+    {
+        // do nothing for now
     } else {
         info!("Not sweeping over any variables.");
     }
