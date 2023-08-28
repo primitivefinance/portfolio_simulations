@@ -2,7 +2,7 @@ use super::*;
 
 /// This struct contains constants are used to configure the Ornstein-Uhlenbeck
 /// process
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct PriceProcessParameters {
     /// The initial price of the asset.
     pub initial_price: f64,
@@ -67,18 +67,18 @@ pub struct PortfolioPoolParameters {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct SimulationParameters {
-    number_of_paths: u16,
-    sweep_parameters: Option<SweepParameters>,
+    pub number_of_paths: u16,
+    pub sweep_parameters: Option<SweepParameters>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct SweepParameters {
-    sweeps: BTreeMap<String, LinspaceParameters>,
+    pub sweeps: BTreeMap<String, LinspaceParameters>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct LinspaceParameters{
-    start: f64,
-    end: f64,
-    steps: usize,
+    pub start: f64,
+    pub end: f64,
+    pub steps: usize,
 }

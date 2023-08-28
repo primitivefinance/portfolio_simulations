@@ -17,9 +17,9 @@ theta = 2.0
 # The start time of the process.
 t_0 = 0.0
 # The end time of the process.
-t_n = 100
+t_n = 1
 # The number of steps in the process.
-num_steps = 1000
+num_steps = 5
 
 
 # We will need two tokens for the simulation.
@@ -48,10 +48,13 @@ liquidity_mantissa = 1
 liquidity_exponent = 20
 initial_price = 1.0
 
+
+# Simulation Parameters
 [simulation_parameters]
 number_of_paths = 5
 
-    [simulation_parameters.sweep_parameters.volatility_basis_points]
-    start = 5
-    end = 100
-    steps = 10
+[simulation_parameters.sweep_parameters]
+  [simulation_parameters.sweep_parameters.sweeps.volatility_basis_points]
+  start = 5
+  end = 100
+  steps = 10

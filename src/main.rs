@@ -54,7 +54,7 @@ mod strategies;
 async fn main() -> Result<()> {
     // Initialize the logger to print out all the logs.
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "warn");
+        std::env::set_var("RUST_LOG", "info");
     }
     env_logger::init();
 
@@ -65,9 +65,10 @@ async fn main() -> Result<()> {
         asset_token_parameters,
         quote_token_parameters,
         portfolio_pool_parameters,
-        sweep_parameters
-    } = read_config()?;
+        simulation_parameters
+    } = parse_config()?[0].clone();
 
+    let mut handles = vec![];
     // Initialize the manager with a single environment and the admin and
     // arbitrageur clients.
     let (mut manager, admin, arbitrageur) = initialize(environment_parameters.clone())?;

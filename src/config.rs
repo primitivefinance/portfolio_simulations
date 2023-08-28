@@ -38,7 +38,7 @@ pub struct SimulationConfig {
 
     pub portfolio_pool_parameters: PortfolioPoolParameters,
 
-    pub sweep_parameters: Option<SweepParameters>,
+    pub simulation_parameters: SimulationParameters,
 }
 
 pub fn read_config() -> Result<SimulationConfig> {
@@ -47,4 +47,16 @@ pub fn read_config() -> Result<SimulationConfig> {
     file.read_to_string(&mut contents)?;
 
     Ok(toml::from_str(&contents)?)
+}
+
+pub fn parse_config() -> Result<Vec<SimulationConfig>> {
+    let simulation_config = read_config()?;
+
+    if let Some(sweep) = simulation_config.simulation_parameters.sweep_parameters.clone() {
+        println!("{:?}", sweep);
+    } else {
+        info!("Not sweeping over any variables.");
+    }
+
+    Ok(vec![simulation_config])
 }
