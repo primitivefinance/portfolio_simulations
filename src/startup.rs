@@ -13,25 +13,33 @@ use super::*;
 
 /// Initialize the manager with an environment, an admin client, and the
 /// arbitrageur client.
-pub fn initialize() -> Result<(Manager, Client, Client)> {
+pub fn initialize(
+    environment_parameters: EnvironmentParameters,
+) -> Result<(Manager, Client, Client)> {
     // Create a manager and single environment using our predefined constants.
     let mut manager = Manager::new();
-    manager.add_environment(ENV_LABEL, BLOCK_RATE, BLOCK_SEED)?;
+    manager.add_environment(environment_parameters.clone())?;
 
     // Create the admin client with our predefined constants.
     let admin = Arc::new(RevmMiddleware::new(
-        manager.environments.get(ENV_LABEL).unwrap(),
+        manager
+            .environments
+            .get(&environment_parameters.label.clone())
+            .unwrap(),
         Some(ADMIN_LABEL.to_string()),
     ));
     info!(
         "Admin client with address {:?}",
         admin.default_sender().unwrap()
     );
-    manager.start_environment(ENV_LABEL)?;
+    manager.start_environment(environment_parameters.label.clone())?;
 
     // Create the arbitrageur client using our predefined constants.
     let arbitrageur = Arc::new(RevmMiddleware::new(
-        manager.environments.get(ENV_LABEL).unwrap(),
+        manager
+            .environments
+            .get(&environment_parameters.label)
+            .unwrap(),
         Some(ARBITRAGEUR_LABEL.to_string()),
     ));
     info!(
@@ -43,7 +51,12 @@ pub fn initialize() -> Result<(Manager, Client, Client)> {
 }
 
 /// Deploy the contracts that we need for the simulations.
-pub async fn deploy_contracts(client: Client) -> Result<SimulationContracts> {
+pub async fn deploy_contracts(
+    client: Client,
+    asset_token_parameters: TokenParameters,
+    quote_token_parameters: TokenParameters,
+    initial_liquid_exchange_price: f64,
+) -> Result<SimulationContracts> {
     // Deploy the WETH contract; needed for Portfolio, but not needed actively in
     // the simulation. Hence, we don't return it from this function!
     let weth = WETH::deploy(client.clone(), ())?.send().await?;
@@ -54,9 +67,9 @@ pub async fn deploy_contracts(client: Client) -> Result<SimulationContracts> {
     let arbx = ArbiterToken::deploy(
         client.clone(),
         (
-            ARBITER_TOKEN_X_NAME.to_string(),
-            ARBITER_TOKEN_X_SYMBOL.to_string(),
-            ARBITER_TOKEN_X_DECIMALS,
+            asset_token_parameters.name,
+            asset_token_parameters.symbol,
+            asset_token_parameters.decimals,
         ),
     )?
     .send()
@@ -68,9 +81,9 @@ pub async fn deploy_contracts(client: Client) -> Result<SimulationContracts> {
     let arby = ArbiterToken::deploy(
         client.clone(),
         (
-            ARBITER_TOKEN_Y_NAME.to_string(),
-            ARBITER_TOKEN_Y_SYMBOL.to_string(),
-            ARBITER_TOKEN_Y_DECIMALS,
+            quote_token_parameters.name,
+            quote_token_parameters.symbol,
+            quote_token_parameters.decimals,
         ),
     )?
     .send()
@@ -83,7 +96,11 @@ pub async fn deploy_contracts(client: Client) -> Result<SimulationContracts> {
     // process.
     let liquid_exchange = LiquidExchange::deploy(
         client.clone(),
-        (arbx.address(), arby.address(), float_to_wad(INITIAL_PRICE)),
+        (
+            arbx.address(),
+            arby.address(),
+            float_to_wad(initial_liquid_exchange_price),
+        ),
     )?
     .send()
     .await?;
@@ -207,6 +224,7 @@ pub async fn allocate_and_approve(
 pub async fn initialize_portfolio(
     portfolio: &Portfolio<RevmMiddleware>,
     normal_strategy: &NormalStrategy<RevmMiddleware>,
+    portfolio_pool_parameters: PortfolioPoolParameters,
     asset: Address,
     quote: Address,
     lp_address: Address,
@@ -220,16 +238,19 @@ pub async fn initialize_portfolio(
     // Given our choice of pool parameters, we need to get the strategy arguments
     // and the initial reserves (which depend on the initial price chosen). This
     // will be passed to the `CreatePool` call.
-    let strike_price_wad = arbiter_core::math::float_to_wad(STRIKE_PRICE);
-    let volatility_basis_points = ethers::types::U256::from(VOLATILITY_BASIS_POINTS);
-    let duration_seconds = ethers::types::U256::from(TIME_REMAINING_YEARS * SECONDS_PER_YEAR);
-    let price_wad = arbiter_core::math::float_to_wad(INITIAL_PRICE);
+    let strike_price_wad = arbiter_core::math::float_to_wad(portfolio_pool_parameters.strike_price);
+    let volatility_basis_points =
+        ethers::types::U256::from(portfolio_pool_parameters.volatility_basis_points);
+    let duration_seconds = ethers::types::U256::from(
+        portfolio_pool_parameters.time_remaining_years * SECONDS_PER_YEAR,
+    );
+    let price_wad = arbiter_core::math::float_to_wad(portfolio_pool_parameters.initial_price);
     let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = normal_strategy
         .get_strategy_data(
             strike_price_wad,
             volatility_basis_points,
             duration_seconds,
-            IS_PERPETUAL,
+            portfolio_pool_parameters.is_perpetual,
             price_wad,
         )
         .call()
@@ -251,8 +272,8 @@ pub async fn initialize_portfolio(
         pair_id,
         reserve_x_per_wad,
         reserve_y_per_wad,
-        fee_basis_points: FEE_BASIS_POINTS,
-        priority_fee_basis_points: PRIORITY_FEE_BASIS_POINTS,
+        fee_basis_points: portfolio_pool_parameters.fee_basis_points,
+        priority_fee_basis_points: portfolio_pool_parameters.priority_fee_basis_points,
         controller: Address::default(),
         strategy: Address::default(), // address(0) == default strategy
         strategy_args,
@@ -300,7 +321,7 @@ pub async fn initialize_portfolio(
             use_max: false,
             recipient: lp_address,
             pool_id,
-            delta_liquidity: LIQUIDITY,
+            delta_liquidity: (portfolio_pool_parameters.liquidity_mantissa as u128 * 10_u128).pow(portfolio_pool_parameters.liquidity_exponent),
             max_delta_asset: u128::MAX / 2_u128,
             max_delta_quote: u128::MAX / 2_u128,
         };

@@ -153,7 +153,7 @@ impl SimulationOutput {
 
     /// Call this function to finalize the data collection by writing everything
     /// out to a CSV for post processing.
-    pub fn finalize(&mut self, label: &str) -> Result<()> {
+    pub fn finalize(&mut self, label: String) -> Result<()> {
         // Serialize the `SimulationOutput`and deserialize into a JSON key/value pair.
         // The key represents the field names of the struct and the value will be the
         // data.

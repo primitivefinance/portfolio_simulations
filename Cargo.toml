@@ -4,13 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-arbiter-core = { git = "https://github.com/primitivefinance/arbiter" }
+arbiter-core = { git = "https://github.com/primitivefinance/arbiter", branch = "feat-derives-for-environmentparams" }
 tokio = { version = "1.11.0", features = ["full"] }
 ethers = { git = "https://github.com/primitivefinance/ethers-rs" }
 anyhow = "1.0.75"
 polars = "0.32.1"
 serde = "1.0.186"
 serde_json = "1.0.105"
+toml = "0.7.6"
 
 log = "0.4.20"
 env_logger = "0.10.0"

@@ -30,9 +30,21 @@ impl PriceChanger {
     /// constants defined in `config.rs`.
     /// Ornstein-Uhlenbeck processes are useful for modeling the price of stable
     /// tokens.
-    pub fn new(liquid_exchange: LiquidExchange<RevmMiddleware>) -> Self {
-        let process = OrnsteinUhlenbeck::new(PRICE_MEAN, PRICE_STD_DEV, PRICE_THETA);
-        let trajectory = process.euler_maruyama(INITIAL_PRICE, T_0, T_N, NUM_STEPS, 1, false);
+    pub fn new(
+        liquid_exchange: LiquidExchange<RevmMiddleware>,
+        price_process_params: PriceProcessParameters,
+    ) -> Self {
+        let PriceProcessParameters {
+            initial_price,
+            mean,
+            std_dev,
+            theta,
+            t_0,
+            t_n,
+            num_steps,
+        } = price_process_params;
+        let process = OrnsteinUhlenbeck::new(mean, std_dev, theta);
+        let trajectory = process.euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false);
         Self {
             trajectory,
             liquid_exchange,
@@ -82,10 +94,6 @@ pub struct Arbitrageur {
     /// The pool ID of the Portfolio pool.
     pub pool_id: u64,
 
-    /// The gamma parameter of the Portfolio pool.
-    /// Equal to 1 - fee in WAD units.
-    pub gamma_wad: U256,
-
     /// The address of the arbitrageur.
     pub address: Address,
 
@@ -94,6 +102,12 @@ pub struct Arbitrageur {
 
     /// ARBY address.
     pub arby_address: Address,
+
+    pub gamma_wad: U256,
+
+    pub k_iwad: I256,
+
+    pub sigma_iwad: I256,
 }
 
 impl Arbitrageur {
@@ -106,6 +120,7 @@ impl Arbitrageur {
         liquid_exchange: LiquidExchange<RevmMiddleware>,
         portfolio: Portfolio<RevmMiddleware>,
         arbiter_math: ArbiterMath<RevmMiddleware>,
+        portfolio_pool_parameters: PortfolioPoolParameters,
         pool_id: u64,
     ) -> Result<Self> {
         // Get the address from the `Client` attached to the `LiquidExchange` contract.
@@ -122,8 +137,15 @@ impl Arbitrageur {
             portfolio.get_spot_price(pool_id).call().await?,
         ];
 
-        // Compute the gamma parameter of the Portfolio pool.
-        let gamma_wad = WAD - FEE_BASIS_POINTS as u128 * 10_u128.pow(14);
+        // Compute the gamma parameter of the Portfolio pool in U256 WAD.
+        let gamma_wad = WAD - portfolio_pool_parameters.fee_basis_points as u128 * 10_u128.pow(14);
+
+        // Compute the strike price parameter of the Portfolio pool in I256 WAD.
+        let k_iwad = I256::from_raw(float_to_wad(portfolio_pool_parameters.strike_price));
+
+        // Compute the volatility parameter of the Portfolio pool in I256 WAD.
+        let sigma_iwad =
+            I256::from(portfolio_pool_parameters.volatility_basis_points as u64 * 10_u64.pow(14));
 
         Ok(Self {
             prices,
@@ -131,10 +153,12 @@ impl Arbitrageur {
             portfolio,
             arbiter_math,
             pool_id,
-            gamma_wad,
             address,
             arbx_address,
             arby_address,
+            gamma_wad,
+            k_iwad,
+            sigma_iwad,
         })
     }
 
@@ -276,8 +300,6 @@ impl Arbitrageur {
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let sigma_iwad = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        let k_iwad = I256::from_raw(float_to_wad(STRIKE_PRICE));
         let target_price_iwad = I256::from_raw(target_price_wad);
 
         // Sell the asset (X) for the quote token (Y)
@@ -297,12 +319,12 @@ impl Arbitrageur {
         // Note that in our units here, sqrt(tau) = 1.
         // R1 = 1 - CDF( ln( S / K ) / sigma + 0.5 * sigma)
         // S here is our target price
-        let s_div_k_iwad = target_price_iwad * iwad / k_iwad;
+        let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
         let inside_term_iwad = (self.arbiter_math.log(s_div_k_iwad).call().await? * iwad)
-            / sigma_iwad
-            + sigma_iwad / 2;
+            / self.sigma_iwad
+            + self.sigma_iwad / 2;
         info!("Inside term: {}", inside_term_iwad);
 
         let target_virtual_reserve_x =
@@ -344,8 +366,6 @@ impl Arbitrageur {
     async fn compute_order_input_y(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let sigma_iwad = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        let k_iwad = I256::from_raw(float_to_wad(STRIKE_PRICE));
         let target_price_iwad = I256::from_raw(target_price_wad);
 
         // Sell the quote token (Y) for the asset token (X)
@@ -365,16 +385,16 @@ impl Arbitrageur {
         // Note that in our units here, sqrt(tau) = 1.
         // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma)
         // S here is our target price
-        let s_div_k_iwad = target_price_iwad * iwad / k_iwad;
+        let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
         let inside_term_iwad = (self.arbiter_math.log(s_div_k_iwad).call().await? * iwad)
-            / sigma_iwad
-            - sigma_iwad / 2;
+            / self.sigma_iwad
+            - self.sigma_iwad / 2;
         info!("Inside term: {}", inside_term_iwad);
 
         let target_virtual_reserve_y =
-            k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
+            self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
         info!("Target virtual reserve: {}", target_virtual_reserve_y);
 
         let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;
