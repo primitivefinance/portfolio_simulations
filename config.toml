@@ -17,9 +17,9 @@ theta = 2.0
 # The start time of the process.
 t_0 = 0.0
 # The end time of the process.
-t_n = 10
+t_n = 100
 # The number of steps in the process.
-num_steps = 100
+num_steps = 1000
 
 
 # We will need two tokens for the simulation.
@@ -38,7 +38,7 @@ decimals = 18
 
 # We need to set the parameters for the Portfolio pool
 [portfolio_pool_parameters]
-volatility_basis_points = 100
+volatility_basis_points = 1000
 strike_price = 1.0
 time_remaining_years = 1
 is_perpetual = false
