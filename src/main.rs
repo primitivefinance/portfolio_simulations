@@ -18,12 +18,27 @@ pub async fn main() -> Result<()> {
     }
     env_logger::init();
 
+    // Read from the config file.
+    let SimulationConfig {
+        environment_parameters,
+        price_process_parameters,
+        asset_token_parameters,
+        quote_token_parameters,
+        portfolio_pool_parameters,
+    } = read_config()?;
+
     // Initialize the manager with a single environment and the admin and
     // arbitrageur clients.
-    let (mut manager, admin, arbitrageur) = initialize()?;
+    let (mut manager, admin, arbitrageur) = initialize(environment_parameters.clone())?;
 
     // Deploy the contracts that we need for the simulation.
-    let simulation_contracts = deploy_contracts(admin.clone()).await?;
+    let simulation_contracts = deploy_contracts(
+        admin.clone(),
+        asset_token_parameters,
+        quote_token_parameters,
+        price_process_parameters.initial_price,
+    )
+    .await?;
     let SimulationContracts {
         arbx,
         arby,
@@ -48,6 +63,7 @@ pub async fn main() -> Result<()> {
     let pool_id = initialize_portfolio(
         &portfolio,
         &normal_strategy,
+        portfolio_pool_parameters.clone(),
         arbx.address(),
         arby.address(),
         admin.default_sender().unwrap(),
@@ -57,7 +73,7 @@ pub async fn main() -> Result<()> {
     // Create a `PriceChanger` which will update the price of the `LiquidExchange`
     // contract. This copy of the `LiquidExchange` used here contains the admin
     // client. This means the admin is taking the job as the price changer.
-    let price_changer = PriceChanger::new(liquid_exchange.clone());
+    let price_changer = PriceChanger::new(liquid_exchange.clone(), price_process_parameters);
 
     // Create an `Arbitrageur` which will detect and execute arbitrage
     // opportunities. We create new copies of the `LiquidExchange` and
@@ -66,13 +82,16 @@ pub async fn main() -> Result<()> {
         LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
         Portfolio::new(portfolio.address(), arbitrageur.clone()),
         arbiter_math,
+        portfolio_pool_parameters,
         pool_id,
     )
     .await?;
 
     // Prepare the data collection struct and get the initial data.
     let mut simulation_output = SimulationOutput::new();
-    simulation_output.update_output(&simulation_contracts, pool_id, arbitrageur.address, None).await?;
+    simulation_output
+        .update_output(&simulation_contracts, pool_id, arbitrageur.address, None)
+        .await?;
 
     // Run the simulation.
     run(
@@ -84,10 +103,10 @@ pub async fn main() -> Result<()> {
     .await?;
 
     // Stop the environment once the simulation completes.
-    manager.stop_environment(ENV_LABEL)?;
+    manager.stop_environment(environment_parameters.label.clone())?;
 
     // Print out the data collected to a CSV.
-    simulation_output.finalize(ENV_LABEL)?;
+    simulation_output.finalize(environment_parameters.label)?;
 
     Ok(())
 }
@@ -105,8 +124,9 @@ async fn run(
     simulation_contracts: SimulationContracts,
     simulation_output: &mut SimulationOutput,
 ) -> Result<()> {
-    // Run a loop over all the possible prices, start with index of 1 since we already set initial prices.
-    for index in 1..NUM_STEPS {
+    // Run a loop over all the possible prices, start with index of 1 since we
+    // already set initial prices.
+    for index in 1..price_changer.trajectory.paths[0].len() {
         info!("\n\tStep {}", index);
 
         // Update the price

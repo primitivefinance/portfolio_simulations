@@ -30,9 +30,21 @@ impl PriceChanger {
     /// constants defined in `config.rs`.
     /// Ornstein-Uhlenbeck processes are useful for modeling the price of stable
     /// tokens.
-    pub fn new(liquid_exchange: LiquidExchange<RevmMiddleware>) -> Self {
-        let process = OrnsteinUhlenbeck::new(PRICE_MEAN, PRICE_STD_DEV, PRICE_THETA);
-        let trajectory = process.euler_maruyama(INITIAL_PRICE, T_0, T_N, NUM_STEPS, 1, false);
+    pub fn new(
+        liquid_exchange: LiquidExchange<RevmMiddleware>,
+        price_process_params: PriceProcessParameters,
+    ) -> Self {
+        let PriceProcessParameters {
+            initial_price,
+            mean,
+            std_dev,
+            theta,
+            t_0,
+            t_n,
+            num_steps,
+        } = price_process_params;
+        let process = OrnsteinUhlenbeck::new(mean, std_dev, theta);
+        let trajectory = process.euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false);
         Self {
             trajectory,
             liquid_exchange,
@@ -82,10 +94,6 @@ pub struct Arbitrageur {
     /// The pool ID of the Portfolio pool.
     pub pool_id: u64,
 
-    /// The gamma parameter of the Portfolio pool.
-    /// Equal to 1 - fee in WAD units.
-    pub gamma_wad: U256,
-
     /// The address of the arbitrageur.
     pub address: Address,
 
@@ -94,6 +102,12 @@ pub struct Arbitrageur {
 
     /// ARBY address.
     pub arby_address: Address,
+
+    pub gamma_wad: U256,
+
+    pub k_iwad: I256,
+
+    pub sigma_iwad: I256,
 }
 
 impl Arbitrageur {
@@ -106,6 +120,7 @@ impl Arbitrageur {
         liquid_exchange: LiquidExchange<RevmMiddleware>,
         portfolio: Portfolio<RevmMiddleware>,
         arbiter_math: ArbiterMath<RevmMiddleware>,
+        portfolio_pool_parameters: PortfolioPoolParameters,
         pool_id: u64,
     ) -> Result<Self> {
         // Get the address from the `Client` attached to the `LiquidExchange` contract.
@@ -122,8 +137,15 @@ impl Arbitrageur {
             portfolio.get_spot_price(pool_id).call().await?,
         ];
 
-        // Compute the gamma parameter of the Portfolio pool.
-        let gamma_wad = WAD - FEE_BASIS_POINTS as u128 * 10_u128.pow(14);
+        // Compute the gamma parameter of the Portfolio pool in U256 WAD.
+        let gamma_wad = WAD - portfolio_pool_parameters.fee_basis_points as u128 * 10_u128.pow(14);
+
+        // Compute the strike price parameter of the Portfolio pool in I256 WAD.
+        let k_iwad = I256::from_raw(float_to_wad(portfolio_pool_parameters.strike_price));
+
+        // Compute the volatility parameter of the Portfolio pool in I256 WAD.
+        let sigma_iwad =
+            I256::from(portfolio_pool_parameters.volatility_basis_points as u64 * 10_u64.pow(14));
 
         Ok(Self {
             prices,
@@ -131,10 +153,12 @@ impl Arbitrageur {
             portfolio,
             arbiter_math,
             pool_id,
-            gamma_wad,
             address,
             arbx_address,
             arby_address,
+            gamma_wad,
+            k_iwad,
+            sigma_iwad,
         })
     }
 
@@ -144,12 +168,12 @@ impl Arbitrageur {
     /// opportunity.
     pub async fn detect_arbitrage(&mut self) -> Result<SwapDirection> {
         // Update the prices the for the arbitrageur.
-        let new_prices = [
+        self.prices = [
             self.liquid_exchange.price().call().await?,
             self.portfolio.get_spot_price(self.pool_id).call().await?,
         ];
-        let liquid_exchange_price = new_prices[0];
-        let portfolio_price = new_prices[1];
+        let liquid_exchange_price = self.prices[0];
+        let portfolio_price = self.prices[1];
         info!(
             "Arbitrageur sees prices:\n\tLiquid Exchange: {}\n\tPortfolio: {}",
             liquid_exchange_price, portfolio_price
@@ -181,43 +205,75 @@ impl Arbitrageur {
 
     /// Executes an arbitrage opportunity.
     /// If the swap direction is `XtoY`, then the arbitrageur will sell ARBX for
-    /// ARBY on the Portfolio contract and vice-versa. Then the arbitrageur
-    /// will swap the output ARBY for ARBX on the Liquid Exchange contract (and
-    /// vice-versa, respectively).
+    /// ARBY on the Portfolio contract and vice-versa.
+    ///
+    /// Then the arbitrageur has a goal of ending up only with the quote token
+    /// (ARBY) since this is viewed as a risk-free cash asset.
+    /// This means that:
+    /// - If the swap direction is `XtoY`, then the arbitrageur will sell ARBY
+    ///   on the LiquidExchange for ARBX, then swap the ARBX for ARBY on
+    ///   Portfolio such that the resulting Portfolio pirce matches the
+    ///   LiquidExchange.
+    /// The exact amount of ARBX to sell is computed by the
+    /// `compute_order_input_x` function.
+    /// - If the swap direction is `YtoX`, then the arbitrageur will sell ARBY
+    ///   on Portfolio for ARBX, then swap the ARBX for ARBY on the
+    ///   LiquidExchange after.
     pub async fn execute_arbitrage(
         &mut self,
         swap_direction: SwapDirection,
     ) -> Result<Option<Log>> {
-        // Compute the order to send to Portfolio, if necessary
-        let mut order = match swap_direction {
+        Ok(match swap_direction {
             SwapDirection::None => {
                 info!("No swap occuring");
                 return Ok(None);
             }
             SwapDirection::XToY(target_price) => {
+                // Get how much ARBX we need to sell to get the target price on Portfolio.
+                let order = self.compute_order_input_x(target_price).await?;
+                // Swap on LE first
+                // Get the amount to send to LE with quick math
+                let le_input = U256::from(order.input) * self.prices[0] / WAD + 1;
+                info!("Swapping ARBY for ARBX on Liquid Exchange");
+                self.liquid_exchange
+                    .swap(self.arby_address, le_input)
+                    .send()
+                    .await?
+                    .await?
+                    .unwrap();
+
+                // Now swap on Portfolio
                 info!("Swapping ARBX for ARBY on Portfolio");
-                self.compute_order_input_x(target_price).await?
+                self.portfolio_swap(order).await?
             }
             SwapDirection::YToX(target_price) => {
                 info!("Swapping ARBY for ARBX on Portfolio");
-                self.compute_order_input_y(target_price).await?
+                let order = self.compute_order_input_y(target_price).await?;
+                let logs = self.portfolio_swap(order.clone()).await?;
+                info!("Swapping ARBX for ARBY on Liquid Exchange");
+
+                self.liquid_exchange
+                    .swap(self.arbx_address, U256::from(order.output))
+                    .send()
+                    .await?
+                    .await?;
+                logs
             }
-        };
+        })
+    }
 
-        // The initial order size to be sent to Portfolio.
-        info!("Order: {:?}", order);
-
+    async fn portfolio_swap(&self, mut order: Order) -> Result<Option<Log>> {
         // Loop and decrease the output size until the swap succeeds (should not take
         // many iterations, if any).
         // This is necessary because of tiny math rounding errors that can occur in the
         // Portfolio contract.
-        let logs = loop {
+        loop {
             match self.portfolio.swap(order.clone()).send().await {
                 Ok(pending_tx) => {
                     info!("Portfolio swap successful");
                     let receipt = pending_tx.await?.unwrap();
                     // The third log will be the `Swap` event.
-                    break Some(receipt.logs[2].clone());
+                    break Ok(Some(receipt.logs[2].clone()));
                 }
                 Err(contract_error) => {
                     if let RevmMiddlewareError::ExecutionRevert {
@@ -238,34 +294,12 @@ impl Arbitrageur {
                     }
                 }
             }
-        };
-
-        if order.sell_asset {
-            info!("Swapping ARBY for ARBX on Liquid Exchange");
-            self.liquid_exchange
-                .swap(self.arbx_address, U256::from(order.output))
-                .send()
-                .await?
-                .await?;
-        } else {
-            info!("Swapping ARBX for ARBY on Liquid Exchange");
-            self.liquid_exchange
-                .swap(self.arby_address, U256::from(order.output))
-                .send()
-                .await?
-                .await?;
         }
-
-        info!("LiquidExchange swap successfull; arbitrage successful");
-
-        Ok(logs)
     }
 
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let sigma_iwad = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        let k_iwad = I256::from_raw(float_to_wad(STRIKE_PRICE));
         let target_price_iwad = I256::from_raw(target_price_wad);
 
         // Sell the asset (X) for the quote token (Y)
@@ -285,12 +319,12 @@ impl Arbitrageur {
         // Note that in our units here, sqrt(tau) = 1.
         // R1 = 1 - CDF( ln( S / K ) / sigma + 0.5 * sigma)
         // S here is our target price
-        let s_div_k_iwad = target_price_iwad * iwad / k_iwad;
+        let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
         let inside_term_iwad = (self.arbiter_math.log(s_div_k_iwad).call().await? * iwad)
-            / sigma_iwad
-            + sigma_iwad / 2;
+            / self.sigma_iwad
+            + self.sigma_iwad / 2;
         info!("Inside term: {}", inside_term_iwad);
 
         let target_virtual_reserve_x =
@@ -332,8 +366,6 @@ impl Arbitrageur {
     async fn compute_order_input_y(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let sigma_iwad = I256::from(VOLATILITY_BASIS_POINTS as u64 * 10_u64.pow(14));
-        let k_iwad = I256::from_raw(float_to_wad(STRIKE_PRICE));
         let target_price_iwad = I256::from_raw(target_price_wad);
 
         // Sell the quote token (Y) for the asset token (X)
@@ -353,16 +385,16 @@ impl Arbitrageur {
         // Note that in our units here, sqrt(tau) = 1.
         // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma)
         // S here is our target price
-        let s_div_k_iwad = target_price_iwad * iwad / k_iwad;
+        let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
         let inside_term_iwad = (self.arbiter_math.log(s_div_k_iwad).call().await? * iwad)
-            / sigma_iwad
-            - sigma_iwad / 2;
+            / self.sigma_iwad
+            - self.sigma_iwad / 2;
         info!("Inside term: {}", inside_term_iwad);
 
         let target_virtual_reserve_y =
-            k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
+            self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
         info!("Target virtual reserve: {}", target_virtual_reserve_y);
 
         let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;

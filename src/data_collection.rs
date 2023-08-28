@@ -21,6 +21,12 @@ pub struct SimulationOutput {
     /// The ARBY reserves of the `Portfolio` contract.
     pub portfolio_reserves_y: Vec<String>,
 
+    // Liquid Exchange ARBX reserves.
+    pub liquid_exchange_reserves_x: Vec<String>,
+
+    // Liquid Exchange ARBY reserves.
+    pub liquid_exchange_reserves_y: Vec<String>,
+
     /// The amount of LP fees collected in ARBX.
     pub lp_fees_x: Vec<String>,
 
@@ -43,6 +49,8 @@ impl SimulationOutput {
             portfolio_prices: vec![],
             portfolio_reserves_x: vec![],
             portfolio_reserves_y: vec![],
+            liquid_exchange_reserves_x: vec![],
+            liquid_exchange_reserves_y: vec![],
             lp_fees_x: vec![],
             lp_fees_y: vec![],
             arbitrageur_balances_x: vec![],
@@ -86,6 +94,24 @@ impl SimulationOutput {
         self.portfolio_reserves_x.push(reserve_x.to_string());
         self.portfolio_reserves_y.push(reserve_y.to_string());
 
+        // Update the reserves of the Liquid Exchange.
+        self.liquid_exchange_reserves_x.push(
+            simulation_contracts
+                .arbx
+                .balance_of(simulation_contracts.liquid_exchange.address())
+                .call()
+                .await?
+                .to_string(),
+        );
+        self.liquid_exchange_reserves_y.push(
+            simulation_contracts
+                .arby
+                .balance_of(simulation_contracts.liquid_exchange.address())
+                .call()
+                .await?
+                .to_string(),
+        );
+
         // Update the balances of the arbitrageur.
         self.arbitrageur_balances_x.push(
             simulation_contracts
@@ -127,7 +153,7 @@ impl SimulationOutput {
 
     /// Call this function to finalize the data collection by writing everything
     /// out to a CSV for post processing.
-    pub fn finalize(&mut self, label: &str) -> Result<()> {
+    pub fn finalize(&mut self, label: String) -> Result<()> {
         // Serialize the `SimulationOutput`and deserialize into a JSON key/value pair.
         // The key represents the field names of the struct and the value will be the
         // data.
