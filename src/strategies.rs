@@ -242,18 +242,19 @@ impl Arbitrageur {
                     .await?
                     .unwrap();
 
-                // Now swap on Portfolio
+                // Now swap on Portfolio and return the logs
                 info!("Swapping ARBX for ARBY on Portfolio");
-                self.portfolio_swap(order).await?
+                self.portfolio_swap(order).await?.0
             }
             SwapDirection::YToX(target_price) => {
                 info!("Swapping ARBY for ARBX on Portfolio");
                 let order = self.compute_order_input_y(target_price).await?;
-                let logs = self.portfolio_swap(order.clone()).await?;
+                // Make sure to get the updated output in the case we need to decrease it in the loop.
+                let (logs, output) = self.portfolio_swap(order.clone()).await?;
                 info!("Swapping ARBX for ARBY on Liquid Exchange");
 
                 self.liquid_exchange
-                    .swap(self.arbx_address, U256::from(order.output))
+                    .swap(self.arbx_address, U256::from(output))
                     .send()
                     .await?
                     .await?;
@@ -262,7 +263,7 @@ impl Arbitrageur {
         })
     }
 
-    async fn portfolio_swap(&self, mut order: Order) -> Result<Option<Log>> {
+    async fn portfolio_swap(&self, mut order: Order) -> Result<(Option<Log>, u128)> {
         // Loop and decrease the output size until the swap succeeds (should not take
         // many iterations, if any).
         // This is necessary because of tiny math rounding errors that can occur in the
@@ -273,7 +274,7 @@ impl Arbitrageur {
                     info!("Portfolio swap successful");
                     let receipt = pending_tx.await?.unwrap();
                     // The third log will be the `Swap` event.
-                    break Ok(Some(receipt.logs[2].clone()));
+                    break Ok((Some(receipt.logs[2].clone()), order.output));
                 }
                 Err(contract_error) => {
                     if let RevmMiddlewareError::ExecutionRevert {
@@ -281,14 +282,17 @@ impl Arbitrageur {
                         output,
                     } = contract_error.as_middleware_error().unwrap()
                     {
+                        if order.input < 100_000 {
+                            break Err(anyhow::anyhow!("Order input too small."));
+                        }
                         let error = PortfolioErrors::decode(output)?;
                         warn!("Swap failed due to revert: {:?}", error);
                         if let PortfolioErrors::Portfolio_InvalidInvariant(
                             Portfolio_InvalidInvariant { prev: _, next: _ },
                         ) = error
                         {
-                            warn!("Shrinking order output size by 0.01%");
-                            order.output = order.output * 9999 / 10000;
+                            warn!("Shrinking order output size by 0.1%");
+                            order.output = order.output * 999 / 1000;
                             continue;
                         }
                     }
@@ -388,9 +392,6 @@ impl Arbitrageur {
         let virtual_reserve_y = I256::from(reserve_y) / rescaling;
         info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
 
-        let virtual_invariant = invariant / rescaling;
-        info!("Virtual invariant: {}", virtual_invariant);
-
         // Note that in our units here, sqrt(tau) = 1.
         // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma) + k
         // S here is our target price and k is the invariant (not to be confused with K the strike!)
@@ -403,7 +404,7 @@ impl Arbitrageur {
         info!("Inside term: {}", inside_term_iwad);
 
         let target_virtual_reserve_y =
-            self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad + virtual_invariant;
+            self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
         info!("Target virtual reserve: {}", target_virtual_reserve_y);
 
         let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;
