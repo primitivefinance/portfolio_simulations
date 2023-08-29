@@ -2,7 +2,7 @@ use super::*;
 
 /// This struct contains constants are used to configure the Ornstein-Uhlenbeck
 /// process
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct PriceProcessParameters {
     /// The initial price of the asset.
     pub initial_price: f64,
@@ -27,7 +27,7 @@ pub struct PriceProcessParameters {
     pub num_steps: usize,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TokenParameters {
     pub name: String,
     pub symbol: String,
@@ -35,7 +35,7 @@ pub struct TokenParameters {
 }
 
 /// All the possible settings for the Portfolio pool.
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PortfolioPoolParameters {
     /// The implied volatility parameter in the `NormalStrategy`.
     /// Sets the "width" of a Gaussian liquidity distribution.
@@ -64,18 +64,18 @@ pub struct PortfolioPoolParameters {
     pub initial_price: f64,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SimulationParameters {
     pub number_of_paths: u16,
     pub sweep_parameters: Option<SweepParameters>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SweepParameters {
     pub sweeps: BTreeMap<String, LinspaceParameters>,
 }
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct LinspaceParameters {
     pub start: f64,
     pub end: f64,

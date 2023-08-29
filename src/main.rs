@@ -59,112 +59,109 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     // Read from the config file.
-    let SimulationConfig {
-        environment_parameters,
-        price_process_parameters,
-        asset_token_parameters,
-        quote_token_parameters,
-        portfolio_pool_parameters,
-        simulation_parameters,
-    } = parse_config()?[0].clone();
+    let configs_with_filenames = parse_config()?;
 
-    let mut handles: Vec<JoinHandle<Result<()>>> = vec![];
+    for config_with_filename in configs_with_filenames {
+        let config = config_with_filename.0;
+        let mut handles: Vec<JoinHandle<Result<()>>> = vec![];
 
-    for index in 0..simulation_parameters.number_of_paths {
-        let environment_parameters = environment_parameters.clone();
-        // let price_process_parameters = price_process_parameters.clone();
-        let asset_token_parameters = asset_token_parameters.clone();
-        let quote_token_parameters = quote_token_parameters.clone();
-        let portfolio_pool_parameters = portfolio_pool_parameters.clone();
-        handles.push(tokio::spawn(async move {
-            // Initialize the manager with a single environment and the admin and
-            // arbitrageur clients.
-            let (mut manager, admin, arbitrageur) = initialize(environment_parameters.clone())?;
+        for index in 0..config.simulation_parameters.number_of_paths {
+            let filename = config_with_filename.1.clone();
+            let environment_parameters = config.environment_parameters.clone();
+            // let price_process_parameters = price_process_parameters.clone();
+            let asset_token_parameters = config.asset_token_parameters.clone();
+            let quote_token_parameters = config.quote_token_parameters.clone();
+            let portfolio_pool_parameters = config.portfolio_pool_parameters.clone();
+            handles.push(tokio::spawn(async move {
+                // Initialize the manager with a single environment and the admin and
+                // arbitrageur clients.
+                let (mut manager, admin, arbitrageur) = initialize(environment_parameters.clone())?;
 
-            // Deploy the contracts that we need for the simulation.
-            let simulation_contracts = deploy_contracts(
-                admin.clone(),
-                asset_token_parameters,
-                quote_token_parameters,
-                price_process_parameters.initial_price,
-            )
-            .await?;
-            let SimulationContracts {
-                arbx,
-                arby,
-                liquid_exchange,
-                portfolio,
-                normal_strategy,
-                arbiter_math,
-            } = simulation_contracts.clone();
+                // Deploy the contracts that we need for the simulation.
+                let simulation_contracts = deploy_contracts(
+                    admin.clone(),
+                    asset_token_parameters,
+                    quote_token_parameters,
+                    config.price_process_parameters.initial_price,
+                )
+                .await?;
+                let SimulationContracts {
+                    arbx,
+                    arby,
+                    liquid_exchange,
+                    portfolio,
+                    normal_strategy,
+                    arbiter_math,
+                } = simulation_contracts.clone();
 
-            // Allocate tokens and approve their spending.
-            allocate_and_approve(
-                admin.clone(),
-                arbitrageur.clone(),
-                arbx.address(),
-                arby.address(),
-                liquid_exchange.address(),
-                portfolio.address(),
-            )
-            .await?;
-
-            // Initialize a Portfolio pool.
-            let pool_id = initialize_portfolio(
-                &portfolio,
-                &normal_strategy,
-                portfolio_pool_parameters.clone(),
-                arbx.address(),
-                arby.address(),
-                admin.default_sender().unwrap(),
-            )
-            .await?;
-
-            // Create a `PriceChanger` which will update the price of the `LiquidExchange`
-            // contract. This copy of the `LiquidExchange` used here contains the admin
-            // client. This means the admin is taking the job as the price changer.
-            let price_changer =
-                PriceChanger::new(liquid_exchange.clone(), price_process_parameters);
-
-            // Create an `Arbitrageur` which will detect and execute arbitrage
-            // opportunities. We create new copies of the `LiquidExchange` and
-            // `Portfolio` contracts that use the arbitrageur client.
-            let arbitrageur = Arbitrageur::new(
-                LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
-                Portfolio::new(portfolio.address(), arbitrageur.clone()),
-                arbiter_math,
-                portfolio_pool_parameters,
-                pool_id,
-            )
-            .await?;
-
-            // Prepare the data collection struct and get the initial data.
-            let mut simulation_output = SimulationOutput::new();
-            simulation_output
-                .update_output(&simulation_contracts, pool_id, arbitrageur.address, None)
+                // Allocate tokens and approve their spending.
+                allocate_and_approve(
+                    admin.clone(),
+                    arbitrageur.clone(),
+                    arbx.address(),
+                    arby.address(),
+                    liquid_exchange.address(),
+                    portfolio.address(),
+                )
                 .await?;
 
-            // Run the simulation.
-            run(
-                price_changer,
-                arbitrageur,
-                simulation_contracts,
-                &mut simulation_output,
-            )
-            .await?;
+                // Initialize a Portfolio pool.
+                let pool_id = initialize_portfolio(
+                    &portfolio,
+                    &normal_strategy,
+                    portfolio_pool_parameters.clone(),
+                    arbx.address(),
+                    arby.address(),
+                    admin.default_sender().unwrap(),
+                )
+                .await?;
 
-            // Stop the environment once the simulation completes.
-            manager.stop_environment(environment_parameters.label.clone())?;
+                // Create a `PriceChanger` which will update the price of the `LiquidExchange`
+                // contract. This copy of the `LiquidExchange` used here contains the admin
+                // client. This means the admin is taking the job as the price changer.
+                let price_changer =
+                    PriceChanger::new(liquid_exchange.clone(), config.price_process_parameters);
 
-            // Print out the data collected to a CSV.
-            let label = format!("{}_{}", environment_parameters.label, index);
-            simulation_output.finalize(label)?;
-            Ok(())
-        }));
-    }
+                // Create an `Arbitrageur` which will detect and execute arbitrage
+                // opportunities. We create new copies of the `LiquidExchange` and
+                // `Portfolio` contracts that use the arbitrageur client.
+                let arbitrageur = Arbitrageur::new(
+                    LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
+                    Portfolio::new(portfolio.address(), arbitrageur.clone()),
+                    arbiter_math,
+                    portfolio_pool_parameters,
+                    pool_id,
+                )
+                .await?;
 
-    for handle in handles {
-        handle.await??;
+                // Prepare the data collection struct and get the initial data.
+                let mut simulation_output = SimulationOutput::new();
+                simulation_output
+                    .update_output(&simulation_contracts, pool_id, arbitrageur.address, None)
+                    .await?;
+
+                // Run the simulation.
+                run(
+                    price_changer,
+                    arbitrageur,
+                    simulation_contracts,
+                    &mut simulation_output,
+                )
+                .await?;
+
+                // Stop the environment once the simulation completes.
+                manager.stop_environment(environment_parameters.label.clone())?;
+
+                // Print out the data collected to a CSV.
+                let final_filename = format!("{}_{}.csv", filename.clone(), index);
+                simulation_output.finalize(final_filename)?;
+                Ok(())
+            }));
+        }
+
+        for handle in handles {
+            handle.await??;
+        }
     }
 
     Ok(())
