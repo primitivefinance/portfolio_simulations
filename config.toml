@@ -10,10 +10,10 @@ initial_price = 1.0
 # The mean (price) of the process.
 mean = 1.0
 # The standard deviation of the process.
-std_dev = 0.005
+std_dev = 0.0005
 # The theta parameter of the process.
 # This describes how strongly the process will revert to the mean.
-theta = 2.0
+theta = 3.0
 # The start time of the process.
 t_0 = 0.0
 # The end time of the process.
@@ -42,7 +42,7 @@ volatility_basis_points = 10
 strike_price = 1.0
 time_remaining_years = 1
 is_perpetual = false
-fee_basis_points = 10
+fee_basis_points = 1
 priority_fee_basis_points = 0
 liquidity_mantissa = 1
 liquidity_exponent = 20
