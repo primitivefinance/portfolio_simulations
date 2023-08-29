@@ -38,7 +38,7 @@ decimals = 18
 
 # We need to set the parameters for the Portfolio pool
 [portfolio_pool_parameters]
-volatility_basis_points = 1000
+volatility_basis_points = 10
 strike_price = 1.0
 time_remaining_years = 1
 is_perpetual = false
@@ -51,7 +51,7 @@ initial_price = 1.0
 
 # Simulation Parameters
 [simulation_parameters]
-number_of_paths = 5
+number_of_paths = 1
 
 [simulation_parameters.sweep_parameters]
   [simulation_parameters.sweep_parameters.sweeps.volatility_basis_points]

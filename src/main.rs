@@ -54,7 +54,7 @@ mod strategies;
 async fn main() -> Result<()> {
     // Initialize the logger to print out all the logs.
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "warn");
+        std::env::set_var("RUST_LOG", "info");
     }
     env_logger::init();
 

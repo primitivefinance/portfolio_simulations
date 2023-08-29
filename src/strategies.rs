@@ -287,8 +287,8 @@ impl Arbitrageur {
                             Portfolio_InvalidInvariant { prev: _, next: _ },
                         ) = error
                         {
-                            warn!("Shrinking order output size by 0.1%");
-                            order.output = order.output * 999 / 1000;
+                            warn!("Shrinking order output size by 0.01%");
+                            order.output = order.output * 9999 / 10000;
                             continue;
                         }
                     }
@@ -306,15 +306,16 @@ impl Arbitrageur {
         let sell_asset = true;
 
         // Get the reserves and liquidity
-        let (reserve_x, _reserve_y, liquidity, ..) =
+        let (reserve_x, reserve_y, liquidity, ..) =
             self.portfolio.pools(self.pool_id).call().await?;
-        info!("Raw reserves: {}, {}", reserve_x, _reserve_y);
+        info!("Raw reserves: {}, {}", reserve_x, reserve_y);
         info!("Liquidity: {}", liquidity);
 
         // Compute the virtual reserves (divide by the liquidity rescaling factor)
         let rescaling = I256::from(liquidity) / iwad;
         let virtual_reserve_x = I256::from(reserve_x) / rescaling;
-        info!("Virtual reserve x: {}", virtual_reserve_x);
+        let virtual_reserve_y = I256::from(reserve_y) / rescaling;
+        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
 
         // Note that in our units here, sqrt(tau) = 1.
         // R1 = 1 - CDF( ln( S / K ) / sigma + 0.5 * sigma)
@@ -372,19 +373,27 @@ impl Arbitrageur {
         let sell_asset = false;
 
         // Get the reserves and liquidity
-        let (_reserve_x, reserve_y, liquidity, ..) =
+        let (reserve_x, reserve_y, liquidity, ..) =
             self.portfolio.pools(self.pool_id).call().await?;
-        info!("Raw reserves: {}, {}", _reserve_x, reserve_y);
+        info!("Raw reserves: {}, {}", reserve_x, reserve_y);
         info!("Liquidity: {}", liquidity);
+
+        // Get the pool's invariant
+        let invariant = self.portfolio.get_invariant(self.pool_id).call().await?;
+        info!("Invariant: {}", invariant);
 
         // Compute the virtual reserves (divide by the liquidity rescaling factor)
         let rescaling = I256::from(liquidity) / iwad;
+        let virtual_reserve_x = I256::from(reserve_x) / rescaling;
         let virtual_reserve_y = I256::from(reserve_y) / rescaling;
-        info!("Virtual reserve y: {}", virtual_reserve_y);
+        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
+
+        let virtual_invariant = invariant / rescaling;
+        info!("Virtual invariant: {}", virtual_invariant);
 
         // Note that in our units here, sqrt(tau) = 1.
-        // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma)
-        // S here is our target price
+        // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma) + k
+        // S here is our target price and k is the invariant (not to be confused with K the strike!)
         let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
@@ -394,7 +403,7 @@ impl Arbitrageur {
         info!("Inside term: {}", inside_term_iwad);
 
         let target_virtual_reserve_y =
-            self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
+            self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad + virtual_invariant;
         info!("Target virtual reserve: {}", target_virtual_reserve_y);
 
         let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;
