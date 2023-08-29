@@ -2,6 +2,15 @@ import pandas as pd
 from decimal import Decimal
 import glob
 
+def import_wad_csv(path):
+    df = pd.read_csv(path, dtype=str)
+    df = df.applymap(to_decimal)
+    df = create_arbitrageur_relative_balances(df)
+    df = create_liquid_exchange_relative_reserves(df)
+    df = compute_portfolio_values(df)
+    df = compute_accumulated_fees(df)
+    return df
+
 def import_all_csvs(folder_path):
     all_files = glob.glob(folder_path + "/*.csv")
     dfs = []

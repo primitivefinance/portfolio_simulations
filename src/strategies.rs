@@ -242,18 +242,19 @@ impl Arbitrageur {
                     .await?
                     .unwrap();
 
-                // Now swap on Portfolio
+                // Now swap on Portfolio and return the logs
                 info!("Swapping ARBX for ARBY on Portfolio");
-                self.portfolio_swap(order).await?
+                self.portfolio_swap(order).await?.0
             }
             SwapDirection::YToX(target_price) => {
                 info!("Swapping ARBY for ARBX on Portfolio");
                 let order = self.compute_order_input_y(target_price).await?;
-                let logs = self.portfolio_swap(order.clone()).await?;
+                // Make sure to get the updated output in the case we need to decrease it in the loop.
+                let (logs, output) = self.portfolio_swap(order.clone()).await?;
                 info!("Swapping ARBX for ARBY on Liquid Exchange");
 
                 self.liquid_exchange
-                    .swap(self.arbx_address, U256::from(order.output))
+                    .swap(self.arbx_address, U256::from(output))
                     .send()
                     .await?
                     .await?;
@@ -262,7 +263,7 @@ impl Arbitrageur {
         })
     }
 
-    async fn portfolio_swap(&self, mut order: Order) -> Result<Option<Log>> {
+    async fn portfolio_swap(&self, mut order: Order) -> Result<(Option<Log>, u128)> {
         // Loop and decrease the output size until the swap succeeds (should not take
         // many iterations, if any).
         // This is necessary because of tiny math rounding errors that can occur in the
@@ -273,7 +274,7 @@ impl Arbitrageur {
                     info!("Portfolio swap successful");
                     let receipt = pending_tx.await?.unwrap();
                     // The third log will be the `Swap` event.
-                    break Ok(Some(receipt.logs[2].clone()));
+                    break Ok((Some(receipt.logs[2].clone()), order.output));
                 }
                 Err(contract_error) => {
                     if let RevmMiddlewareError::ExecutionRevert {
@@ -281,6 +282,9 @@ impl Arbitrageur {
                         output,
                     } = contract_error.as_middleware_error().unwrap()
                     {
+                        if order.input < 100_000 {
+                            break Err(anyhow::anyhow!("Order input too small."));
+                        }
                         let error = PortfolioErrors::decode(output)?;
                         warn!("Swap failed due to revert: {:?}", error);
                         if let PortfolioErrors::Portfolio_InvalidInvariant(
@@ -306,15 +310,16 @@ impl Arbitrageur {
         let sell_asset = true;
 
         // Get the reserves and liquidity
-        let (reserve_x, _reserve_y, liquidity, ..) =
+        let (reserve_x, reserve_y, liquidity, ..) =
             self.portfolio.pools(self.pool_id).call().await?;
-        info!("Raw reserves: {}, {}", reserve_x, _reserve_y);
+        info!("Raw reserves: {}, {}", reserve_x, reserve_y);
         info!("Liquidity: {}", liquidity);
 
         // Compute the virtual reserves (divide by the liquidity rescaling factor)
         let rescaling = I256::from(liquidity) / iwad;
         let virtual_reserve_x = I256::from(reserve_x) / rescaling;
-        info!("Virtual reserve x: {}", virtual_reserve_x);
+        let virtual_reserve_y = I256::from(reserve_y) / rescaling;
+        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
 
         // Note that in our units here, sqrt(tau) = 1.
         // R1 = 1 - CDF( ln( S / K ) / sigma + 0.5 * sigma)
@@ -372,19 +377,24 @@ impl Arbitrageur {
         let sell_asset = false;
 
         // Get the reserves and liquidity
-        let (_reserve_x, reserve_y, liquidity, ..) =
+        let (reserve_x, reserve_y, liquidity, ..) =
             self.portfolio.pools(self.pool_id).call().await?;
-        info!("Raw reserves: {}, {}", _reserve_x, reserve_y);
+        info!("Raw reserves: {}, {}", reserve_x, reserve_y);
         info!("Liquidity: {}", liquidity);
+
+        // Get the pool's invariant
+        let invariant = self.portfolio.get_invariant(self.pool_id).call().await?;
+        info!("Invariant: {}", invariant);
 
         // Compute the virtual reserves (divide by the liquidity rescaling factor)
         let rescaling = I256::from(liquidity) / iwad;
+        let virtual_reserve_x = I256::from(reserve_x) / rescaling;
         let virtual_reserve_y = I256::from(reserve_y) / rescaling;
-        info!("Virtual reserve y: {}", virtual_reserve_y);
+        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
 
         // Note that in our units here, sqrt(tau) = 1.
-        // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma)
-        // S here is our target price
+        // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma) + k
+        // S here is our target price and k is the invariant (not to be confused with K the strike!)
         let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
