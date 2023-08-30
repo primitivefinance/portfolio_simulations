@@ -298,8 +298,8 @@ impl Arbitrageur {
                             Portfolio_InvalidInvariant { prev: _, next: _ },
                         ) = error
                         {
-                            warn!("Shrinking order output size by 0.1%");
-                            order.output = order.output * 999 / 1000;
+                            warn!("Shrinking order output size by 0.01%");
+                            order.output = order.output * 9999 / 10000;
                             continue;
                         }
                     }
@@ -405,6 +405,9 @@ impl Arbitrageur {
             virtual_reserve_x, virtual_reserve_y
         );
 
+        let virtual_invariant = invariant * rescaling;
+        info!("Virtual invariant: {}", virtual_invariant);
+
         // Note that in our units here, sqrt(tau) = 1.
         // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma) + k
         // S here is our target price and k is the invariant (not to be confused with K
@@ -427,7 +430,7 @@ impl Arbitrageur {
         // Rescale back to the real input amount and multiply by 1/gamma to account for
         // the swap fee.
         let final_scaling_wad = rescaling * iwad;
-        let input = virtual_input_y * final_scaling_wad / iwad + invariant;
+        let input = virtual_input_y * final_scaling_wad / iwad;
         info!("Input ARBY: {}", input);
 
         // Call the `getAmountOut()` function on the Portfolio contract to get the
