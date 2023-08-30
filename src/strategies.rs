@@ -4,6 +4,8 @@
 //! - `PriceChanger` updates the price of the `LiquidExchange` contract.
 //! - `Arbitrageur` detects and executes arbitrage opportunities.
 
+use arbiter_core::bindings::liquid_exchange::LiquidExchangeEvents;
+
 use super::*;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,7 +236,7 @@ impl Arbitrageur {
                 // Swap on LE first
                 // Get the amount to send to LE with quick math
                 let le_input = U256::from(order.input) * self.prices[0] / WAD + 1;
-                info!("Swapping ARBY for ARBX on Liquid Exchange");
+                info!("Swapping {} ARBY for ARBX on Liquid Exchange", le_input);
                 self.liquid_exchange
                     .swap(self.arby_address, le_input)
                     .send()
@@ -243,22 +245,26 @@ impl Arbitrageur {
                     .unwrap();
 
                 // Now swap on Portfolio and return the logs
-                info!("Swapping ARBX for ARBY on Portfolio");
+                info!("Swapping ARBX for {} ARBY on Portfolio", order.output);
                 self.portfolio_swap(order).await?.0
             }
             SwapDirection::YToX(target_price) => {
-                info!("Swapping ARBY for ARBX on Portfolio");
                 let order = self.compute_order_input_y(target_price).await?;
+                info!("Swapping {} ARBY for ARBX on Portfolio", order.input);
                 // Make sure to get the updated output in the case we need to decrease it in the
                 // loop.
                 let (logs, output) = self.portfolio_swap(order.clone()).await?;
-                info!("Swapping ARBX for ARBY on Liquid Exchange");
 
-                self.liquid_exchange
+                let receipt = self.liquid_exchange
                     .swap(self.arbx_address, U256::from(output))
                     .send()
                     .await?
                     .await?;
+                let le_logs = receipt.unwrap().logs[2].clone();
+                let le_event = LiquidExchangeEvents::decode_log(&le_logs.into())?;
+                if let LiquidExchangeEvents::SwapFilter(swap) = le_event {
+                    info!("Swapping ARBX for {} ARBY on Liquid Exchange", swap.amount_out);
+                }
                 logs
             }
         })
@@ -305,7 +311,7 @@ impl Arbitrageur {
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let target_price_iwad = I256::from_raw(target_price_wad);
+        let target_price_iwad = I256::from_raw(target_price_wad) * iwad / I256::from_raw(self.gamma_wad);
 
         // Sell the asset (X) for the quote token (Y)
         let sell_asset = true;
@@ -345,7 +351,7 @@ impl Arbitrageur {
 
         // Rescale back to the real input amount and multiply by 1/gamma to account for
         // the swap fee.
-        let final_scaling_wad = rescaling * (iwad * iwad / I256::from_raw(self.gamma_wad));
+        let final_scaling_wad = rescaling * iwad;
         let input = virtual_input_x * final_scaling_wad / iwad;
         info!("Input ARBX: {}", input);
 
@@ -375,7 +381,7 @@ impl Arbitrageur {
     async fn compute_order_input_y(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let target_price_iwad = I256::from_raw(target_price_wad);
+        let target_price_iwad = I256::from_raw(target_price_wad) * I256::from_raw(self.gamma_wad) / iwad;
 
         // Sell the quote token (Y) for the asset token (X)
         let sell_asset = false;
@@ -420,8 +426,8 @@ impl Arbitrageur {
 
         // Rescale back to the real input amount and multiply by 1/gamma to account for
         // the swap fee.
-        let final_scaling_wad = rescaling * (iwad * iwad / I256::from_raw(self.gamma_wad));
-        let input = virtual_input_y * final_scaling_wad / iwad;
+        let final_scaling_wad = rescaling * iwad;
+        let input = virtual_input_y * final_scaling_wad / iwad + invariant;
         info!("Input ARBY: {}", input);
 
         // Call the `getAmountOut()` function on the Portfolio contract to get the

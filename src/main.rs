@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::time::Instant;
 use std::{collections::BTreeMap, env, fs, sync::Arc};
 
 use anyhow::Result;
@@ -57,6 +58,8 @@ async fn main() -> Result<()> {
         std::env::set_var("RUST_LOG", "warn");
     }
     env_logger::init();
+
+    let start = Instant::now();
 
     // Read from the config file.
     let configs_with_filenames = parse_config()?;
@@ -153,7 +156,7 @@ async fn main() -> Result<()> {
                 manager.stop_environment(environment_parameters.label.clone())?;
 
                 // Print out the data collected to a CSV.
-                let final_filename = format!("{}_{}.csv", filename.clone(), index);
+                let final_filename = format!("{}_{}", filename.clone(), index);
                 simulation_output.finalize(final_filename)?;
                 Ok(())
             }));
@@ -164,6 +167,8 @@ async fn main() -> Result<()> {
         }
     }
 
+    let duration = start.elapsed();
+    println!("Total duration of simulations: {:?}", duration);
     Ok(())
 }
 
