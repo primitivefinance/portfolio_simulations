@@ -1,3 +1,5 @@
+use std::collections::hash_map::DefaultHasher;
+use std::hash::Hasher;
 use std::io::Read;
 use std::time::Instant;
 use std::{collections::BTreeMap, env, fs, sync::Arc};
@@ -67,6 +69,7 @@ async fn main() -> Result<()> {
     for config_with_filename in configs_with_filenames {
         let config = config_with_filename.0;
         let mut handles: Vec<JoinHandle<Result<()>>> = vec![];
+        let mut price_seed = config.price_process_parameters.seed;
 
         for index in 0..config.simulation_parameters.number_of_paths {
             let filename = config_with_filename.1.clone();
@@ -75,6 +78,15 @@ async fn main() -> Result<()> {
             let asset_token_parameters = config.asset_token_parameters.clone();
             let quote_token_parameters = config.quote_token_parameters.clone();
             let portfolio_pool_parameters = config.portfolio_pool_parameters.clone();
+            let mut price_process_parameters = config.price_process_parameters;
+
+            if let Some(seed) = price_seed {
+                let mut hasher = DefaultHasher::new();
+                hasher.write_u64(seed);
+                price_seed = Some(hasher.finish());
+                price_process_parameters.seed = price_seed;
+            }
+
             handles.push(tokio::spawn(async move {
                 // Initialize the manager with a single environment and the admin and
                 // arbitrageur clients.
@@ -122,8 +134,7 @@ async fn main() -> Result<()> {
                 // Create a `PriceChanger` which will update the price of the `LiquidExchange`
                 // contract. This copy of the `LiquidExchange` used here contains the admin
                 // client. This means the admin is taking the job as the price changer.
-                let price_changer =
-                    PriceChanger::new(liquid_exchange.clone(), config.price_process_parameters);
+                let price_changer = PriceChanger::new(liquid_exchange.clone(), price_process_parameters);
 
                 // Create an `Arbitrageur` which will detect and execute arbitrage
                 // opportunities. We create new copies of the `LiquidExchange` and

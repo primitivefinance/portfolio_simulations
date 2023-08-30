@@ -25,6 +25,8 @@ pub struct PriceProcessParameters {
 
     /// The number of steps in the process.
     pub num_steps: usize,
+
+    pub seed: Option<u64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

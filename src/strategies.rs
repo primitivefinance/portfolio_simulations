@@ -44,9 +44,15 @@ impl PriceChanger {
             t_0,
             t_n,
             num_steps,
+            seed,
         } = price_process_params;
         let process = OrnsteinUhlenbeck::new(mean, std_dev, theta);
-        let trajectory = process.euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false);
+
+        let trajectory  = match seed {
+            Some(seed) => process.seedable_euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false, seed),
+            None => process.euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false),
+        };
+
         Self {
             trajectory,
             liquid_exchange,
@@ -424,7 +430,7 @@ impl Arbitrageur {
             self.k_iwad * self.arbiter_math.cdf(inside_term_iwad).call().await? / iwad;
         info!("Target virtual reserve: {}", target_virtual_reserve_y);
 
-        let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y;
+        let virtual_input_y = target_virtual_reserve_y - virtual_reserve_y + invariant;
         info!("Virtual input: {}", virtual_input_y);
 
         // Rescale back to the real input amount and multiply by 1/gamma to account for

@@ -18,9 +18,11 @@ theta = 3.0
 t_0 = 0.0
 # The end time of the process.
 t_n = 1000
+# t_n = 1
 # The number of steps in the process.
 num_steps = 25000
-
+# Seed for the price processes
+seed = 1
 
 # We will need two tokens for the simulation.
 # One will be the "asset", the other will be the "quote"
@@ -53,7 +55,7 @@ initial_price = 1.0
 
 # Simulation Parameters
 [simulation_parameters]
-number_of_paths = 5
+number_of_paths = 1
 
 # [simulation_parameters.sweep_parameters]
 #     [simulation_parameters.sweep_parameters.sweeps.volatility_basis_points]

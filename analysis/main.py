@@ -15,7 +15,7 @@ def main():
         [means, stds] = process.compute_mean_and_std(simulation_data)
         statistical_visualization.plot_all(means.astype(float), stds.astype(float), 'combined_plot_statistical.png')
     elif args.type == 'single':
-        simulation_data = process.import_wad_csv('../output/portfolio_1.csv')
+        simulation_data = process.import_wad_csv('../output/portfolio_0.csv')
         visualization.plot_all(simulation_data, 'combined_plot_single.png')
 
 if __name__ == "__main__":
