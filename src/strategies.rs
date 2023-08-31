@@ -247,10 +247,10 @@ impl Arbitrageur {
                 let order = self.compute_order_input_x(target_price).await?;
                 // Swap on LE first
                 // Get the amount to send to LE with quick math
-                let le_input = U256::from(order.input) * self.prices[0] / WAD + 1;
+                let le_input = U256::from(order.clone().input) * self.prices[0] / WAD + 1;
                 info!("Swapping {} ARBY for ARBX on Liquid Exchange", le_input);
 
-                match self
+                /* match self
                     .atomic_arb
                     .execute(
                         self.arby_address,
@@ -273,9 +273,9 @@ impl Arbitrageur {
                         warn!("Portfolio swap failed: {:?}", contract_error);
                         return Ok(None);
                     }
-                }
+                } */
 
-                /* self.liquid_exchange
+                self.liquid_exchange
                     .swap(self.arby_address, le_input)
                     .send()
                     .await?
@@ -284,14 +284,22 @@ impl Arbitrageur {
 
                 // Now swap on Portfolio and return the logs
                 info!("Swapping ARBX for {} ARBY on Portfolio", order.output);
-                let res = self.portfolio_swap(order).await;
+                let res = self.portfolio_swap(order.clone()).await;
                 match res {
                     Ok((logs, _)) => logs,
                     Err(e) => {
                         warn!("Portfolio swap failed: {:?}", e);
+                        // if the portfolio swap failed, swap out of arbx tokens
+                        let input = U256::from(order.clone().input);
+                        self.liquid_exchange
+                            .swap(self.arbx_address, input)
+                            .send()
+                            .await?
+                            .await?
+                            .unwrap();
                         return Ok(None);
                     }
-                } */
+                }
             }
             SwapDirection::YToX(target_price) => {
                 let order = self.compute_order_input_y(target_price).await?;
