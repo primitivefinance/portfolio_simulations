@@ -249,7 +249,8 @@ impl Arbitrageur {
             SwapDirection::YToX(target_price) => {
                 info!("Swapping ARBY for ARBX on Portfolio");
                 let order = self.compute_order_input_y(target_price).await?;
-                // Make sure to get the updated output in the case we need to decrease it in the loop.
+                // Make sure to get the updated output in the case we need to decrease it in the
+                // loop.
                 let (logs, output) = self.portfolio_swap(order.clone()).await?;
                 info!("Swapping ARBX for ARBY on Liquid Exchange");
 
@@ -319,7 +320,10 @@ impl Arbitrageur {
         let rescaling = I256::from(liquidity) / iwad;
         let virtual_reserve_x = I256::from(reserve_x) / rescaling;
         let virtual_reserve_y = I256::from(reserve_y) / rescaling;
-        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
+        info!(
+            "Virtual reserves: {}, {}",
+            virtual_reserve_x, virtual_reserve_y
+        );
 
         // Note that in our units here, sqrt(tau) = 1.
         // R1 = 1 - CDF( ln( S / K ) / sigma + 0.5 * sigma)
@@ -390,11 +394,15 @@ impl Arbitrageur {
         let rescaling = I256::from(liquidity) / iwad;
         let virtual_reserve_x = I256::from(reserve_x) / rescaling;
         let virtual_reserve_y = I256::from(reserve_y) / rescaling;
-        info!("Virtual reserves: {}, {}", virtual_reserve_x, virtual_reserve_y);
+        info!(
+            "Virtual reserves: {}, {}",
+            virtual_reserve_x, virtual_reserve_y
+        );
 
         // Note that in our units here, sqrt(tau) = 1.
         // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma) + k
-        // S here is our target price and k is the invariant (not to be confused with K the strike!)
+        // S here is our target price and k is the invariant (not to be confused with K
+        // the strike!)
         let s_div_k_iwad = target_price_iwad * iwad / self.k_iwad;
         info!("S/K: {}", s_div_k_iwad);
 
