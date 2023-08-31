@@ -68,6 +68,10 @@ def compute_mean_and_std(dfs):
     std_df = combined_df.groupby(level=1).std()
     return mean_df, std_df
 
+def compute_total_fees(df):
+    df['total_fees'] = df['accumulated_lp_fees_x'] + df['accumulated_lp_fees_y']
+    return df
+
 
 def read_in_sweep(folder_path):
     # Initialize an empty DataFrame to store the results
@@ -84,25 +88,27 @@ def read_in_sweep(folder_path):
     
     # Loop through unique parameter pairs and read corresponding CSVs
     for fee_basis_points, volatility_basis_points in unique_params:
-        dfs = []
+        last_rows = []
         for csv_file in glob.glob(f"{folder_path}/portfolio_fee_basis_points_{fee_basis_points}_volatility_basis_points_{volatility_basis_points}_*.csv"):
             df = pd.read_csv(csv_file)
             df = df.applymap(to_decimal)
-            df = create_arbitrageur_relative_balances(df)
-            df = compute_portfolio_values(df)
-            dfs.append(df)
+            df = compute_accumulated_fees(df)
+            df = compute_total_fees(df)
+            last_row = df.iloc[-1]
+            last_rows.append(last_row)
+
         
-        # Compute mean and std_dev for the current (fee_basis_points, volatility_basis_points)
-        mean_df, std_df = compute_mean_and_std(dfs)
-        mean_value = mean_df.loc[mean_df.index[-1], 'lp_portfolio_value']
-        std_dev_value = std_df.loc[std_df.index[-1], 'lp_portfolio_value']
+        last_rows_df = pd.DataFrame(last_rows)
+        mean_value = last_rows_df['total_fees'].astype(float).mean()
+        std_dev_value = last_rows_df['total_fees'].astype(float).std()
+
         
         # Append the results to the result DataFrame
         result_df = result_df._append({
             'fee_basis_points': fee_basis_points,
             'volatility_basis_points': volatility_basis_points,
-            'mean_lp_portfolio_value': mean_value,
-            'std_dev_portfolio_value': std_dev_value
+            'mean_total_fees': mean_value,
+            'std_total_fees': std_dev_value
         }, ignore_index=True)
         
     result_df.to_csv('sweep_results.csv', index=False)
