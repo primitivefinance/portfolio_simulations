@@ -36,6 +36,7 @@ use strategies::*;
 use tokio::task::JoinHandle;
 
 use crate::bindings::{
+    atomic_arb::AtomicArb,
     normal_strategy::NormalStrategy,
     portfolio::{
         AllocateCall, CreatePoolCall, Portfolio, PortfolioErrors, PortfolioEvents,
@@ -107,6 +108,7 @@ async fn main() -> Result<()> {
                     portfolio,
                     normal_strategy,
                     arbiter_math,
+                    atomic_arb,
                 } = simulation_contracts.clone();
 
                 // Allocate tokens and approve their spending.
@@ -117,6 +119,7 @@ async fn main() -> Result<()> {
                     arby.address(),
                     liquid_exchange.address(),
                     portfolio.address(),
+                    atomic_arb.address(),
                 )
                 .await?;
 
@@ -134,7 +137,8 @@ async fn main() -> Result<()> {
                 // Create a `PriceChanger` which will update the price of the `LiquidExchange`
                 // contract. This copy of the `LiquidExchange` used here contains the admin
                 // client. This means the admin is taking the job as the price changer.
-                let price_changer = PriceChanger::new(liquid_exchange.clone(), price_process_parameters);
+                let price_changer =
+                    PriceChanger::new(liquid_exchange.clone(), price_process_parameters);
 
                 // Create an `Arbitrageur` which will detect and execute arbitrage
                 // opportunities. We create new copies of the `LiquidExchange` and
@@ -143,6 +147,7 @@ async fn main() -> Result<()> {
                     LiquidExchange::new(liquid_exchange.address(), arbitrageur.clone()),
                     Portfolio::new(portfolio.address(), arbitrageur.clone()),
                     arbiter_math,
+                    AtomicArb::new(atomic_arb.address(), arbitrageur.clone()),
                     portfolio_pool_parameters,
                     pool_id,
                 )
