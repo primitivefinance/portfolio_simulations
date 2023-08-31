@@ -105,7 +105,7 @@ pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
         }
     } else {
         info!("Not sweeping over any variables.");
-        let filename = format!("{}.csv", simulation_config.environment_parameters.label);
+        let filename = simulation_config.clone().environment_parameters.label;
         configs_with_filenames.push((simulation_config, filename));
     }
 
