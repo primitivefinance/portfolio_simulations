@@ -34,6 +34,9 @@ pub struct SimulationContracts {
 
     /// The `ArbiterMath` contract.
     pub arbiter_math: ArbiterMath<RevmMiddleware>,
+
+    /// The `AtomicArb` contract.
+    pub atomic_arb: AtomicArb<RevmMiddleware>,
 }
 
 /// Initialize the manager with an environment, an admin client, and the
@@ -156,7 +159,9 @@ pub async fn deploy_contracts(
     // Deploy the `ArbiterMath` contract which is does not have any memory and is
     // only used to perform onchain-type mathematical operations (e.g., from
     // `solmate` and `solsat`).
-    let arbiter_math = ArbiterMath::deploy(client, ())?.send().await?;
+    let arbiter_math = ArbiterMath::deploy(client.clone(), ())?.send().await?;
+
+    let atomic_arb = AtomicArb::deploy(client.clone(), ())?.send().await?;
 
     Ok(SimulationContracts {
         arbx,
@@ -165,6 +170,7 @@ pub async fn deploy_contracts(
         portfolio,
         normal_strategy,
         arbiter_math,
+        atomic_arb,
     })
 }
 
@@ -177,6 +183,7 @@ pub async fn allocate_and_approve(
     arby_address: Address,
     liquid_exchange_address: Address,
     portfolio_address: Address,
+    atomic_arb_address: Address,
 ) -> Result<()> {
     // Create two instances of the `ArbiterToken` contract that use the admin
     // `Client`. This way we can do the proper approvals later on.
@@ -237,6 +244,11 @@ pub async fn allocate_and_approve(
             .await?;
         arbitrageur_token
             .approve(portfolio_address, U256::from(u128::MAX))
+            .send()
+            .await?
+            .await?;
+        arbitrageur_token
+            .approve(atomic_arb_address, U256::from(u128::MAX))
             .send()
             .await?
             .await?;

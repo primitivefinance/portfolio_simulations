@@ -38,6 +38,9 @@ pub struct SimulationOutput {
 
     /// The ARBY balances of the arbitrageur.
     pub arbitrageur_balances_y: Vec<String>,
+
+    // Invariant of pool
+    pub invariant: Vec<String>,
 }
 
 impl SimulationOutput {
@@ -55,6 +58,7 @@ impl SimulationOutput {
             lp_fees_y: vec![],
             arbitrageur_balances_x: vec![],
             arbitrageur_balances_y: vec![],
+            invariant: vec![],
         }
     }
 
@@ -67,6 +71,15 @@ impl SimulationOutput {
         arbitrageur_address: Address,
         swap_event: Option<Log>,
     ) -> Result<()> {
+        self.invariant.push(
+            simulation_contracts
+                .portfolio
+                .get_invariant(pool_id)
+                .call()
+                .await?
+                .to_string(),
+        );
+
         // Update the prices of both exchanges.
         self.liquid_exchange_prices.push(
             simulation_contracts

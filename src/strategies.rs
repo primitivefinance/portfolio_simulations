@@ -48,8 +48,10 @@ impl PriceChanger {
         } = price_process_params;
         let process = OrnsteinUhlenbeck::new(mean, std_dev, theta);
 
-        let trajectory  = match seed {
-            Some(seed) => process.seedable_euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false, seed),
+        let trajectory = match seed {
+            Some(seed) => {
+                process.seedable_euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false, seed)
+            }
             None => process.euler_maruyama(initial_price, t_0, t_n, num_steps, 1, false),
         };
 
@@ -94,6 +96,8 @@ pub struct Arbitrageur {
     /// The `Portfolio` contract with the arbitrageur `Client`.
     pub portfolio: Portfolio<RevmMiddleware>,
 
+    pub atomic_arb: AtomicArb<RevmMiddleware>,
+
     /// The `ArbiterMath` contract with the admin `Client`.
     /// Note that this is only used to compute mathematical functions and not
     /// write to state!
@@ -128,6 +132,7 @@ impl Arbitrageur {
         liquid_exchange: LiquidExchange<RevmMiddleware>,
         portfolio: Portfolio<RevmMiddleware>,
         arbiter_math: ArbiterMath<RevmMiddleware>,
+        atomic_arb: AtomicArb<RevmMiddleware>,
         portfolio_pool_parameters: PortfolioPoolParameters,
         pool_id: u64,
     ) -> Result<Self> {
@@ -160,6 +165,7 @@ impl Arbitrageur {
             liquid_exchange,
             portfolio,
             arbiter_math,
+            atomic_arb,
             pool_id,
             address,
             arbx_address,
@@ -243,7 +249,33 @@ impl Arbitrageur {
                 // Get the amount to send to LE with quick math
                 let le_input = U256::from(order.input) * self.prices[0] / WAD + 1;
                 info!("Swapping {} ARBY for ARBX on Liquid Exchange", le_input);
-                self.liquid_exchange
+
+                match self
+                    .atomic_arb
+                    .execute(
+                        self.arby_address,
+                        self.arbx_address,
+                        self.portfolio.address(),
+                        self.liquid_exchange.address(),
+                        order,
+                        le_input,
+                    )
+                    .send()
+                    .await
+                {
+                    Ok(pending_tx) => {
+                        info!("Portfolio swap successful");
+                        let receipt = pending_tx.await?.unwrap();
+                        // The third log will be the `Swap` event.
+                        Some(receipt.logs[8].clone())
+                    }
+                    Err(contract_error) => {
+                        warn!("Portfolio swap failed: {:?}", contract_error);
+                        return Ok(None);
+                    }
+                }
+
+                /* self.liquid_exchange
                     .swap(self.arby_address, le_input)
                     .send()
                     .await?
@@ -252,26 +284,45 @@ impl Arbitrageur {
 
                 // Now swap on Portfolio and return the logs
                 info!("Swapping ARBX for {} ARBY on Portfolio", order.output);
-                self.portfolio_swap(order).await?.0
+                let res = self.portfolio_swap(order).await;
+                match res {
+                    Ok((logs, _)) => logs,
+                    Err(e) => {
+                        warn!("Portfolio swap failed: {:?}", e);
+                        return Ok(None);
+                    }
+                } */
             }
             SwapDirection::YToX(target_price) => {
                 let order = self.compute_order_input_y(target_price).await?;
                 info!("Swapping {} ARBY for ARBX on Portfolio", order.input);
                 // Make sure to get the updated output in the case we need to decrease it in the
                 // loop.
-                let (logs, output) = self.portfolio_swap(order.clone()).await?;
+                let res = self.portfolio_swap(order.clone()).await;
 
-                let receipt = self.liquid_exchange
-                    .swap(self.arbx_address, U256::from(output))
-                    .send()
-                    .await?
-                    .await?;
-                let le_logs = receipt.unwrap().logs[2].clone();
-                let le_event = LiquidExchangeEvents::decode_log(&le_logs.into())?;
-                if let LiquidExchangeEvents::SwapFilter(swap) = le_event {
-                    info!("Swapping ARBX for {} ARBY on Liquid Exchange", swap.amount_out);
+                match res {
+                    Ok((logs, output)) => {
+                        let receipt = self
+                            .liquid_exchange
+                            .swap(self.arbx_address, U256::from(output))
+                            .send()
+                            .await?
+                            .await?;
+                        let le_logs = receipt.unwrap().logs[2].clone();
+                        let le_event = LiquidExchangeEvents::decode_log(&le_logs.into())?;
+                        if let LiquidExchangeEvents::SwapFilter(swap) = le_event {
+                            info!(
+                                "Swapping ARBX for {} ARBY on Liquid Exchange",
+                                swap.amount_out
+                            );
+                        }
+                        logs
+                    }
+                    Err(e) => {
+                        warn!("Portfolio swap failed: {:?}", e);
+                        return Ok(None);
+                    }
                 }
-                logs
             }
         })
     }
@@ -295,9 +346,6 @@ impl Arbitrageur {
                         output,
                     } = contract_error.as_middleware_error().unwrap()
                     {
-                        if order.input < 100_000 {
-                            break Err(anyhow::anyhow!("Order input too small."));
-                        }
                         let error = PortfolioErrors::decode(output)?;
                         warn!("Swap failed due to revert: {:?}", error);
                         if let PortfolioErrors::Portfolio_InvalidInvariant(
@@ -307,6 +355,9 @@ impl Arbitrageur {
                             warn!("Shrinking order output size by 0.01%");
                             order.output = order.output * 9999 / 10000;
                             continue;
+                        } else {
+                            warn!("Got another error when swapping, continuing");
+                            break Err(anyhow::anyhow!("Swap failed due to revert: {:?}", error));
                         }
                     }
                 }
@@ -317,7 +368,8 @@ impl Arbitrageur {
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let target_price_iwad = I256::from_raw(target_price_wad) * iwad / I256::from_raw(self.gamma_wad);
+        let target_price_iwad =
+            I256::from_raw(target_price_wad) * iwad / I256::from_raw(self.gamma_wad);
 
         // Sell the asset (X) for the quote token (Y)
         let sell_asset = true;
@@ -372,7 +424,19 @@ impl Arbitrageur {
                 self.address,
             )
             .call()
-            .await?;
+            .await;
+        let output = match output {
+            Ok(output) => output,
+            Err(contract_error) => {
+                warn!(
+                    "getAmountOut for y output failed due to revert: {:?}",
+                    contract_error
+                );
+
+                U256::from(reserve_y - 1)
+            }
+        };
+
         info!("Output ARBY: {}", output);
 
         Ok(Order {
@@ -387,7 +451,8 @@ impl Arbitrageur {
     async fn compute_order_input_y(&self, target_price_wad: U256) -> Result<Order> {
         // Get some necessary constants as I256
         let iwad = I256::from_raw(WAD);
-        let target_price_iwad = I256::from_raw(target_price_wad) * I256::from_raw(self.gamma_wad) / iwad;
+        let target_price_iwad =
+            I256::from_raw(target_price_wad) * I256::from_raw(self.gamma_wad) / iwad;
 
         // Sell the quote token (Y) for the asset token (X)
         let sell_asset = false;
@@ -450,7 +515,20 @@ impl Arbitrageur {
                 self.address,
             )
             .call()
-            .await?;
+            .await;
+
+        let output = match output {
+            Ok(output) => output,
+            Err(contract_error) => {
+                warn!(
+                    "getAmountOut for x output failed due to revert: {:?}",
+                    contract_error
+                );
+
+                U256::from(reserve_x - 1)
+            }
+        };
+
         info!("Output ARBX: {}", output);
 
         Ok(Order {
