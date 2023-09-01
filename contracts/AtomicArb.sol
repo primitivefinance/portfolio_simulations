@@ -40,7 +40,7 @@ contract AtomicArb {
         // send x to portfolio
         TokenLike(x_token).transfer(portfolio, x_balance);
 
-        uint256 max_iter = 10;
+        uint256 max_iter = 20;
         uint256 i;
         bool success;
         uint256 output = order.output;
@@ -49,7 +49,7 @@ contract AtomicArb {
             try PortfolioLike(portfolio).swap(order) {
                 success = true;
             } catch {
-                output = output * 999 / 1000;
+                output = output * 9999 / 10000;
             }
 
             i++;
@@ -83,7 +83,7 @@ contract AtomicArb {
         // send y to portfolio
         TokenLike(y_token).transfer(portfolio, y_balance);
 
-        uint256 max_iter = 10;
+        uint256 max_iter = 20;
         uint256 i;
         bool success;
         uint256 output = order.output;
@@ -92,7 +92,7 @@ contract AtomicArb {
             try PortfolioLike(portfolio).swap(order) {
                 success = true;
             } catch {
-                output = output * 999 / 1000;
+                output = output * 9999 / 10000;
             }
 
             i++;
