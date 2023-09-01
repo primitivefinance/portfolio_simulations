@@ -108,14 +108,21 @@ def plot_liquid_exchange_relative_reserves(ax, df, start_index=None, end_index=N
     customize_plot(ax, 'Liquid Exchange Reserves Over Time', 'Index', 'Reserve in WAD')
 
 
+def plot_invariant(ax, df, start_index=None, end_index=None):
+    if start_index is not None and end_index is not None:
+        df = df[start_index:end_index]
+    sns.lineplot(x=df.index, y=df['invariant'], data=df, label='Invariant', ax=ax, linewidth=2)
+    customize_plot(ax, 'Invariant Over Time', 'Index', 'Invariant Y')
+
 def plot_all(df, filename, start_index=None, end_index=None):
-    fig, axes = plt.subplots(5, 1, figsize=(16, 20))
+    fig, axes = plt.subplots(6, 1, figsize=(16, 20))
 
     plot_prices(axes[0], df, start_index, end_index)
     plot_arbitrageur_balances_and_values(axes[1], df, start_index, end_index)
     plot_liquid_exchange_relative_reserves(axes[2], df, start_index, end_index)
     plot_portfolio_balances_and_values(axes[3], df, start_index, end_index)
     plot_lp_fees(axes[4], df, start_index, end_index)
+    plot_invariant(axes[5], df, start_index, end_index)
 
     plt.tight_layout()  # Adjusts subplot params for better layout
     plt.savefig(filename)
