@@ -68,3 +68,27 @@ def plot_all(mean_df, std_df, filename):
 
     plt.tight_layout()  # Adjusts subplot params for better layout
     plt.savefig(filename)
+
+def plot_heatmaps(df):
+    # Pivot the DataFrame to get a 2D grid, one for mean and one for std_dev
+    mean_pivot = df.pivot(index="fee_basis_points", columns="volatility_basis_points", values="mean_total_fees")
+    std_pivot = df.pivot(index="fee_basis_points", columns="volatility_basis_points", values="std_total_fees")
+
+
+    # Create a figure and a 1x2 grid of subplots
+    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
+
+    # Plot the heatmap for mean values
+    sns.heatmap(mean_pivot, annot=True, fmt=".2f", cmap="rocket", ax=axes[0])
+    axes[0].set_title("Mean Total Fees", fontsize=16)
+    axes[0].set_xlabel("Volatility Basis Points", fontsize=14)
+    axes[0].set_ylabel("Fee Basis Points", fontsize=14)
+
+    # Plot the heatmap for standard deviation values
+    sns.heatmap(std_pivot, annot=True, fmt=".2f", cmap="rocket", ax=axes[1])
+    axes[1].set_title("Standard Deviation Total Fees", fontsize=16)
+    axes[1].set_xlabel("Volatility Basis Points", fontsize=14)
+    axes[1].set_ylabel("Fee Basis Points", fontsize=14)
+
+    plt.tight_layout()
+    plt.savefig(f"heatmaps.png")
