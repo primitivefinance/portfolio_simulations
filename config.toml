@@ -46,7 +46,7 @@ volatility_basis_points = 10
 strike_price = 1.0
 time_remaining_years = 1
 is_perpetual = true
-fee_basis_points = 5
+fee_basis_points = 3
 priority_fee_basis_points = 0
 
 # LP PARAMETRER

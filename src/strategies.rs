@@ -5,6 +5,9 @@
 //! - `Arbitrageur` detects and executes arbitrage opportunities.
 
 use arbiter_core::bindings::liquid_exchange::LiquidExchangeEvents;
+use ethers::etherscan::contract;
+
+use crate::bindings::normal_strategy::NormalStrategyErrors;
 
 use super::*;
 
@@ -367,11 +370,21 @@ impl Arbitrageur {
         let output = match output {
             Ok(output) => output,
             Err(contract_error) => {
-                warn!(
-                    "getAmountOut for y output failed due to revert: {:?}",
-                    contract_error
-                );
-
+                if let RevmMiddlewareError::ExecutionRevert {
+                    gas_used: _,
+                    output,
+                } = contract_error.as_middleware_error().unwrap()
+                {
+                    if let NormalStrategyErrors::NormalStrategyLib_LowerReserveYBoundNotReached(
+                        value,
+                    ) = NormalStrategyErrors::decode(output)?
+                    {
+                        warn!(
+                            "getAmountOut for x output failed due to revert: {:?}",
+                            value
+                        );
+                    }
+                }
                 U256::from(reserve_y - 1)
             }
         };
@@ -456,11 +469,21 @@ impl Arbitrageur {
         let output = match output {
             Ok(output) => output,
             Err(contract_error) => {
-                warn!(
-                    "getAmountOut for x output failed due to revert: {:?}",
-                    contract_error
-                );
-
+                if let RevmMiddlewareError::ExecutionRevert {
+                    gas_used: _,
+                    output,
+                } = contract_error.as_middleware_error().unwrap()
+                {
+                    if let NormalStrategyErrors::NormalStrategyLib_LowerReserveXBoundNotReached(
+                        value,
+                    ) = NormalStrategyErrors::decode(output)?
+                    {
+                        warn!(
+                            "getAmountOut for x output failed due to revert: {:?}",
+                            value
+                        );
+                    }
+                }
                 U256::from(reserve_x - 1)
             }
         };
