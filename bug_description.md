@@ -3,6 +3,7 @@
 
 ## Setup
 
+We are using [Portfolio commit 88e6fc8e24e182216a7788df8871f1dc2553755a](https://github.com/primitivefinance/portfolio/commit/88e6fc8e24e182216a7788df8871f1dc2553755a).
 Let the `config.toml` be set as follows:
 ```toml
 [environment_parameters]
