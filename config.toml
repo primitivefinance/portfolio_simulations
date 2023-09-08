@@ -1,6 +1,8 @@
 [environment_parameters]
 label = "portfolio" 
+[environment_parameters.block_type.RandomlySampled]
 block_rate = 10.0
+block_time = 1
 seed = 0
 
 [price_process_parameters]
