@@ -41,16 +41,16 @@ pub struct SimulationConfig {
     pub simulation_parameters: SimulationParameters,
 }
 
-pub fn read_config() -> Result<SimulationConfig> {
-    let mut file = fs::File::open("config.toml")?;
+pub fn read_config(filename: String) -> Result<SimulationConfig> {
+    let mut file = fs::File::open(filename)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
     Ok(toml::from_str(&contents)?)
 }
 
-pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
-    let simulation_config = read_config()?;
+pub fn parse_config(filename: String) -> Result<Vec<(SimulationConfig, String)>> {
+    let simulation_config = read_config(filename)?;
     let mut configs_with_filenames = vec![];
 
     if let Some(sweep_parameters) = simulation_config
@@ -111,7 +111,6 @@ pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
 
     Ok(configs_with_filenames)
 }
-
 
 fn linspace(start: f64, end: f64, num_points: usize) -> Vec<f64> {
     let step = (end - start) / (num_points as f64 - 1.0);

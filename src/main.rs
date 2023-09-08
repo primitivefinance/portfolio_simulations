@@ -14,6 +14,7 @@ use arbiter_core::{
     math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
     middleware::{RevmMiddleware, RevmMiddlewareError},
 };
+use clap::Arg;
 use config::*;
 use data_collection::*;
 use ethers::{
@@ -53,6 +54,21 @@ mod parameters;
 mod startup;
 mod strategies;
 
+use clap::Parser;
+
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Which config file to use.
+    #[arg(short, long, default_value = "config.toml")]
+    config: String,
+
+    /// Which type of simulation to run.
+    #[arg(short, long)]
+    simulation: String,
+}
+
 /// The entry point of the simulation.
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -62,10 +78,13 @@ async fn main() -> Result<()> {
     }
     env_logger::init();
 
+    // Initialize the CLI.
+    let args = Args::parse();
+
     let start = Instant::now();
 
     // Read from the config file.
-    let configs_with_filenames = parse_config()?;
+    let configs_with_filenames = parse_config(args.config)?;
 
     for config_with_filename in configs_with_filenames {
         let config = config_with_filename.0;

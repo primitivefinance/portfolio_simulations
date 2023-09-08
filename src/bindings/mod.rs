@@ -4,6 +4,7 @@
 //! Do not manually edit these files.
 //! These files may be overwritten by the codegen system at any time.
 pub mod atomic_arb;
+pub mod geometric_mean_strategy;
 pub mod normal_strategy;
 pub mod portfolio;
 pub mod shared_types;
