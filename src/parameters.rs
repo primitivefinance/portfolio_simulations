@@ -36,9 +36,16 @@ pub struct TokenParameters {
     pub decimals: u8,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PoolStrategy {
+    Normal(NormalStrategyPoolParameters),
+    GeometricMean(GeometricMeanPoolParameters),
+}
+
 /// All the possible settings for the Portfolio pool.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct PortfolioPoolParameters {
+pub struct NormalStrategyPoolParameters {
+    // The `volatility_basis_points`, `strike_price`, `time_remaining_years`, `is_perpetual`, and `initial_price` parameters are used to configure the `NormalStrategy`.
     /// The implied volatility parameter in the `NormalStrategy`.
     /// Sets the "width" of a Gaussian liquidity distribution.
     pub volatility_basis_points: u16,
@@ -54,6 +61,11 @@ pub struct PortfolioPoolParameters {
     /// Whether the `NormalStrategy` is perpetual or will change over time.
     pub is_perpetual: bool,
 
+    /// The initial price of the Portfolio pool.
+    pub initial_price: f64,
+
+    // The `fee_basis_points`, `priority_fee_basis_points`, `liquidity_mantissa`, and `liquidity_exponent` parameters are used to configure the LP position for the strategy.
+    /// The swap fee in basis points.
     pub fee_basis_points: u16,
 
     /// The priority swap fee in basis points (not needed for this simulation).
@@ -61,9 +73,17 @@ pub struct PortfolioPoolParameters {
 
     pub liquidity_mantissa: u64,
     pub liquidity_exponent: u32,
+}
 
-    /// The initial price of the Portfolio pool.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GeometricMeanPoolParameters {
+    pub asset_weight_wad: f64,
+    pub quote_weight_wad: f64,
     pub initial_price: f64,
+    pub asset_in_mantissa: u64,
+    pub asset_in_exponent: u32,
+    pub fee_basis_points: u16,
+    pub priority_fee_basis_points: u16,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -29,9 +29,6 @@ pub struct SimulationContracts {
     /// The `Portfolio` contract.
     pub portfolio: Portfolio<RevmMiddleware>,
 
-    /// The `NormalStrategy` contract.
-    pub normal_strategy: NormalStrategy<RevmMiddleware>,
-
     /// The `ArbiterMath` contract.
     pub arbiter_math: ArbiterMath<RevmMiddleware>,
 
@@ -146,16 +143,6 @@ pub async fn deploy_contracts(
     .await?;
     info!("Portfolio contract deployed at {:?}", portfolio.address());
 
-    // Deploy the `NormalStrategy` contract which is used by the `Portfolio`
-    // contract to determine a specific trading rule for the pool.
-    let normal_strategy = NormalStrategy::deploy(client.clone(), portfolio.address())?
-        .send()
-        .await?;
-    info!(
-        "normal strategy contract deployed at {:?}",
-        normal_strategy.address()
-    );
-
     // Deploy the `ArbiterMath` contract which is does not have any memory and is
     // only used to perform onchain-type mathematical operations (e.g., from
     // `solmate` and `solsat`).
@@ -168,7 +155,6 @@ pub async fn deploy_contracts(
         arby,
         liquid_exchange,
         portfolio,
-        normal_strategy,
         arbiter_math,
         atomic_arb,
     })
@@ -257,11 +243,10 @@ pub async fn allocate_and_approve(
     Ok(())
 }
 
-/// Initialize a `Portfolio` pair and pool.
-pub async fn initialize_portfolio(
+/// Initialize a `Portfolio` pair and pool with the chosen strategy.
+pub async fn initialize_pool_strategy(
     portfolio: &Portfolio<RevmMiddleware>,
-    normal_strategy: &NormalStrategy<RevmMiddleware>,
-    portfolio_pool_parameters: PortfolioPoolParameters,
+    pool_strategy: PoolStrategy,
     asset: Address,
     quote: Address,
     lp_address: Address,
@@ -272,61 +257,131 @@ pub async fn initialize_portfolio(
     let pair_id = portfolio.get_pair_id(asset, quote).call().await?;
     info!("Created a pair with pair_id: {:?}", pair_id);
 
-    // Given our choice of pool parameters, we need to get the strategy arguments
-    // and the initial reserves (which depend on the initial price chosen). This
-    // will be passed to the `CreatePool` call.
-    let strike_price_wad = arbiter_core::math::float_to_wad(portfolio_pool_parameters.strike_price);
-    let volatility_basis_points =
-        ethers::types::U256::from(portfolio_pool_parameters.volatility_basis_points);
-    let duration_seconds = ethers::types::U256::from(
-        portfolio_pool_parameters.time_remaining_years * SECONDS_PER_YEAR,
-    );
-    let price_wad = arbiter_core::math::float_to_wad(portfolio_pool_parameters.initial_price);
-    let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = normal_strategy
-        .get_strategy_data(
-            strike_price_wad,
-            volatility_basis_points,
-            duration_seconds,
-            portfolio_pool_parameters.is_perpetual,
-            price_wad,
-        )
-        .call()
-        .await?;
+    let client = portfolio.client().clone();
 
-    // Make an instance of the `CreatePoolCall` struct since the paramater list is
-    // large. Sadly this cannot be directly passed into the call like this, but
-    // it is a convenient way to see that we correctly set all the parameters.
-    let CreatePoolCall {
-        pair_id,
-        reserve_x_per_wad,
-        reserve_y_per_wad,
-        fee_basis_points,
-        priority_fee_basis_points,
-        controller,
-        strategy,
-        strategy_args,
-    } = CreatePoolCall {
-        pair_id,
-        reserve_x_per_wad,
-        reserve_y_per_wad,
-        fee_basis_points: portfolio_pool_parameters.fee_basis_points,
-        priority_fee_basis_points: portfolio_pool_parameters.priority_fee_basis_points,
-        controller: Address::default(),
-        strategy: Address::default(), // address(0) == default strategy
-        strategy_args,
+    let (create_pool_call, delta_liquidity) = match pool_strategy {
+        PoolStrategy::Normal(normal_strategy_parameters) => {
+            // Deploy the `NormalStrategy` contract which is used by the `Portfolio`
+            // contract to determine a specific trading rule for the pool.
+            let normal_strategy = NormalStrategy::deploy(client.clone(), portfolio.address())?
+                .send()
+                .await?;
+            info!(
+                "normal strategy contract deployed at {:?}",
+                normal_strategy.address()
+            );
+
+            // Given our choice of pool parameters, we need to get the strategy arguments
+            // and the initial reserves (which depend on the initial price chosen). This
+            // will be passed to the `CreatePool` call.
+            let normal_strategy::GetStrategyDataCall {
+                strike_price_wad,
+                volatility_basis_points,
+                duration_seconds,
+                is_perpetual,
+                price_wad,
+            } = normal_strategy::GetStrategyDataCall {
+                strike_price_wad: arbiter_core::math::float_to_wad(
+                    normal_strategy_parameters.strike_price,
+                ),
+                volatility_basis_points: ethers::types::U256::from(
+                    normal_strategy_parameters.volatility_basis_points,
+                ),
+                duration_seconds: ethers::types::U256::from(
+                    normal_strategy_parameters.time_remaining_years * SECONDS_PER_YEAR,
+                ),
+                is_perpetual: normal_strategy_parameters.is_perpetual,
+                price_wad: arbiter_core::math::float_to_wad(
+                    normal_strategy_parameters.initial_price,
+                ),
+            };
+            let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = normal_strategy
+                .get_strategy_data(
+                    strike_price_wad,
+                    volatility_basis_points,
+                    duration_seconds,
+                    normal_strategy_parameters.is_perpetual,
+                    price_wad,
+                )
+                .call()
+                .await?;
+            (
+                CreatePoolCall {
+                    pair_id,
+                    reserve_x_per_wad,
+                    reserve_y_per_wad,
+                    fee_basis_points: normal_strategy_parameters.fee_basis_points,
+                    priority_fee_basis_points: normal_strategy_parameters.priority_fee_basis_points,
+                    controller: Address::default(),
+                    strategy: normal_strategy.address(),
+                    strategy_args,
+                },
+                (normal_strategy_parameters.liquidity_mantissa as u128 * 10_u128)
+                    .pow(normal_strategy_parameters.liquidity_exponent),
+            )
+        }
+        PoolStrategy::GeometricMean(geometric_mean_strategy_parameters) => {
+            // Deploy the `NormalStrategy` contract which is used by the `Portfolio`
+            // contract to determine a specific trading rule for the pool.
+            let geometric_mean_strategy =
+                GeometricMeanStrategy::deploy(client.clone(), portfolio.address())?
+                    .send()
+                    .await?;
+            info!(
+                "geometric_mean strategy contract deployed at {:?}",
+                geometric_mean_strategy.address()
+            );
+
+            // Given our choice of pool parameters, we need to get the strategy arguments
+            // and the initial reserves (which depend on the initial price chosen). This
+            // will be passed to the `CreatePool` call.
+            let geometric_mean_strategy::GetStrategyDataCall {
+                asset_weight_wad,
+                quote_weight_wad,
+                price_wad,
+                asset_in_wad,
+            } = geometric_mean_strategy::GetStrategyDataCall {
+                asset_weight_wad: float_to_wad(geometric_mean_strategy_parameters.asset_weight_wad),
+                quote_weight_wad: float_to_wad(geometric_mean_strategy_parameters.quote_weight_wad),
+                price_wad: float_to_wad(geometric_mean_strategy_parameters.initial_price),
+                asset_in_wad: U256::from(
+                    (geometric_mean_strategy_parameters.asset_in_mantissa as u128 * 10_u128)
+                        .pow(geometric_mean_strategy_parameters.asset_in_exponent),
+                ),
+            };
+            let (strategy_args, reserve_x_per_wad, reserve_y_per_wad) = geometric_mean_strategy
+                .get_strategy_data(asset_weight_wad, quote_weight_wad, price_wad, asset_in_wad)
+                .call()
+                .await?;
+            (
+                CreatePoolCall {
+                    pair_id,
+                    reserve_x_per_wad,
+                    reserve_y_per_wad,
+                    fee_basis_points: geometric_mean_strategy_parameters.fee_basis_points,
+                    priority_fee_basis_points: geometric_mean_strategy_parameters
+                        .priority_fee_basis_points,
+                    controller: Address::default(),
+                    strategy: Address::default(), // address(0) == default strategy
+                    strategy_args,
+                },
+                (geometric_mean_strategy_parameters.asset_in_mantissa as u128 * 10_u128)
+                    .pow(geometric_mean_strategy_parameters.asset_in_exponent),
+            )
+        }
     };
 
     // Create the pool and get the `pool_id`.
     let create_pool_output = portfolio
         .create_pool(
             pair_id,
-            reserve_x_per_wad,
-            reserve_y_per_wad,
-            fee_basis_points,
-            priority_fee_basis_points,
-            controller,
-            strategy,
-            strategy_args,
+            create_pool_call.reserve_x_per_wad,
+            create_pool_call.reserve_y_per_wad,
+            create_pool_call.fee_basis_points,
+            create_pool_call.priority_fee_basis_points,
+            create_pool_call.controller,
+            create_pool_call.strategy,
+            create_pool_call.strategy_args,
         )
         .send()
         .await?
@@ -344,9 +399,6 @@ pub async fn initialize_portfolio(
         let pool_id = create_pool_filter.pool_id;
         info!("Created a pool with `pool_id`: {:?}", pool_id);
 
-        // Allocate liquidity to the pool.
-        // Again, using an instance of the `AllocateCall` struct to make sure we set all
-        // the parameters correctly.
         let AllocateCall {
             use_max,
             recipient,
@@ -355,13 +407,12 @@ pub async fn initialize_portfolio(
             max_delta_asset,
             max_delta_quote,
         } = AllocateCall {
-            use_max: false,
+            use_max: true,
             recipient: lp_address,
             pool_id,
-            delta_liquidity: (portfolio_pool_parameters.liquidity_mantissa as u128 * 10_u128)
-                .pow(portfolio_pool_parameters.liquidity_exponent),
-            max_delta_asset: u128::MAX / 2_u128,
-            max_delta_quote: u128::MAX / 2_u128,
+            delta_liquidity,
+            max_delta_asset: u128::MAX / 2,
+            max_delta_quote: u128::MAX / 2,
         };
         portfolio
             .allocate(

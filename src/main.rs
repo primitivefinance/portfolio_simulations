@@ -37,7 +37,8 @@ use tokio::task::JoinHandle;
 
 use crate::bindings::{
     atomic_arb::AtomicArb,
-    normal_strategy::NormalStrategy,
+    geometric_mean_strategy::{GeometricMeanStrategy, *},
+    normal_strategy::{NormalStrategy, *},
     portfolio::{
         AllocateCall, CreatePoolCall, Portfolio, PortfolioErrors, PortfolioEvents,
         Portfolio_InvalidInvariant,
@@ -60,12 +61,8 @@ use clap::Parser;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Which config file to use.
-    #[arg(short, long, default_value = "config.toml")]
+    #[arg(short, long, default_value = "normal_config.toml")]
     config: String,
-
-    /// Which type of simulation to run.
-    #[arg(short, long)]
-    simulation: String,
 }
 
 /// The entry point of the simulation.
@@ -110,7 +107,7 @@ async fn simulate(
             let environment_parameters = config.environment_parameters.clone();
             let asset_token_parameters = config.asset_token_parameters.clone();
             let quote_token_parameters = config.quote_token_parameters.clone();
-            let portfolio_pool_parameters = config.portfolio_pool_parameters.clone();
+            let pool_strategy = config.pool_strategy.clone();
             let mut price_process_parameters = config.price_process_parameters;
 
             if let Some(seed) = price_seed {
@@ -138,7 +135,6 @@ async fn simulate(
                     arby,
                     liquid_exchange,
                     portfolio,
-                    normal_strategy,
                     arbiter_math,
                     atomic_arb,
                 } = simulation_contracts.clone();
@@ -156,10 +152,9 @@ async fn simulate(
                 .await?;
 
                 // Initialize a Portfolio pool.
-                let pool_id = initialize_portfolio(
+                let pool_id = initialize_pool_strategy(
                     &portfolio,
-                    &normal_strategy,
-                    portfolio_pool_parameters.clone(),
+                    pool_strategy,
                     arbx.address(),
                     arby.address(),
                     admin.default_sender().unwrap(),

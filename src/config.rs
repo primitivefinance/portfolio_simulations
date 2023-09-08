@@ -36,7 +36,7 @@ pub struct SimulationConfig {
 
     pub quote_token_parameters: TokenParameters,
 
-    pub portfolio_pool_parameters: PortfolioPoolParameters,
+    pub pool_strategy: PoolStrategy,
 
     pub simulation_parameters: SimulationParameters,
 }
