@@ -14,7 +14,6 @@ use arbiter_core::{
     math::{float_to_wad, ornstein_uhlenbeck::OrnsteinUhlenbeck, StochasticProcess, Trajectories},
     middleware::{RevmMiddleware, RevmMiddlewareError},
 };
-use clap::Arg;
 use config::*;
 use data_collection::*;
 use ethers::{
@@ -86,15 +85,29 @@ async fn main() -> Result<()> {
     // Read from the config file.
     let configs_with_filenames = parse_config(args.config)?;
 
+    // Run the simulation.
+    let handles = simulate(configs_with_filenames).await;
+
+    for handle in handles {
+        handle.await??;
+    }
+
+    let duration = start.elapsed();
+    println!("Total duration of simulations: {:?}", duration);
+    Ok(())
+}
+
+async fn simulate(
+    configs_with_filenames: Vec<(SimulationConfig, String)>,
+) -> Vec<JoinHandle<Result<()>>> {
+    let mut handles: Vec<JoinHandle<Result<()>>> = vec![];
     for config_with_filename in configs_with_filenames {
         let config = config_with_filename.0;
-        let mut handles: Vec<JoinHandle<Result<()>>> = vec![];
         let mut price_seed = config.price_process_parameters.seed;
 
         for index in 0..config.simulation_parameters.number_of_paths {
             let filename = config_with_filename.1.clone();
             let environment_parameters = config.environment_parameters.clone();
-            // let price_process_parameters = price_process_parameters.clone();
             let asset_token_parameters = config.asset_token_parameters.clone();
             let quote_token_parameters = config.quote_token_parameters.clone();
             let portfolio_pool_parameters = config.portfolio_pool_parameters.clone();
@@ -196,15 +209,8 @@ async fn main() -> Result<()> {
                 Ok(())
             }));
         }
-
-        for handle in handles {
-            handle.await??;
-        }
     }
-
-    let duration = start.elapsed();
-    println!("Total duration of simulations: {:?}", duration);
-    Ok(())
+    handles
 }
 
 /// This function houses a basic simulation loop.
