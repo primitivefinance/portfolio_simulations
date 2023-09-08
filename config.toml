@@ -10,17 +10,19 @@ initial_price = 1.0
 # The mean (price) of the process.
 mean = 1.0
 # The standard deviation of the process.
-std_dev = 0.001
+# std_dev = 0.001
+std_dev = 0.01
 # The theta parameter of the process.
 # This describes how strongly the process will revert to the mean.
 theta = 3.0
 # The start time of the process.
 t_0 = 0.0
 # The end time of the process.
-t_n = 1000
-# t_n = 1
+# t_n = 1000
+t_n = 100
 # The number of steps in the process.
-num_steps = 25000
+# num_steps = 25000
+num_steps = 2500
 # Seed for the price processes
 seed = 1
 
@@ -44,7 +46,7 @@ volatility_basis_points = 10
 strike_price = 1.0
 time_remaining_years = 1
 is_perpetual = true
-fee_basis_points = 5
+fee_basis_points = 3
 priority_fee_basis_points = 0
 
 # LP PARAMETRER

@@ -5,6 +5,9 @@
 //! - `Arbitrageur` detects and executes arbitrage opportunities.
 
 use arbiter_core::bindings::liquid_exchange::LiquidExchangeEvents;
+use ethers::etherscan::contract;
+
+use crate::bindings::normal_strategy::NormalStrategyErrors;
 
 use super::*;
 
@@ -252,9 +255,9 @@ impl Arbitrageur {
 
                 match self
                     .atomic_arb
-                    .execute(
-                        self.arby_address,
+                    .execute_x_to_y(
                         self.arbx_address,
+                        self.arby_address,
                         self.portfolio.address(),
                         self.liquid_exchange.address(),
                         order,
@@ -266,7 +269,7 @@ impl Arbitrageur {
                     Ok(pending_tx) => {
                         info!("Portfolio swap successful");
                         let receipt = pending_tx.await?.unwrap();
-                        // The third log will be the `Swap` event.
+
                         Some(receipt.logs[8].clone())
                     }
                     Err(contract_error) => {
@@ -274,95 +277,34 @@ impl Arbitrageur {
                         return Ok(None);
                     }
                 }
-
-                /* self.liquid_exchange
-                    .swap(self.arby_address, le_input)
-                    .send()
-                    .await?
-                    .await?
-                    .unwrap();
-
-                // Now swap on Portfolio and return the logs
-                info!("Swapping ARBX for {} ARBY on Portfolio", order.output);
-                let res = self.portfolio_swap(order).await;
-                match res {
-                    Ok((logs, _)) => logs,
-                    Err(e) => {
-                        warn!("Portfolio swap failed: {:?}", e);
-                        return Ok(None);
-                    }
-                } */
             }
             SwapDirection::YToX(target_price) => {
                 let order = self.compute_order_input_y(target_price).await?;
                 info!("Swapping {} ARBY for ARBX on Portfolio", order.input);
-                // Make sure to get the updated output in the case we need to decrease it in the
-                // loop.
-                let res = self.portfolio_swap(order.clone()).await;
-
-                match res {
-                    Ok((logs, output)) => {
-                        let receipt = self
-                            .liquid_exchange
-                            .swap(self.arbx_address, U256::from(output))
-                            .send()
-                            .await?
-                            .await?;
-                        let le_logs = receipt.unwrap().logs[2].clone();
-                        let le_event = LiquidExchangeEvents::decode_log(&le_logs.into())?;
-                        if let LiquidExchangeEvents::SwapFilter(swap) = le_event {
-                            info!(
-                                "Swapping ARBX for {} ARBY on Liquid Exchange",
-                                swap.amount_out
-                            );
-                        }
-                        logs
+                match self
+                    .atomic_arb
+                    .execute_y_to_x(
+                        self.arbx_address,
+                        self.arby_address,
+                        self.portfolio.address(),
+                        self.liquid_exchange.address(),
+                        order,
+                    )
+                    .send()
+                    .await
+                {
+                    Ok(pending_tx) => {
+                        info!("Portfolio swap successful");
+                        let receipt = pending_tx.await?.unwrap();
+                        Some(receipt.logs[5].clone())
                     }
-                    Err(e) => {
-                        warn!("Portfolio swap failed: {:?}", e);
+                    Err(contract_error) => {
+                        warn!("Portfolio swap failed: {:?}", contract_error);
                         return Ok(None);
                     }
                 }
             }
         })
-    }
-
-    async fn portfolio_swap(&self, mut order: Order) -> Result<(Option<Log>, u128)> {
-        // Loop and decrease the output size until the swap succeeds (should not take
-        // many iterations, if any).
-        // This is necessary because of tiny math rounding errors that can occur in the
-        // Portfolio contract.
-        loop {
-            match self.portfolio.swap(order.clone()).send().await {
-                Ok(pending_tx) => {
-                    info!("Portfolio swap successful");
-                    let receipt = pending_tx.await?.unwrap();
-                    // The third log will be the `Swap` event.
-                    break Ok((Some(receipt.logs[2].clone()), order.output));
-                }
-                Err(contract_error) => {
-                    if let RevmMiddlewareError::ExecutionRevert {
-                        gas_used: _,
-                        output,
-                    } = contract_error.as_middleware_error().unwrap()
-                    {
-                        let error = PortfolioErrors::decode(output)?;
-                        warn!("Swap failed due to revert: {:?}", error);
-                        if let PortfolioErrors::Portfolio_InvalidInvariant(
-                            Portfolio_InvalidInvariant { prev: _, next: _ },
-                        ) = error
-                        {
-                            warn!("Shrinking order output size by 0.01%");
-                            order.output = order.output * 9999 / 10000;
-                            continue;
-                        } else {
-                            warn!("Got another error when swapping, continuing");
-                            break Err(anyhow::anyhow!("Swap failed due to revert: {:?}", error));
-                        }
-                    }
-                }
-            }
-        }
     }
 
     async fn compute_order_input_x(&self, target_price_wad: U256) -> Result<Order> {
@@ -428,11 +370,21 @@ impl Arbitrageur {
         let output = match output {
             Ok(output) => output,
             Err(contract_error) => {
-                warn!(
-                    "getAmountOut for y output failed due to revert: {:?}",
-                    contract_error
-                );
-
+                if let RevmMiddlewareError::ExecutionRevert {
+                    gas_used: _,
+                    output,
+                } = contract_error.as_middleware_error().unwrap()
+                {
+                    if let NormalStrategyErrors::NormalStrategyLib_LowerReserveYBoundNotReached(
+                        value,
+                    ) = NormalStrategyErrors::decode(output)?
+                    {
+                        warn!(
+                            "getAmountOut for x output failed due to revert: {:?}",
+                            value
+                        );
+                    }
+                }
                 U256::from(reserve_y - 1)
             }
         };
@@ -476,9 +428,6 @@ impl Arbitrageur {
             virtual_reserve_x, virtual_reserve_y
         );
 
-        let virtual_invariant = invariant * rescaling;
-        info!("Virtual invariant: {}", virtual_invariant);
-
         // Note that in our units here, sqrt(tau) = 1.
         // R2 = K CDF( ln( S / K ) / sigma - 0.5 * sigma) + k
         // S here is our target price and k is the invariant (not to be confused with K
@@ -520,11 +469,21 @@ impl Arbitrageur {
         let output = match output {
             Ok(output) => output,
             Err(contract_error) => {
-                warn!(
-                    "getAmountOut for x output failed due to revert: {:?}",
-                    contract_error
-                );
-
+                if let RevmMiddlewareError::ExecutionRevert {
+                    gas_used: _,
+                    output,
+                } = contract_error.as_middleware_error().unwrap()
+                {
+                    if let NormalStrategyErrors::NormalStrategyLib_LowerReserveXBoundNotReached(
+                        value,
+                    ) = NormalStrategyErrors::decode(output)?
+                    {
+                        warn!(
+                            "getAmountOut for x output failed due to revert: {:?}",
+                            value
+                        );
+                    }
+                }
                 U256::from(reserve_x - 1)
             }
         };
