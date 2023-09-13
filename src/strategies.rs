@@ -118,11 +118,9 @@ pub struct Arbitrageur {
     /// ARBY address.
     pub arby_address: Address,
 
+    pub pool_strategy: PoolStrategy,
+
     pub gamma_wad: U256,
-
-    pub k_iwad: I256,
-
-    pub sigma_iwad: I256,
 }
 
 impl Arbitrageur {
@@ -136,7 +134,7 @@ impl Arbitrageur {
         portfolio: Portfolio<RevmMiddleware>,
         arbiter_math: ArbiterMath<RevmMiddleware>,
         atomic_arb: AtomicArb<RevmMiddleware>,
-        portfolio_pool_parameters: PortfolioPoolParameters,
+        pool_strategy: PoolStrategy,
         pool_id: u64,
     ) -> Result<Self> {
         // Get the address from the `Client` attached to the `LiquidExchange` contract.
@@ -153,15 +151,14 @@ impl Arbitrageur {
             portfolio.get_spot_price(pool_id).call().await?,
         ];
 
-        // Compute the gamma parameter of the Portfolio pool in U256 WAD.
-        let gamma_wad = WAD - portfolio_pool_parameters.fee_basis_points as u128 * 10_u128.pow(14);
-
-        // Compute the strike price parameter of the Portfolio pool in I256 WAD.
-        let k_iwad = I256::from_raw(float_to_wad(portfolio_pool_parameters.strike_price));
-
-        // Compute the volatility parameter of the Portfolio pool in I256 WAD.
-        let sigma_iwad =
-            I256::from(portfolio_pool_parameters.volatility_basis_points as u64 * 10_u64.pow(14));
+        let gamma_wad = match pool_strategy.clone() {
+            PoolStrategy::Normal(strategy) => {
+                U256::from(strategy.fee_basis_points as u128 * 10_u128.pow(14))
+            }
+            PoolStrategy::GeometricMean(strategy) => {
+                U256::from(strategy.fee_basis_points as u128 * 10_u128.pow(14))
+            }
+        };
 
         Ok(Self {
             prices,
@@ -173,9 +170,8 @@ impl Arbitrageur {
             address,
             arbx_address,
             arby_address,
+            pool_strategy,
             gamma_wad,
-            k_iwad,
-            sigma_iwad,
         })
     }
 
