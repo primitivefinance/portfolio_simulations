@@ -3,7 +3,7 @@
 //! Contains the `SimulationOutput` struct which is used to collect data during
 //! the simulation and write it out to a CSV file for post processing.
 
-use arbiter_core::middleware::Connection;
+use arbiter_core::{middleware::Connection, bindings::liquid_exchange::LiquidExchangeEvents};
 use ethers::{
     providers::{FilterWatcher, StreamExt},
     types::Filter,
@@ -212,31 +212,27 @@ impl SimulationOutput {
 
 // ---
 
-pub struct EventCapture<'a>(Vec<FilterWatcher<'a, Connection, Log>>);
+pub struct EventCapture {
+    contract: LiquidExchange<RevmMiddleware>,
+}
 
-impl<'a> EventCapture<'static> {
+impl EventCapture {
     pub async fn new(
-        client: &Client,
-        liquid_exchange: &LiquidExchange<RevmMiddleware>,
-    ) -> EventCapture<'static> {
-        let mut events = vec![];
-        let client = Box::leak(Box::new(client.clone()));
-        events.push(client.watch(&Filter::default()).await.unwrap());
-        println!("created event watcher");
-        EventCapture(events)
+        client: Client,
+        address: Address,
+    ) -> Result<EventCapture> {
+        let contract = LiquidExchange::new(address, client.clone());
+        Ok(EventCapture { contract })
     }
 
-    pub async fn run(self) {
-        for mut event in self.0.into_iter() {
-            println!("spawning thread");
+    pub async fn run(&self) -> tokio::task::JoinHandle<()> {
+        let events = self.contract.events();
             tokio::spawn(async move {
-                println!("running event watcher");
-                while let Some(log) = event.next().await {
-                    println!("got here?");
-                    println!("Event: {:?}", log);
+                println!("Listening for events");
+                let mut stream = events.stream().await.unwrap();
+                while let Some(event) = stream.next().await {
+                    println!("Event: {:?}", event);
                 }
             })
-            .await;
         }
-    }
 }
