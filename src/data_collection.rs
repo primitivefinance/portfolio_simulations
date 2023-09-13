@@ -4,7 +4,10 @@
 //! the simulation and write it out to a CSV file for post processing.
 
 use arbiter_core::middleware::Connection;
-use ethers::providers::{FilterWatcher, StreamExt};
+use ethers::{
+    providers::{FilterWatcher, StreamExt},
+    types::Filter,
+};
 
 use super::*;
 
@@ -213,26 +216,27 @@ pub struct EventCapture<'a>(Vec<FilterWatcher<'a, Connection, Log>>);
 
 impl<'a> EventCapture<'static> {
     pub async fn new(
-        client: &'static Client,
-        liquid_exchange: &'static LiquidExchange<RevmMiddleware>,
+        client: &Client,
+        liquid_exchange: &LiquidExchange<RevmMiddleware>,
     ) -> EventCapture<'static> {
         let mut events = vec![];
-        events.push(
-            client
-                .watch(&liquid_exchange.swap_filter().filter)
-                .await
-                .unwrap(),
-        );
+        let client = Box::leak(Box::new(client.clone()));
+        events.push(client.watch(&Filter::default()).await.unwrap());
+        println!("created event watcher");
         EventCapture(events)
     }
 
     pub async fn run(self) {
         for mut event in self.0.into_iter() {
+            println!("spawning thread");
             tokio::spawn(async move {
+                println!("running event watcher");
                 while let Some(log) = event.next().await {
+                    println!("got here?");
                     println!("Event: {:?}", log);
                 }
-            });
+            })
+            .await;
         }
     }
 }

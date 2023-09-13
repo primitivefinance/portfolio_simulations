@@ -159,6 +159,10 @@ async fn main() -> Result<()> {
                     .update_output(&simulation_contracts, pool_id, arbitrageur.address, None)
                     .await?;
 
+                // Test the event listeners.
+                let event_capture = EventCapture::new(&admin, &liquid_exchange).await;
+                event_capture.run().await;
+
                 // Run the simulation.
                 run(
                     price_changer,
@@ -167,8 +171,7 @@ async fn main() -> Result<()> {
                     &mut simulation_output,
                 )
                 .await?;
-                let mut approval_watcher =
-                    admin.watch(&arbx.approval_filter().filter).await.unwrap();
+
                 // Stop the environment once the simulation completes.
                 manager.stop_environment(environment_parameters.label.clone())?;
 
