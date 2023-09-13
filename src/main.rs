@@ -167,7 +167,8 @@ async fn main() -> Result<()> {
                     &mut simulation_output,
                 )
                 .await?;
-
+                let mut approval_watcher =
+                    admin.watch(&arbx.approval_filter().filter).await.unwrap();
                 // Stop the environment once the simulation completes.
                 manager.stop_environment(environment_parameters.label.clone())?;
 

@@ -3,6 +3,9 @@
 //! Contains the `SimulationOutput` struct which is used to collect data during
 //! the simulation and write it out to a CSV file for post processing.
 
+use arbiter_core::middleware::Connection;
+use ethers::providers::{FilterWatcher, StreamExt};
+
 use super::*;
 
 /// The struct here is used to provide a collection for all the data we want to
@@ -201,5 +204,35 @@ impl SimulationOutput {
         writer.finish(&mut dataframe)?;
 
         Ok(())
+    }
+}
+
+// ---
+
+pub struct EventCapture<'a>(Vec<FilterWatcher<'a, Connection, Log>>);
+
+impl<'a> EventCapture<'static> {
+    pub async fn new(
+        client: &'static Client,
+        liquid_exchange: &'static LiquidExchange<RevmMiddleware>,
+    ) -> EventCapture<'static> {
+        let mut events = vec![];
+        events.push(
+            client
+                .watch(&liquid_exchange.swap_filter().filter)
+                .await
+                .unwrap(),
+        );
+        EventCapture(events)
+    }
+
+    pub async fn run(self) {
+        for mut event in self.0.into_iter() {
+            tokio::spawn(async move {
+                while let Some(log) = event.next().await {
+                    println!("Event: {:?}", log);
+                }
+            });
+        }
     }
 }
