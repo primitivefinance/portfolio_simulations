@@ -3,8 +3,11 @@
 //! Contains the `SimulationOutput` struct which is used to collect data during
 //! the simulation and write it out to a CSV file for post processing.
 
-use arbiter_core::{middleware::Connection, bindings::liquid_exchange::LiquidExchangeEvents};
+use std::fmt::Debug;
+
+use arbiter_core::{bindings::liquid_exchange::LiquidExchangeEvents, middleware::Connection};
 use ethers::{
+    contract::{EthLogDecode, Event},
     providers::{FilterWatcher, StreamExt},
     types::Filter,
 };
@@ -212,27 +215,63 @@ impl SimulationOutput {
 
 // ---
 
-pub struct EventCapture {
-    contract: LiquidExchange<RevmMiddleware>,
+pub struct EventCaptureBuilder<F: EthLogDecode + Debug> {
+    events: Vec<Event<Arc<RevmMiddleware>, RevmMiddleware, F>>,
+    running: bool,
 }
 
-impl EventCapture {
-    pub async fn new(
-        client: Client,
-        address: Address,
-    ) -> Result<EventCapture> {
-        let contract = LiquidExchange::new(address, client.clone());
-        Ok(EventCapture { contract })
+impl<F: EthLogDecode + Debug> EventCaptureBuilder<F> {
+    fn new() -> Self {
+        Self {
+            events: vec![],
+            running: false,
+        }
     }
 
-    pub async fn run(&self) -> tokio::task::JoinHandle<()> {
-        let events = self.contract.events();
-            tokio::spawn(async move {
+    pub fn with_event(mut self, event: Event<Arc<RevmMiddleware>, RevmMiddleware, F>) -> Self {
+        self.events.push(event);
+        self
+    }
+
+    pub fn with_events<E: Into<Vec<Event<Arc<RevmMiddleware>, RevmMiddleware, F>>>>(
+        mut self,
+        events: E,
+    ) -> Self {
+        self.events.extend(events.into());
+        self
+    }
+
+    pub fn build(self) -> Result<EventCapture<F>> {
+        Ok(EventCapture {
+            events: self.events,
+            running: self.running,
+        })
+    }
+}
+
+pub struct EventCapture<F: EthLogDecode + Debug + 'static> {
+    events: Vec<Event<Arc<RevmMiddleware>, RevmMiddleware, F>>,
+    running: bool,
+}
+
+impl<F: EthLogDecode + Debug> EventCapture<F> {
+    pub fn builder() -> EventCaptureBuilder<F> {
+        EventCaptureBuilder::new()
+    }
+
+    pub fn run(mut self) -> Vec<tokio::task::JoinHandle<()>> {
+        self.running = true;
+        let events = self.events;
+        let mut handles = vec![];
+        for event in events {
+            handles.push(tokio::spawn(async move {
                 println!("Listening for events");
-                let mut stream = events.stream().await.unwrap();
-                while let Some(event) = stream.next().await {
+                let mut stream = event.stream().await.unwrap();
+                while let Some(Ok(event)) = stream.next().await {
                     println!("Event: {:?}", event);
                 }
-            })
+            }));
         }
+        handles
+    }
 }

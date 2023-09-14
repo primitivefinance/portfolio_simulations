@@ -160,9 +160,10 @@ async fn main() -> Result<()> {
                     .await?;
 
                 // Test the event listeners.
-                let event_capture = EventCapture::new(admin.clone(), liquid_exchange.address()).await?;
-                let listener = event_capture.run().await;
-                
+                let event_capture = EventCapture::builder()
+                    .with_event(liquid_exchange.swap_filter())
+                    .build()?;
+                let listeners = event_capture.run();
 
                 let run_handle = tokio::spawn(async move {
                     // Run the simulation.
@@ -172,14 +173,19 @@ async fn main() -> Result<()> {
                         simulation_contracts,
                         &mut simulation_output,
                     )
-                    .await.unwrap();
+                    .await
+                    .unwrap();
                     // Stop the environment once the simulation completes.
-                    manager.stop_environment(environment_parameters.label.clone()).unwrap();
+                    manager
+                        .stop_environment(environment_parameters.label.clone())
+                        .unwrap();
                     let final_filename = format!("{}_{}", filename.clone(), index);
                     simulation_output.finalize(final_filename).unwrap();
-               });
-
-               tokio::join!(run_handle, listener);
+                });
+                run_handle.await?;
+                for listener in listeners {
+                    listener.await?;
+                }
 
                 // Print out the data collected to a CSV.
                 Ok(())
