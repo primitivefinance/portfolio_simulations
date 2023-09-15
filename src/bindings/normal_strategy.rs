@@ -1288,6 +1288,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1307,6 +1309,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1326,6 +1330,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1339,6 +1345,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1352,6 +1360,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1365,6 +1375,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1381,6 +1393,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1397,6 +1411,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1413,6 +1429,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1429,6 +1447,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1445,6 +1465,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1461,6 +1483,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1477,6 +1501,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1493,6 +1519,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1509,6 +1537,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1525,6 +1555,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1541,6 +1573,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1554,6 +1588,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1570,6 +1606,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1586,6 +1624,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1599,6 +1639,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -1608,7 +1650,16 @@ pub mod normal_strategy {
     #[etherror(name = "SwapLib_ZeroYAdjustment", abi = "SwapLib_ZeroYAdjustment()")]
     pub struct SwapLib_ZeroYAdjustment;
     ///Container type for all of the contract's custom errors
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        serde::Serialize,
+        serde::Deserialize,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub enum NormalStrategyErrors {
         BisectionLib_InvalidBounds(BisectionLib_InvalidBounds),
         BisectionLib_RootOutsideBounds(BisectionLib_RootOutsideBounds),
@@ -1648,127 +1699,112 @@ pub mod normal_strategy {
             data: impl AsRef<[u8]>,
         ) -> ::core::result::Result<Self, ::ethers::core::abi::AbiError> {
             let data = data.as_ref();
-            if let Ok(decoded)
-                = <::std::string::String as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <::std::string::String as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::RevertString(decoded));
             }
-            if let Ok(decoded)
-                = <BisectionLib_InvalidBounds as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <BisectionLib_InvalidBounds as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::BisectionLib_InvalidBounds(decoded));
             }
-            if let Ok(decoded)
-                = <BisectionLib_RootOutsideBounds as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <BisectionLib_RootOutsideBounds as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::BisectionLib_RootOutsideBounds(decoded));
             }
-            if let Ok(decoded)
-                = <Infinity as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <Infinity as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Infinity(decoded));
             }
             if let Ok(decoded) = <Min as ::ethers::core::abi::AbiDecode>::decode(data) {
                 return Ok(Self::Min(decoded));
             }
-            if let Ok(decoded)
-                = <NegativeInfinity as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <NegativeInfinity as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NegativeInfinity(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_ConfigExists as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_ConfigExists as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_ConfigExists(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_InvalidDuration as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_InvalidDuration as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_InvalidDuration(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_InvalidStrategyArgs as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_InvalidStrategyArgs as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_InvalidStrategyArgs(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_InvalidStrikePrice as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_InvalidStrikePrice as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_InvalidStrikePrice(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_InvalidVolatility as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_InvalidVolatility as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_InvalidVolatility(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_LowerReserveXBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_LowerReserveXBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_LowerReserveXBoundNotReached(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_LowerReserveYBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_LowerReserveYBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_LowerReserveYBoundNotReached(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_NonExpiringPool as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_NonExpiringPool as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_NonExpiringPool(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_UpperReserveXBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_UpperReserveXBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_UpperReserveXBoundNotReached(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategyLib_UpperReserveYBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategyLib_UpperReserveYBoundNotReached as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategyLib_UpperReserveYBoundNotReached(decoded));
             }
-            if let Ok(decoded)
-                = <NormalStrategy_NotPortfolio as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <NormalStrategy_NotPortfolio as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::NormalStrategy_NotPortfolio(decoded));
             }
-            if let Ok(decoded)
-                = <OutOfBounds as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <OutOfBounds as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::OutOfBounds(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_OutputExceedsReserves as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_OutputExceedsReserves as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_OutputExceedsReserves(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_ProtocolFeeTooHigh as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_ProtocolFeeTooHigh as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_ProtocolFeeTooHigh(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_ZeroXAdjustment as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_ZeroXAdjustment as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_ZeroXAdjustment(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_ZeroYAdjustment as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_ZeroYAdjustment as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_ZeroYAdjustment(decoded));
             }
             Err(::ethers::core::abi::Error::InvalidData.into())
@@ -2114,6 +2150,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2138,6 +2176,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2150,7 +2190,16 @@ pub mod normal_strategy {
         pub portfolio: ::ethers::core::types::Address,
     }
     ///Container type for all of the contract's events
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        serde::Serialize,
+        serde::Deserialize,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub enum NormalStrategyEvents {
         AfterCreateFilter(AfterCreateFilter),
         GenesisFilter(GenesisFilter),
@@ -2191,6 +2240,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2207,6 +2258,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2226,6 +2279,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2243,6 +2298,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2258,6 +2315,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2276,6 +2335,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2291,6 +2352,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2308,6 +2371,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2323,6 +2388,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2345,6 +2412,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2358,6 +2427,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2378,6 +2449,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2393,6 +2466,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2410,7 +2485,16 @@ pub mod normal_strategy {
         pub reserve_y: ::ethers::core::types::U256,
     }
     ///Container type for all of the contract's call
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        serde::Serialize,
+        serde::Deserialize,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub enum NormalStrategyCalls {
         AfterCreate(AfterCreateCall),
         ApproximateReservesGivenPrice(ApproximateReservesGivenPriceCall),
@@ -2431,58 +2515,69 @@ pub mod normal_strategy {
             data: impl AsRef<[u8]>,
         ) -> ::core::result::Result<Self, ::ethers::core::abi::AbiError> {
             let data = data.as_ref();
-            if let Ok(decoded)
-                = <AfterCreateCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <AfterCreateCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::AfterCreate(decoded));
             }
-            if let Ok(decoded)
-                = <ApproximateReservesGivenPriceCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <ApproximateReservesGivenPriceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ApproximateReservesGivenPrice(decoded));
             }
-            if let Ok(decoded)
-                = <BeforeSwapCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <BeforeSwapCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::BeforeSwap(decoded));
             }
-            if let Ok(decoded)
-                = <ConfigsCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <ConfigsCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Configs(decoded));
             }
-            if let Ok(decoded)
-                = <GetAmountOutCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetAmountOutCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetAmountOut(decoded));
             }
-            if let Ok(decoded)
-                = <GetInvariantCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetInvariantCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetInvariant(decoded));
             }
-            if let Ok(decoded)
-                = <GetMaxOrderCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetMaxOrderCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetMaxOrder(decoded));
             }
-            if let Ok(decoded)
-                = <GetSpotPriceCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetSpotPriceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetSpotPrice(decoded));
             }
-            if let Ok(decoded)
-                = <GetStrategyDataCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetStrategyDataCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetStrategyData(decoded));
             }
-            if let Ok(decoded)
-                = <PortfolioCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <PortfolioCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio(decoded));
             }
-            if let Ok(decoded)
-                = <SimulateSwapCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <SimulateSwapCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SimulateSwap(decoded));
             }
-            if let Ok(decoded)
-                = <ValidatePoolCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <ValidatePoolCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ValidatePool(decoded));
             }
-            if let Ok(decoded)
-                = <ValidateSwapCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <ValidateSwapCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ValidateSwap(decoded));
             }
             Err(::ethers::core::abi::Error::InvalidData.into())
@@ -2623,6 +2718,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2637,6 +2734,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2652,6 +2751,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2664,6 +2765,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2682,6 +2785,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2696,6 +2801,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2710,6 +2817,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2722,6 +2831,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2736,6 +2847,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2752,6 +2865,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2764,6 +2879,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2780,6 +2897,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -2792,6 +2911,8 @@ pub mod normal_strategy {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,

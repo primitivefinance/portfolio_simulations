@@ -3435,6 +3435,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3448,6 +3450,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3467,6 +3471,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3480,6 +3486,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3493,6 +3501,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3506,6 +3516,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3522,6 +3534,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3535,6 +3549,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3548,6 +3564,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3564,6 +3582,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3577,6 +3597,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3590,6 +3612,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3603,6 +3627,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3622,6 +3648,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3638,6 +3666,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3656,6 +3686,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3675,6 +3707,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3691,6 +3725,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3707,6 +3743,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3722,6 +3760,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3740,6 +3780,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3756,6 +3798,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3772,6 +3816,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3788,6 +3834,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3804,6 +3852,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3820,6 +3870,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3836,6 +3888,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3854,6 +3908,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3867,6 +3923,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3882,6 +3940,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3898,6 +3958,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3914,6 +3976,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3930,6 +3994,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3943,6 +4009,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3959,6 +4027,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3972,6 +4042,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -3988,6 +4060,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -4004,6 +4078,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -4017,6 +4093,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -4030,6 +4108,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -4043,6 +4123,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthError,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -4052,7 +4134,16 @@ pub mod portfolio {
     #[etherror(name = "TokenTransferFrom", abi = "TokenTransferFrom()")]
     pub struct TokenTransferFrom;
     ///Container type for all of the contract's custom errors
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        serde::Serialize,
+        serde::Deserialize,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub enum PortfolioErrors {
         EtherTransfer(EtherTransfer),
         InsufficientReserve(InsufficientReserve),
@@ -4104,242 +4195,214 @@ pub mod portfolio {
             data: impl AsRef<[u8]>,
         ) -> ::core::result::Result<Self, ::ethers::core::abi::AbiError> {
             let data = data.as_ref();
-            if let Ok(decoded)
-                = <::std::string::String as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <::std::string::String as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::RevertString(decoded));
             }
-            if let Ok(decoded)
-                = <EtherTransfer as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <EtherTransfer as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::EtherTransfer(decoded));
             }
-            if let Ok(decoded)
-                = <InsufficientReserve as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <InsufficientReserve as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::InsufficientReserve(decoded));
             }
-            if let Ok(decoded)
-                = <InvalidBalance as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <InvalidBalance as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::InvalidBalance(decoded));
             }
-            if let Ok(decoded)
-                = <PoolLib_AlreadyCreated as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <PoolLib_AlreadyCreated as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PoolLib_AlreadyCreated(decoded));
             }
-            if let Ok(decoded)
-                = <PoolLib_InvalidFee as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <PoolLib_InvalidFee as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PoolLib_InvalidFee(decoded));
             }
-            if let Ok(decoded)
-                = <PoolLib_InvalidPriorityFee as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <PoolLib_InvalidPriorityFee as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PoolLib_InvalidPriorityFee(decoded));
             }
-            if let Ok(decoded)
-                = <PoolLib_InvalidReserveX as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <PoolLib_InvalidReserveX as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PoolLib_InvalidReserveX(decoded));
             }
-            if let Ok(decoded)
-                = <PoolLib_InvalidReserveY as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <PoolLib_InvalidReserveY as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PoolLib_InvalidReserveY(decoded));
             }
-            if let Ok(decoded)
-                = <PoolLib_UpperLiquidityLimit as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <PoolLib_UpperLiquidityLimit as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PoolLib_UpperLiquidityLimit(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_AfterCreateFail as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_AfterCreateFail as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_AfterCreateFail(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_BeforeSwapFail as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_BeforeSwapFail as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_BeforeSwapFail(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_DuplicateToken as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_DuplicateToken as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_DuplicateToken(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_Insolvent as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <Portfolio_Insolvent as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_Insolvent(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InsufficientLiquidity as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InsufficientLiquidity as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InsufficientLiquidity(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidDecimals as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidDecimals as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidDecimals(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidInvariant as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidInvariant as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidInvariant(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidMulticall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidMulticall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidMulticall(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidPairNonce as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidPairNonce as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidPairNonce(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidPool as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidPool as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidPool(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidProtocolFee as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidProtocolFee as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidProtocolFee(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidReentrancy as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidReentrancy as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidReentrancy(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_InvalidSettlement as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_InvalidSettlement as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_InvalidSettlement(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_MaxAssetExceeded as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_MaxAssetExceeded as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_MaxAssetExceeded(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_MaxQuoteExceeded as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_MaxQuoteExceeded as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_MaxQuoteExceeded(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_MinAssetExceeded as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_MinAssetExceeded as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_MinAssetExceeded(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_MinQuoteExceeded as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_MinQuoteExceeded as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_MinQuoteExceeded(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_NonExistentPool as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_NonExistentPool as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_NonExistentPool(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_NotController as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_NotController as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_NotController(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_PairExists as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_PairExists as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_PairExists(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_ZeroAmountsAllocate as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_ZeroAmountsAllocate as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_ZeroAmountsAllocate(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_ZeroLiquidityAllocate as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_ZeroLiquidityAllocate as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_ZeroLiquidityAllocate(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_ZeroLiquidityDeallocate as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_ZeroLiquidityDeallocate as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_ZeroLiquidityDeallocate(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_ZeroSwapInput as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_ZeroSwapInput as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_ZeroSwapInput(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_ZeroSwapLiquidity as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_ZeroSwapLiquidity as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_ZeroSwapLiquidity(decoded));
             }
-            if let Ok(decoded)
-                = <Portfolio_ZeroSwapOutput as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <Portfolio_ZeroSwapOutput as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Portfolio_ZeroSwapOutput(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_OutputExceedsReserves as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_OutputExceedsReserves as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_OutputExceedsReserves(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_ProtocolFeeTooHigh as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_ProtocolFeeTooHigh as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_ProtocolFeeTooHigh(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_ZeroXAdjustment as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_ZeroXAdjustment as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_ZeroXAdjustment(decoded));
             }
-            if let Ok(decoded)
-                = <SwapLib_ZeroYAdjustment as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SwapLib_ZeroYAdjustment as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SwapLib_ZeroYAdjustment(decoded));
             }
-            if let Ok(decoded)
-                = <TokenTransfer as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <TokenTransfer as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::TokenTransfer(decoded));
             }
-            if let Ok(decoded)
-                = <TokenTransferFrom as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <TokenTransferFrom as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::TokenTransferFrom(decoded));
             }
             Err(::ethers::core::abi::Error::InvalidData.into())
@@ -4983,6 +5046,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5008,6 +5073,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5026,6 +5093,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5048,6 +5117,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5064,6 +5135,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5088,6 +5161,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5116,6 +5191,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5141,6 +5218,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5160,6 +5239,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5176,6 +5257,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5195,6 +5278,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5222,6 +5307,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5246,6 +5333,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5270,6 +5359,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5286,6 +5377,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthEvent,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5298,7 +5391,16 @@ pub mod portfolio {
         pub next_fee: ::ethers::core::types::U256,
     }
     ///Container type for all of the contract's events
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        serde::Serialize,
+        serde::Deserialize,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub enum PortfolioEvents {
         AllocateFilter(AllocateFilter),
         ApprovalForAllFilter(ApprovalForAllFilter),
@@ -5483,6 +5585,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5496,6 +5600,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5509,6 +5615,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5522,6 +5630,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5535,6 +5645,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5548,6 +5660,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5571,6 +5685,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5587,6 +5703,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5603,6 +5721,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5620,6 +5740,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5636,6 +5758,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5652,6 +5776,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5677,6 +5803,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5699,6 +5827,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5717,6 +5847,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5732,6 +5864,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5748,6 +5882,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5765,6 +5901,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5782,6 +5920,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5797,6 +5937,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5813,6 +5955,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5826,6 +5970,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5839,6 +5985,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5854,6 +6002,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5869,6 +6019,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5884,6 +6036,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5899,6 +6053,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5915,6 +6071,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5930,6 +6088,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5943,6 +6103,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5956,6 +6118,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5969,6 +6133,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -5982,6 +6148,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6004,6 +6172,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6026,6 +6196,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6042,6 +6214,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6057,6 +6231,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6077,6 +6253,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6092,6 +6270,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6107,6 +6287,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthCall,
         ::ethers::contract::EthDisplay,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6118,7 +6300,16 @@ pub mod portfolio {
         pub id: ::ethers::core::types::U256,
     }
     ///Container type for all of the contract's call
-    #[derive(Clone, ::ethers::contract::EthAbiType, Debug, PartialEq, Eq, Hash)]
+    #[derive(
+        Clone,
+        ::ethers::contract::EthAbiType,
+        serde::Serialize,
+        serde::Deserialize,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash
+    )]
     pub enum PortfolioCalls {
         DefaultStrategy(DefaultStrategyCall),
         PositionRenderer(PositionRendererCall),
@@ -6166,180 +6357,204 @@ pub mod portfolio {
             data: impl AsRef<[u8]>,
         ) -> ::core::result::Result<Self, ::ethers::core::abi::AbiError> {
             let data = data.as_ref();
-            if let Ok(decoded)
-                = <DefaultStrategyCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <DefaultStrategyCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::DefaultStrategy(decoded));
             }
-            if let Ok(decoded)
-                = <PositionRendererCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <PositionRendererCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::PositionRenderer(decoded));
             }
-            if let Ok(decoded)
-                = <RegistryCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <RegistryCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Registry(decoded));
             }
-            if let Ok(decoded)
-                = <VersionCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <VersionCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Version(decoded));
             }
-            if let Ok(decoded)
-                = <WethCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <WethCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Weth(decoded));
             }
-            if let Ok(decoded)
-                = <AllocateCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <AllocateCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Allocate(decoded));
             }
-            if let Ok(decoded)
-                = <BalanceOfCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <BalanceOfCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::BalanceOf(decoded));
             }
-            if let Ok(decoded)
-                = <BalanceOfBatchCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <BalanceOfBatchCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::BalanceOfBatch(decoded));
             }
-            if let Ok(decoded)
-                = <ChangeParametersCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <ChangeParametersCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ChangeParameters(decoded));
             }
-            if let Ok(decoded)
-                = <ClaimFeeCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <ClaimFeeCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ClaimFee(decoded));
             }
-            if let Ok(decoded)
-                = <CreatePairCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <CreatePairCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::CreatePair(decoded));
             }
-            if let Ok(decoded)
-                = <CreatePoolCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <CreatePoolCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::CreatePool(decoded));
             }
-            if let Ok(decoded)
-                = <DeallocateCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <DeallocateCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Deallocate(decoded));
             }
-            if let Ok(decoded)
-                = <GetAmountOutCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetAmountOutCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetAmountOut(decoded));
             }
-            if let Ok(decoded)
-                = <GetInvariantCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetInvariantCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetInvariant(decoded));
             }
-            if let Ok(decoded)
-                = <GetLiquidityDeltasCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <GetLiquidityDeltasCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetLiquidityDeltas(decoded));
             }
-            if let Ok(decoded)
-                = <GetMaxLiquidityCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetMaxLiquidityCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetMaxLiquidity(decoded));
             }
-            if let Ok(decoded)
-                = <GetMaxOrderCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetMaxOrderCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetMaxOrder(decoded));
             }
-            if let Ok(decoded)
-                = <GetNetBalanceCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetNetBalanceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetNetBalance(decoded));
             }
-            if let Ok(decoded)
-                = <GetPairIdCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetPairIdCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetPairId(decoded));
             }
-            if let Ok(decoded)
-                = <GetPairNonceCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetPairNonceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetPairNonce(decoded));
             }
-            if let Ok(decoded)
-                = <GetPoolNonceCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetPoolNonceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetPoolNonce(decoded));
             }
-            if let Ok(decoded)
-                = <GetPoolReservesCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetPoolReservesCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetPoolReserves(decoded));
             }
-            if let Ok(decoded)
-                = <GetReserveCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetReserveCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetReserve(decoded));
             }
-            if let Ok(decoded)
-                = <GetSpotPriceCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetSpotPriceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetSpotPrice(decoded));
             }
-            if let Ok(decoded)
-                = <GetStrategyCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <GetStrategyCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::GetStrategy(decoded));
             }
-            if let Ok(decoded)
-                = <IsApprovedForAllCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <IsApprovedForAllCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::IsApprovedForAll(decoded));
             }
-            if let Ok(decoded)
-                = <MulticallCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <MulticallCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Multicall(decoded));
             }
-            if let Ok(decoded)
-                = <PairsCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <PairsCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Pairs(decoded));
             }
-            if let Ok(decoded)
-                = <PoolsCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <PoolsCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Pools(decoded));
             }
-            if let Ok(decoded)
-                = <ProtocolFeeCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <ProtocolFeeCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ProtocolFee(decoded));
             }
-            if let Ok(decoded)
-                = <ProtocolFeesCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <ProtocolFeesCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::ProtocolFees(decoded));
             }
-            if let Ok(decoded)
-                = <SafeBatchTransferFromCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SafeBatchTransferFromCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SafeBatchTransferFrom(decoded));
             }
-            if let Ok(decoded)
-                = <SafeTransferFromCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SafeTransferFromCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SafeTransferFrom(decoded));
             }
-            if let Ok(decoded)
-                = <SetApprovalForAllCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SetApprovalForAllCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SetApprovalForAll(decoded));
             }
-            if let Ok(decoded)
-                = <SetProtocolFeeCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <SetProtocolFeeCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SetProtocolFee(decoded));
             }
-            if let Ok(decoded)
-                = <SimulateSwapCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <SimulateSwapCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SimulateSwap(decoded));
             }
-            if let Ok(decoded)
-                = <SupportsInterfaceCall as ::ethers::core::abi::AbiDecode>::decode(
-                    data,
-                ) {
+            if let Ok(decoded) = <SupportsInterfaceCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::SupportsInterface(decoded));
             }
-            if let Ok(decoded)
-                = <SwapCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <SwapCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Swap(decoded));
             }
-            if let Ok(decoded)
-                = <UriCall as ::ethers::core::abi::AbiDecode>::decode(data) {
+            if let Ok(decoded) = <UriCall as ::ethers::core::abi::AbiDecode>::decode(
+                data,
+            ) {
                 return Ok(Self::Uri(decoded));
             }
             Err(::ethers::core::abi::Error::InvalidData.into())
@@ -6714,6 +6929,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6726,6 +6943,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6738,6 +6957,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6750,6 +6971,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6762,6 +6985,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6774,6 +6999,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6789,6 +7016,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6801,6 +7030,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6815,6 +7046,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6829,6 +7062,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6843,6 +7078,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6858,6 +7095,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6872,6 +7111,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6884,6 +7125,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6899,6 +7142,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6913,6 +7158,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6925,6 +7172,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6937,6 +7186,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6949,6 +7200,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6961,6 +7214,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6973,6 +7228,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -6988,6 +7245,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7000,6 +7259,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7014,6 +7275,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7026,6 +7289,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7038,6 +7303,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7052,6 +7319,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7069,6 +7338,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7090,6 +7361,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7102,6 +7375,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7114,6 +7389,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7130,6 +7407,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7142,6 +7421,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,
@@ -7158,6 +7439,8 @@ pub mod portfolio {
         Clone,
         ::ethers::contract::EthAbiType,
         ::ethers::contract::EthAbiCodec,
+        serde::Serialize,
+        serde::Deserialize,
         Default,
         Debug,
         PartialEq,

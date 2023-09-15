@@ -3,6 +3,8 @@
     Clone,
     ::ethers::contract::EthAbiType,
     ::ethers::contract::EthAbiCodec,
+    serde::Serialize,
+    serde::Deserialize,
     Default,
     Debug,
     PartialEq,

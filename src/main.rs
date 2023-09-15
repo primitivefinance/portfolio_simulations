@@ -161,7 +161,7 @@ async fn main() -> Result<()> {
 
                 // Test the event listeners.
                 let event_capture = EventCapture::builder()
-                    .with_event(liquid_exchange.swap_filter())
+                    .with_event(portfolio.swap_filter())
                     .build()?;
                 let listeners = event_capture.run();
 

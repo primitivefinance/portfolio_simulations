@@ -4,10 +4,12 @@
 //! the simulation and write it out to a CSV file for post processing.
 
 use std::fmt::Debug;
+use std::sync::Mutex;
+use std::{any::type_name, collections::HashMap};
 
 use arbiter_core::{bindings::liquid_exchange::LiquidExchangeEvents, middleware::Connection};
 use ethers::{
-    contract::{EthLogDecode, Event},
+    contract::{EthEvent, EthLogDecode, Event},
     providers::{FilterWatcher, StreamExt},
     types::Filter,
 };
@@ -215,17 +217,13 @@ impl SimulationOutput {
 
 // ---
 
-pub struct EventCaptureBuilder<F: EthLogDecode + Debug> {
+pub struct EventCaptureBuilder<F: EthEvent + EthLogDecode + Debug> {
     events: Vec<Event<Arc<RevmMiddleware>, RevmMiddleware, F>>,
-    running: bool,
 }
 
-impl<F: EthLogDecode + Debug> EventCaptureBuilder<F> {
+impl<F: EthEvent + EthLogDecode + Debug> EventCaptureBuilder<F> {
     fn new() -> Self {
-        Self {
-            events: vec![],
-            running: false,
-        }
+        Self { events: vec![] }
     }
 
     pub fn with_event(mut self, event: Event<Arc<RevmMiddleware>, RevmMiddleware, F>) -> Self {
@@ -244,32 +242,55 @@ impl<F: EthLogDecode + Debug> EventCaptureBuilder<F> {
     pub fn build(self) -> Result<EventCapture<F>> {
         Ok(EventCapture {
             events: self.events,
-            running: self.running,
+            capture: Arc::new(tokio::sync::Mutex::new(BTreeMap::new())),
+            running: false,
         })
     }
 }
 
-pub struct EventCapture<F: EthLogDecode + Debug + 'static> {
+pub struct EventCapture<F: EthEvent + EthLogDecode + Debug + 'static> {
     events: Vec<Event<Arc<RevmMiddleware>, RevmMiddleware, F>>,
+    capture: Arc<tokio::sync::Mutex<BTreeMap<String, Vec<BTreeMap<String, Value>>>>>,
     running: bool,
 }
 
-impl<F: EthLogDecode + Debug> EventCapture<F> {
+impl<F: Serialize + EthEvent + EthLogDecode + Debug> EventCapture<F> {
     pub fn builder() -> EventCaptureBuilder<F> {
         EventCaptureBuilder::new()
     }
 
-    pub fn run(mut self) -> Vec<tokio::task::JoinHandle<()>> {
+    pub fn run(mut self) -> Vec<tokio::task::JoinHandle<Result<()>>> {
         self.running = true;
         let events = self.events;
         let mut handles = vec![];
         for event in events {
+            let capture = self.capture.clone();
             handles.push(tokio::spawn(async move {
                 println!("Listening for events");
                 let mut stream = event.stream().await.unwrap();
-                while let Some(Ok(event)) = stream.next().await {
-                    println!("Event: {:?}", event);
+                // Take the first event to initialize the capture.
+                if let Some(Ok(event)) = stream.next().await {
+                    let name = type_name::<F>().to_owned();
+                    let serialized = serde_json::to_string(&event)?;
+                    let deserialized: BTreeMap<String, Value> = serde_json::from_str(&serialized)?;
+                    capture
+                        .lock()
+                        .await
+                        .insert(name, vec![deserialized.clone()]);
                 }
+                while let Some(Ok(event)) = stream.next().await {
+                    let name = type_name::<F>().to_owned();
+                    let serialized = serde_json::to_string(&event)?;
+                    let deserialized: BTreeMap<String, Value> = serde_json::from_str(&serialized)?;
+                    capture
+                        .lock()
+                        .await
+                        .get_mut(&name)
+                        .unwrap()
+                        .push(deserialized);
+                    println!("capture: {:#?}", capture.lock().await);
+                }
+                Ok(())
             }));
         }
         handles
