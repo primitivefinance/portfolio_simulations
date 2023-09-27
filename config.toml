@@ -1,7 +1,11 @@
 [environment_parameters]
+gas_settings = "UserControlled"
 label = "portfolio" 
+[environment_parameters.block_settings.RandomlySampled]
 block_rate = 10.0
+block_time = 15
 seed = 0
+
 
 [price_process_parameters]
 # The following constants are used to configure the Ornstein-Uhlenbeck process

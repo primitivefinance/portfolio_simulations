@@ -55,10 +55,10 @@ pub fn initialize(
             .get(&environment_parameters.label.clone())
             .unwrap(),
         Some(ADMIN_LABEL.to_string()),
-    ));
+    )?);
     info!(
         "Admin client with address {:?}",
-        admin.default_sender().unwrap()
+        admin.address()
     );
     manager.start_environment(environment_parameters.label.clone())?;
 
@@ -69,10 +69,10 @@ pub fn initialize(
             .get(&environment_parameters.label)
             .unwrap(),
         Some(ARBITRAGEUR_LABEL.to_string()),
-    ));
+    )?);
     info!(
         "Arbitrageur client with address {:?}",
-        arbitrageur.default_sender().unwrap()
+        arbitrageur.address()
     );
 
     Ok((manager, admin, arbitrageur))
