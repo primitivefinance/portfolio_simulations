@@ -66,7 +66,6 @@ async fn main() -> Result<()> {
 
     // Read from the config file.
     let configs_with_filenames = parse_config()?;
-
     for config_with_filename in configs_with_filenames {
         let config = config_with_filename.0;
         let mut handles: Vec<JoinHandle<Result<()>>> = vec![];
@@ -92,7 +91,6 @@ async fn main() -> Result<()> {
                 // Initialize the manager with a single environment and the admin and
                 // arbitrageur clients.
                 let (mut manager, admin, arbitrageur) = initialize(environment_parameters.clone())?;
-
                 // Deploy the contracts that we need for the simulation.
                 let simulation_contracts = deploy_contracts(
                     admin.clone(),

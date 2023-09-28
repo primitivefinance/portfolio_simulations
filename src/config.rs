@@ -50,11 +50,8 @@ pub fn read_config() -> Result<SimulationConfig> {
 }
 
 pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
-    println!("Parsing config file...");
     let simulation_config = read_config()?;
     let mut configs_with_filenames = vec![];
-    println!("{:#?}", simulation_config);
-    println!("Read config worked Sweeping over variables...");
     if let Some(sweep_parameters) = simulation_config
         .simulation_parameters
         .sweep_parameters
@@ -110,7 +107,6 @@ pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
         let filename = simulation_config.clone().environment_parameters.label;
         configs_with_filenames.push((simulation_config, filename));
     }
-    println!("Finished parsing config file.");
     Ok(configs_with_filenames)
 }
 

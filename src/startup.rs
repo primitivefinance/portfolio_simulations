@@ -47,6 +47,7 @@ pub fn initialize(
     // Create a manager and single environment using our predefined constants.
     let mut manager = Manager::new();
     manager.add_environment(environment_parameters.clone())?;
+    manager.start_environment(environment_parameters.label.clone())?;
 
     // Create the admin client with our predefined constants.
     let admin = Arc::new(RevmMiddleware::new(
@@ -60,8 +61,6 @@ pub fn initialize(
         "Admin client with address {:?}",
         admin.address()
     );
-    manager.start_environment(environment_parameters.label.clone())?;
-
     // Create the arbitrageur client using our predefined constants.
     let arbitrageur = Arc::new(RevmMiddleware::new(
         manager
@@ -74,7 +73,6 @@ pub fn initialize(
         "Arbitrageur client with address {:?}",
         arbitrageur.address()
     );
-
     Ok((manager, admin, arbitrageur))
 }
 
