@@ -38,10 +38,7 @@ use tokio::task::JoinHandle;
 use crate::bindings::{
     atomic_arb::AtomicArb,
     normal_strategy::NormalStrategy,
-    portfolio::{
-        AllocateCall, CreatePoolCall, Portfolio, PortfolioErrors, PortfolioEvents,
-        Portfolio_InvalidInvariant,
-    },
+    portfolio::{AllocateCall, CreatePoolCall, Portfolio, PortfolioEvents},
     shared_types::Order,
     weth::WETH,
 };

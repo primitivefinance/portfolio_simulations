@@ -110,7 +110,6 @@ pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
     Ok(configs_with_filenames)
 }
 
-
 fn linspace(start: f64, end: f64, num_points: usize) -> Vec<f64> {
     let step = (end - start) / (num_points as f64 - 1.0);
     (0..num_points).map(|i| start + step * i as f64).collect()

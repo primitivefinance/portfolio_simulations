@@ -57,10 +57,7 @@ pub fn initialize(
             .unwrap(),
         Some(ADMIN_LABEL.to_string()),
     )?);
-    info!(
-        "Admin client with address {:?}",
-        admin.address()
-    );
+    info!("Admin client with address {:?}", admin.address());
     // Create the arbitrageur client using our predefined constants.
     let arbitrageur = Arc::new(RevmMiddleware::new(
         manager
