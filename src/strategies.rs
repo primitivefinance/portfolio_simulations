@@ -4,9 +4,6 @@
 //! - `PriceChanger` updates the price of the `LiquidExchange` contract.
 //! - `Arbitrageur` detects and executes arbitrage opportunities.
 
-use arbiter_core::bindings::liquid_exchange::LiquidExchangeEvents;
-use ethers::etherscan::contract;
-
 use crate::bindings::normal_strategy::NormalStrategyErrors;
 
 use super::*;
