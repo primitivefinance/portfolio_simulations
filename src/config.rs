@@ -52,7 +52,6 @@ pub fn read_config() -> Result<SimulationConfig> {
 pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
     let simulation_config = read_config()?;
     let mut configs_with_filenames = vec![];
-
     if let Some(sweep_parameters) = simulation_config
         .simulation_parameters
         .sweep_parameters
@@ -108,10 +107,8 @@ pub fn parse_config() -> Result<Vec<(SimulationConfig, String)>> {
         let filename = simulation_config.clone().environment_parameters.label;
         configs_with_filenames.push((simulation_config, filename));
     }
-
     Ok(configs_with_filenames)
 }
-
 
 fn linspace(start: f64, end: f64, num_points: usize) -> Vec<f64> {
     let step = (end - start) / (num_points as f64 - 1.0);

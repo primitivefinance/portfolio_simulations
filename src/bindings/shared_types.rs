@@ -7,7 +7,7 @@
     Debug,
     PartialEq,
     Eq,
-    Hash
+    Hash,
 )]
 pub struct Order {
     pub input: u128,
